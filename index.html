@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Decks Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 1.8em;
+        }
+
+        .breadcrumb {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .breadcrumb button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 0 5px;
+            text-decoration: underline;
+        }
+
+        .breadcrumb button:hover {
+            color: #764ba2;
+        }
+
+        .breadcrumb span {
+            margin: 0 5px;
+            color: #999;
+        }
+
+        /* SEMESTER SELECTOR VIEW */
+        .semester-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .semester-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .semester-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .semester-card h2 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .course-count {
+            color: #999;
+            font-size: 0.95em;
+        }
+
+        /* COURSE VIEW */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .course-card h3 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .exam-count {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        /* EXAM VIEW */
+        .exam-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .exam-header {
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .exam-header h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .exam-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .stat-block h4 {
+            color: #999;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .stat-block .grade {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .stat-block .notes-label {
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+
+        .stat-block .notes-text {
+            color: #555;
+            line-height: 1.6;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        /* DECKS GRID */
+        .decks-section h3 {
+            color: #333;
+            margin: 30px 0 20px 0;
+            font-size: 1.3em;
+        }
+
+        .decks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .deck-card {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 25px;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        .deck-card:hover {
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .deck-card h4 {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .lecture-name {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .deck-notes-label {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .deck-notes {
+            color: #555;
+            font-size: 0.9em;
+            line-height: 1.5;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+
+        .deck-controls {
+            display: grid;
+            gap: 12px;
+        }
+
+        .control-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-label {
+            font-size: 0.8em;
+            color: #999;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, input[type="date"], input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: inherit;
+        }
+
+        select:focus, input[type="date"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .deck-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            text-align: center;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .deck-link:hover {
+            background: #764ba2;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        /* HIDDEN VIEWS */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .back-button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .back-button:hover {
+            background: #764ba2;
+        }
+
+        /* EDIT MODE */
+        .edit-toggle {
+            background: #28a745;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .edit-toggle:hover {
+            background: #218838;
+        }
+
+        .edit-toggle.active {
+            background: #dc3545;
+        }
+
+        /* EDIT BUTTONS */
+        .edit-btn, .delete-btn, .add-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .edit-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            opacity: 0.8;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            opacity: 0.8;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 16px;
+            margin-top: 20px;
+        }
+
+        .add-btn:hover {
+            opacity: 0.8;
+        }
+
+        .edit-controls {
+            display: none;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .edit-controls.visible {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95em;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .modal-buttons .cancel {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .modal-buttons .submit {
+            background: #667eea;
+            color: white;
+        }
+
+        /* EDITABLE FIELDS */
+        .editable-field {
+            position: relative;
+        }
+
+        .editable-field.edit-mode {
+            background: #f0f5ff;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .editable-field.edit-mode input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #667eea;
+            border-radius: 4px;
+        }
+
+        /* SEMESTER/COURSE CARDS IN EDIT MODE */
+        .semester-card.edit-mode, .course-card.edit-mode {
+            border: 2px dashed #667eea;
+            position: relative;
+        }
+
+        .card-edit-controls {
+            display: none;
+            gap: 8px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .card-edit-controls.visible {
+            display: flex;
+        }
+
+        .semester-card.edit-mode .card-edit-controls,
+        .course-card.edit-mode .card-edit-controls {
+            display: flex !important;
+        }
+
+        /* HIDDEN IN VIEW MODE */
+        .edit-only {
+            display: none;
+        }
+
+        body.edit-mode .edit-only {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Study Decks</h1>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <button id="editToggle" class="edit-toggle" onclick="toggleEditMode()">✏️ Edit Mode</button>
+                <div class="breadcrumb" id="breadcrumb"></div>
+            </div>
+        </div>
+
+        <!-- SEMESTER VIEW -->
+        <div id="semesterView" class="view active">
+            <div class="semester-grid" id="semesterGrid"></div>
+        </div>
+
+        <!-- COURSE VIEW -->
+        <div id="courseView" class="view">
+            <button class="back-button" onclick="showView('semester')">← Back to Semesters</button>
+            <div class="course-grid" id="courseGrid"></div>
+        </div>
+
+        <!-- EXAM & DECKS VIEW -->
+        <div id="examView" class="view">
+            <button class="back-button" onclick="goBack()">← Back</button>
+            <div id="examContent"></div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="addSemesterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add Semester</div>
+            <div class="form-group">
+                <label>Semester Name</label>
+                <input type="text" id="semesterInput" placeholder="e.g., Spring 2027">
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel" onclick="closeModal('addSemesterModal')">Cancel</button>
+                <button class="submit" onclick="submitAddSemester()">Add Semester</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addCourseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add Course</div>
+            <div class="form-group">
+                <label>Course Code</label>
+                <input type="text" id="courseInput" placeholder="e.g., ANAT 7107">
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel" onclick="closeModal('addCourseModal')">Cancel</button>
+                <button class="submit" onclick="submitAddCourse()">Add Course</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addExamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add Exam</div>
+            <div class="form-group">
+                <label>Exam Number</label>
+                <input type="number" id="examNumberInput" placeholder="e.g., 1" min="1">
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel" onclick="closeModal('addExamModal')">Cancel</button>
+                <button class="submit" onclick="submitAddExam()">Add Exam</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // ==========================================
+        // EDIT MODE STATE
+        // ==========================================
+        let isEditMode = false;
+        let currentView = 'semester'; // 'semester', 'course', or 'exam'
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            document.body.classList.toggle('edit-mode', isEditMode);
+            document.getElementById('editToggle').classList.toggle('active', isEditMode);
+            
+            // Re-render current view based on which view is active
+            if (currentView === 'semester') renderSemesters();
+            else if (currentView === 'course') renderCourses();
+            else if (currentView === 'exam') renderExams();
+        }
+
+        // ==========================================
+        // MODAL FUNCTIONS
+        // ==========================================
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            // Clear inputs
+            document.querySelectorAll('.modal input, .modal textarea').forEach(input => input.value = '');
+        }
+
+        // ==========================================
+        // YOUR DATA - EDIT THIS SECTION
+        // ==========================================
+        
+        const studyData = {
+            semesters: [
+                {
+                    name: "Spring 2027",
+                    courses: [
+                        {
+                            name: "ANAT 7107",
+                            exams: [
+                                {
+                                    number: 1,
+                                    grade: "",
+                                    notes: "",
+                                    difficulty: 3,
+                                    decks: [
+                                        {
+                                            lecture: "Lecture 1-2: Lungs & Thoracic Wall",
+                                            deckName: "Lungs & Thoracic Wall",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7107%201.1-2%20lungs,%20thoracic%20wall.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 3: Heart",
+                                            deckName: "Heart Deck 1",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7107%201.3heart_deck_1.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 3: Heart (continued)",
+                                            deckName: "Heart Deck 2",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7107%201.4%20heart_deck_2.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        }
+                                    ]
+                                },
+                                {
+                                    number: 2,
+                                    grade: "",
+                                    notes: "",
+                                    difficulty: 3,
+                                    decks: [
+                                        {
+                                            lecture: "Lecture 5: Abdominal",
+                                            deckName: "Abdominal Deck",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7107%201.5%20abdominal_deck.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 6: Foregut/Midgut/Hindgut",
+                                            deckName: "Foregut/Midgut/Hindgut Deck",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7107%201.6foregut_midgut_hindgut_deck.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 7: Vascular & Urinary",
+                                            deckName: "Vascular & Urinary Deck",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7107%201.7%20vascular_urinary_final_deck.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            name: "ANAT 7111",
+                            exams: [
+                                {
+                                    number: 1,
+                                    grade: "",
+                                    notes: "",
+                                    difficulty: 3,
+                                    decks: [
+                                        {
+                                            lecture: "Lecture 1.1: Cell Attachments",
+                                            deckName: "Cell Attachments",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7111-%201.1%20cell%20attachments.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 1.2: Connections",
+                                            deckName: "Lecture 1.2",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7111-%201.2.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 1.3: Pharyngeal",
+                                            deckName: "Pharyngeal Deck",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7111%201.3%20pharyngeal.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 1.4: Clefts & Pouches",
+                                            deckName: "Clefts & Pouches Deck",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7111%201.4%20clefts_pouches.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 1.5: Bone",
+                                            deckName: "Bone Deck",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7111%201.5%20bone.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        },
+                                        {
+                                            lecture: "Lecture 1.6: Additional",
+                                            deckName: "Lecture 1.6",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7111%201.6%20.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        }
+                                    ]
+                                },
+                                {
+                                    number: 1,
+                                    grade: "",
+                                    notes: "",
+                                    difficulty: 3,
+                                    decks: [
+                                        {
+                                            lecture: "Exam 1 Overview",
+                                            deckName: "Exam 1 Overview",
+                                            deckLink: "https://bluewave918.github.io/study-decks/7111-exam%201%20overview.html",
+                                            deckNotes: "",
+                                            reviewStatus: "red",
+                                            lastReviewed: ""
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // ==========================================
+        // NAVIGATION & UI LOGIC
+        // ==========================================
+
+        let currentSemester = null;
+        let currentCourse = null;
+        let currentExam = null;
+
+        function showView(view) {
+            currentView = view;
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(view + 'View').classList.add('active');
+            updateBreadcrumb();
+        }
+
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            let html = '';
+
+            if (currentSemester) {
+                html += `<button onclick="showView('semester')">${currentSemester}</button>`;
+            }
+            if (currentCourse) {
+                html += `<span>/</span><button onclick="showView('course')">${currentCourse}</button>`;
+            }
+            if (currentExam) {
+                html += `<span>/</span><span>Exam ${currentExam.number}</span>`;
+            }
+
+            breadcrumb.innerHTML = html;
+        }
+
+        function goBack() {
+            if (currentExam) {
+                currentExam = null;
+                showView('course');
+                renderCourses();
+            } else if (currentCourse) {
+                currentCourse = null;
+                showView('semester');
+                renderSemesters();
+            }
+        }
+
+        function renderSemesters() {
+            const grid = document.getElementById('semesterGrid');
+            grid.innerHTML = studyData.semesters.map((sem, semIdx) => `
+                <div class="semester-card ${isEditMode ? 'edit-mode' : ''}" onclick="${isEditMode ? '' : `selectSemester('${sem.name}')`}" style="${isEditMode ? 'cursor: default;' : 'cursor: pointer;'}">
+                    <h2>${sem.name}</h2>
+                    <p class="course-count">${sem.courses.length} course${sem.courses.length !== 1 ? 's' : ''}</p>
+                    ${isEditMode ? `
+                        <div class="card-edit-controls">
+                            <button class="edit-btn" onclick="renameSemester(${semIdx})">Rename</button>
+                            <button class="delete-btn" onclick="deleteSemester(${semIdx})">Delete</button>
+                        </div>
+                    ` : ''}
+                    ${!isEditMode ? `<p style="margin-top: 10px; font-size: 0.85em; color: #999;">Click to enter →</p>` : ''}
+                </div>
+            `).join('');
+
+            if (isEditMode) {
+                const addBtn = document.createElement('div');
+                addBtn.style.gridColumn = '1 / -1';
+                addBtn.style.textAlign = 'center';
+                addBtn.innerHTML = `<button class="add-btn" onclick="openModal('addSemesterModal')">+ Add Semester</button>`;
+                grid.parentElement.appendChild(addBtn);
+            }
+        }
+
+        function selectSemester(semesterName) {
+            currentSemester = semesterName;
+            showView('course');
+            renderCourses();
+        }
+
+        function renderCourses() {
+            const semester = studyData.semesters.find(s => s.name === currentSemester);
+            const grid = document.getElementById('courseGrid');
+            const semIdx = studyData.semesters.indexOf(semester);
+            
+            grid.innerHTML = semester.courses.map((course, courseIdx) => `
+                <div class="course-card ${isEditMode ? 'edit-mode' : ''}" onclick="${isEditMode ? '' : `selectCourse('${course.name}')`}" style="${isEditMode ? 'cursor: default;' : 'cursor: pointer;'}">
+                    <h3>${course.name}</h3>
+                    <p class="exam-count">${course.exams.length} exam${course.exams.length !== 1 ? 's' : ''}</p>
+                    ${isEditMode ? `
+                        <div class="card-edit-controls">
+                            <button class="edit-btn" onclick="renameCourse(${semIdx}, ${courseIdx})">Rename</button>
+                            <button class="delete-btn" onclick="deleteCourse(${semIdx}, ${courseIdx})">Delete</button>
+                        </div>
+                    ` : ''}
+                    ${!isEditMode ? `<p style="margin-top: 10px; font-size: 0.85em; color: #999;">Click to enter →</p>` : ''}
+                </div>
+            `).join('');
+
+            if (isEditMode) {
+                const addBtn = document.createElement('div');
+                addBtn.style.gridColumn = '1 / -1';
+                addBtn.style.textAlign = 'center';
+                addBtn.innerHTML = `<button class="add-btn" onclick="openModal('addCourseModal')">+ Add Course</button>`;
+                grid.parentElement.appendChild(addBtn);
+            }
+        }
+
+        function selectCourse(courseName) {
+            currentCourse = courseName;
+            showView('exam');
+            renderExams();
+        }
+
+        function renderExams() {
+            const semester = studyData.semesters.find(s => s.name === currentSemester);
+            const course = semester.courses.find(c => c.name === currentCourse);
+            const semIdx = studyData.semesters.indexOf(semester);
+            const courseIdx = semester.courses.indexOf(course);
+            const content = document.getElementById('examContent');
+
+            content.innerHTML = course.exams.map((exam, examIdx) => `
+                <div class="exam-container">
+                    <div class="exam-header">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <h2>Exam ${exam.number}</h2>
+                            ${isEditMode ? `
+                                <div class="edit-controls visible">
+                                    <button class="delete-btn" onclick="deleteExam(${semIdx}, ${courseIdx}, ${examIdx})">Delete Exam</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="exam-stats">
+                            <div class="stat-block">
+                                <h4>Your Grade</h4>
+                                <input type="text" class="grade" placeholder="e.g., 87%" value="${exam.grade}" onchange="updateExamGrade(${semIdx}, ${courseIdx}, ${examIdx}, this.value)">
+                            </div>
+                            <div class="stat-block">
+                                <h4>Difficulty Rating</h4>
+                                <input type="number" min="1" max="5" value="${exam.difficulty || 3}" onchange="updateExamDifficulty(${semIdx}, ${courseIdx}, ${examIdx}, this.value)" style="font-size: 1.2em; padding: 8px; width: 80px;">
+                                <p style="font-size: 0.85em; color: #999; margin-top: 5px;">1 = Easy, 5 = Very Hard</p>
+                            </div>
+                            <div class="stat-block">
+                                <h4>Exam Notes</h4>
+                                <textarea style="width: 100%; min-height: 80px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit;" placeholder="Tips for future students, what to focus on, etc." onchange="updateExamNotes(${semIdx}, ${courseIdx}, ${examIdx}, this.value)">${exam.notes}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="decks-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>Learn Decks</h3>
+                            ${isEditMode ? `<button class="add-btn" style="margin: 0;" onclick="addNewDeck(${semIdx}, ${courseIdx}, ${examIdx})">+ Add Deck</button>` : ''}
+                        </div>
+                        <div class="decks-grid">
+                            ${exam.decks.map((deck, idx) => `
+                                <div class="deck-card">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                        ${isEditMode ? `
+                                            <input type="text" value="${deck.deckName}" onchange="updateDeckName(${semIdx}, ${courseIdx}, ${examIdx}, ${idx}, this.value)" placeholder="Deck Name" style="flex: 1; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-weight: bold; color: #667eea;">
+                                        ` : `<h4 style="margin: 0;">${deck.deckName}</h4>`}
+                                        ${isEditMode ? `<button class="delete-btn" onclick="deleteDeck(${semIdx}, ${courseIdx}, ${examIdx}, ${idx})">Delete</button>` : ''}
+                                    </div>
+                                    ${isEditMode ? `
+                                        <div class="control-item" style="margin-bottom: 10px;">
+                                            <input type="text" value="${deck.lecture}" onchange="updateDeckLecture(${semIdx}, ${courseIdx}, ${examIdx}, ${idx}, this.value)" placeholder="Lecture name (e.g., Lecture 1: Lungs)" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+                                        </div>
+                                    ` : `<p class="lecture-name">${deck.lecture}</p>`}
+                                    ${isEditMode ? `
+                                        <div class="control-item" style="margin-bottom: 10px;">
+                                            <label class="control-label">Exam</label>
+                                            <select onchange="moveDeckToExam(${semIdx}, ${courseIdx}, ${examIdx}, ${idx}, this.value)">
+                                                ${studyData.semesters[semIdx].courses[courseIdx].exams.map((e, eIdx) => `
+                                                    <option value="${eIdx}" ${eIdx === examIdx ? 'selected' : ''}>Exam ${e.number}</option>
+                                                `).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="control-item" style="margin-bottom: 10px;">
+                                            <label class="control-label">GitHub Link</label>
+                                            <input type="url" value="${deck.deckLink}" onchange="updateDeckLink(${semIdx}, ${courseIdx}, ${examIdx}, ${idx}, this.value)" placeholder="https://bluewave918.github.io/study-decks/...">
+                                        </div>
+                                    ` : ''}
+                                    
+                                    <div class="deck-notes-label">Deck Notes</div>
+                                    <textarea class="deck-notes" placeholder="How well this deck reflected the exam content..." onchange="updateDeckNotes(${semIdx}, ${courseIdx}, ${examIdx}, ${idx}, this.value)">${deck.deckNotes}</textarea>
+
+                                    <div class="deck-controls">
+                                        <div class="control-row">
+                                            <div class="control-item">
+                                                <label class="control-label">Review Status</label>
+                                                <select onchange="updateDeckStatus(${semIdx}, ${courseIdx}, ${examIdx}, ${idx}, this.value)">
+                                                    <option value="red" ${deck.reviewStatus === 'red' ? 'selected' : ''}>🔴 Not Started</option>
+                                                    <option value="yellow" ${deck.reviewStatus === 'yellow' ? 'selected' : ''}>🟡 Needs Review</option>
+                                                    <option value="green" ${deck.reviewStatus === 'green' ? 'selected' : ''}>🟢 Reviewed</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="control-item">
+                                            <label class="control-label">Last Reviewed</label>
+                                            <input type="date" value="${deck.lastReviewed}" onchange="updateDeckLastReviewed(${semIdx}, ${courseIdx}, ${examIdx}, ${idx}, this.value)">
+                                        </div>
+                                        <a href="${deck.deckLink}" target="_blank" class="deck-link">Open Study Deck →</a>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // UPDATE FUNCTIONS
+        function updateExamGrade(semIdx, courseIdx, examIdx, grade) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].grade = grade;
+            saveData();
+        }
+
+        function updateExamNotes(semIdx, courseIdx, examIdx, notes) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].notes = notes;
+            saveData();
+        }
+
+        function updateDeckNotes(semIdx, courseIdx, examIdx, deckIdx, notes) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks[deckIdx].deckNotes = notes;
+            saveData();
+        }
+
+        function updateDeckStatus(semIdx, courseIdx, examIdx, deckIdx, status) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks[deckIdx].reviewStatus = status;
+            saveData();
+        }
+
+        function updateExamDifficulty(semIdx, courseIdx, examIdx, difficulty) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].difficulty = parseInt(difficulty);
+            saveData();
+        }
+
+        function updateDeckLastReviewed(semIdx, courseIdx, examIdx, deckIdx, date) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks[deckIdx].lastReviewed = date;
+            saveData();
+        }
+
+        // ADD/DELETE FUNCTIONS
+        function submitAddSemester() {
+            const name = document.getElementById('semesterInput').value.trim();
+            if (!name) {
+                alert('Please enter a semester name');
+                return;
+            }
+            studyData.semesters.push({
+                name: name,
+                courses: []
+            });
+            saveData();
+            closeModal('addSemesterModal');
+            renderSemesters();
+        }
+
+        function submitAddCourse() {
+            const name = document.getElementById('courseInput').value.trim();
+            if (!name) {
+                alert('Please enter a course code');
+                return;
+            }
+            const semIdx = studyData.semesters.findIndex(s => s.name === currentSemester);
+            studyData.semesters[semIdx].courses.push({
+                name: name,
+                exams: []
+            });
+            saveData();
+            closeModal('addCourseModal');
+            renderCourses();
+        }
+
+        function submitAddExam() {
+            const examNum = parseInt(document.getElementById('examNumberInput').value);
+            if (!examNum || examNum < 1) {
+                alert('Please enter a valid exam number');
+                return;
+            }
+            const semIdx = studyData.semesters.findIndex(s => s.name === currentSemester);
+            const courseIdx = studyData.semesters[semIdx].courses.findIndex(c => c.name === currentCourse);
+            studyData.semesters[semIdx].courses[courseIdx].exams.push({
+                number: examNum,
+                grade: '',
+                notes: '',
+                decks: []
+            });
+            saveData();
+            closeModal('addExamModal');
+            renderExams();
+        }
+
+
+
+        function renameSemester(semIdx) {
+            const oldName = studyData.semesters[semIdx].name;
+            const newName = prompt('New semester name:', oldName);
+            if (newName && newName.trim()) {
+                studyData.semesters[semIdx].name = newName.trim();
+                if (currentSemester === oldName) {
+                    currentSemester = newName.trim();
+                }
+                saveData();
+                renderSemesters();
+            }
+        }
+
+        function deleteSemester(semIdx) {
+            if (confirm(`Delete "${studyData.semesters[semIdx].name}" and all its courses?`)) {
+                studyData.semesters.splice(semIdx, 1);
+                saveData();
+                renderSemesters();
+            }
+        }
+
+        function renameCourse(semIdx, courseIdx) {
+            const oldName = studyData.semesters[semIdx].courses[courseIdx].name;
+            const newName = prompt('New course code:', oldName);
+            if (newName && newName.trim()) {
+                studyData.semesters[semIdx].courses[courseIdx].name = newName.trim();
+                if (currentCourse === oldName) {
+                    currentCourse = newName.trim();
+                }
+                saveData();
+                renderCourses();
+            }
+        }
+
+        function deleteCourse(semIdx, courseIdx) {
+            if (confirm(`Delete "${studyData.semesters[semIdx].courses[courseIdx].name}" and all its exams?`)) {
+                studyData.semesters[semIdx].courses.splice(courseIdx, 1);
+                saveData();
+                renderCourses();
+            }
+        }
+
+        function deleteExam(semIdx, courseIdx, examIdx) {
+            if (confirm(`Delete "Exam ${studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].number}"?`)) {
+                studyData.semesters[semIdx].courses[courseIdx].exams.splice(examIdx, 1);
+                saveData();
+                renderExams();
+            }
+        }
+
+        function deleteDeck(semIdx, courseIdx, examIdx, deckIdx) {
+            if (confirm(`Delete "${studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks[deckIdx].deckName}"?`)) {
+                studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks.splice(deckIdx, 1);
+                saveData();
+                renderExams();
+            }
+        }
+
+        function moveDeckToExam(semIdx, courseIdx, currentExamIdx, deckIdx, newExamIdxStr) {
+            const newExamIdx = parseInt(newExamIdxStr);
+            
+            // If moving to the same exam, do nothing
+            if (currentExamIdx === newExamIdx) return;
+            
+            // Get the deck to move
+            const deck = studyData.semesters[semIdx].courses[courseIdx].exams[currentExamIdx].decks[deckIdx];
+            
+            // Remove from current exam
+            studyData.semesters[semIdx].courses[courseIdx].exams[currentExamIdx].decks.splice(deckIdx, 1);
+            
+            // Add to new exam
+            studyData.semesters[semIdx].courses[courseIdx].exams[newExamIdx].decks.push(deck);
+            
+            saveData();
+            renderExams();
+        }
+
+        function updateDeckLink(semIdx, courseIdx, examIdx, deckIdx, newLink) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks[deckIdx].deckLink = newLink;
+            saveData();
+            renderExams();
+        }
+
+        function updateDeckName(semIdx, courseIdx, examIdx, deckIdx, newName) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks[deckIdx].deckName = newName;
+            saveData();
+        }
+
+        function updateDeckLecture(semIdx, courseIdx, examIdx, deckIdx, newLecture) {
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks[deckIdx].lecture = newLecture;
+            saveData();
+        }
+
+        function addNewDeck(semIdx, courseIdx, examIdx) {
+            const newDeck = {
+                lecture: "",
+                deckName: "New Deck",
+                deckLink: "",
+                deckNotes: "",
+                reviewStatus: "red",
+                lastReviewed: ""
+            };
+            studyData.semesters[semIdx].courses[courseIdx].exams[examIdx].decks.push(newDeck);
+            saveData();
+            renderExams();
+        }
+
+        // STORAGE
+        function saveData() {
+            localStorage.setItem('studyData', JSON.stringify(studyData));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('studyData');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                Object.assign(studyData, parsed);
+            }
+        }
+
+        // INITIALIZE
+        loadData();
+        renderSemesters();
+    </script>
+</body>
+</html>
