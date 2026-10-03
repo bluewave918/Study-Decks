@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dent 7111 - Section 1: Cell Attachment & Connective Tissue</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.9em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .mode-info {
+            background: rgba(255,255,255,0.15);
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.95);
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .controls-top {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-mode {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 9px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-mode:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-mode.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .progress-section {
+            color: white;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.3s;
+            border-radius: 3px;
+        }
+
+        .question-box {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.25em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .option {
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.98em;
+            background: white;
+            line-height: 1.4;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+            font-weight: 600;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+            font-weight: 600;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            margin-right: 10px;
+            font-weight: 600;
+            font-size: 0.85em;
+            flex-shrink: 0;
+        }
+
+        .option.correct .option-letter {
+            background: #28a745;
+        }
+
+        .option.incorrect .option-letter {
+            background: #dc3545;
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.9em;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 9px 18px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-next, .btn-prev {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-next:hover, .btn-prev:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-next:disabled, .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-screen {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 18px 0;
+        }
+
+        .result-message {
+            font-size: 1.15em;
+            color: #333;
+            margin-bottom: 18px;
+        }
+
+        .score-details {
+            background: #f5f7ff;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 18px 0;
+            font-size: 0.95em;
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            margin-top: 12px;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Section 1: Cell Attachment & Connective Tissue</h1>
+            <p>Epithelium, Junctions, Cytoskeleton, and ECM</p>
+        </div>
+
+        <div class="mode-info" id="modeInfo">
+            📖 LEARNING MODE: Questions in original order (content builds logically)
+        </div>
+
+        <div class="controls-top">
+            <button class="btn-mode active" id="btnOrdered" onclick="setMode('ordered')">📖 Ordered</button>
+            <button class="btn-mode" id="btnShuffled" onclick="setMode('shuffled')">🔀 Shuffled</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">✓ <span id="correct">0</span></div>
+            <div class="stat-box">✗ <span id="incorrect">0</span></div>
+            <div class="stat-box"><span id="percentage">0</span>%</div>
+        </div>
+
+        <div class="progress-section">
+            <div id="progressText">Question 1 of 165</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer">
+            <div class="question-box">
+                <div class="question-number" id="qNumber">Question 1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-prev" id="prevBtn" onclick="previousQuestion()" disabled>← Prev</button>
+                <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+            </div>
+        </div>
+
+        <div class="result-screen" id="resultScreen">
+            <h2>Quiz Complete!</h2>
+            <div class="final-score" id="finalScore">0%</div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="score-details">
+                <div>✓ Correct: <strong id="finalCorrect">0</strong> / 165</div>
+                <div>✗ Incorrect: <strong id="finalIncorrect">0</strong> / 165</div>
+            </div>
+            <button class="btn-reset" onclick="resetQuiz()">🔄 Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        function shuffleQuestions(questionsArray) {
+            return questionsArray.map(q => {
+                const options = [...q.options];
+                const correctAnswer = options[q.correct];
+
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+
+                const newCorrect = options.indexOf(correctAnswer);
+
+                return {
+                    q: q.q,
+                    options: options,
+                    correct: newCorrect
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        let questionsBase = [
+            { q: "What are the three primary functions of epithelial tissue?", options: ["Secretion only", "Covering/lining/protection, absorption, and secretion", "Support and contractility", "Immune defense only"], correct: 1 },
+            { q: "How would you best describe the cells that compose epithelial tissue?", options: ["Elongated and loosely connected", "Polyhedral cells that are strongly attached to one another", "Spindle-shaped and contractile", "Round and freely movable"], correct: 1 },
+            { q: "Why are epithelial cells so strongly attached to one another?", options: ["To allow movement between layers", "To form continuous cell sheets that coat or line surfaces", "To permit nutrient diffusion", "For rapid cell turnover"], correct: 1 },
+            { q: "Where does epithelial tissue occur in the body?", options: ["Only in the skin", "On outer surfaces, throughout the GI tract, and lining various organ surfaces", "Only internally", "Only in glandular tissues"], correct: 1 },
+            { q: "Besides surface linings, what other structures can epithelial tissue form?", options: ["Bone and cartilage", "Glands and other secretory tissues", "Nervous tissue", "Muscle fibers"], correct: 1 },
+            { q: "Does epithelial tissue undergo mitosis?", options: ["No, epithelial cells are terminally differentiated", "Yes, epithelial tissue continually undergoes mitosis to replace lost or damaged cells", "Only during wound healing", "Only during development"], correct: 1 },
+            { q: "Is epithelial tissue vascular or avascular?", options: ["Highly vascular with many blood vessels", "Avascular", "Contains some capillaries", "Vascular only at the basal layer"], correct: 1 },
+            { q: "If epithelial tissue is avascular, how does it receive nutrients and oxygen?", options: ["Direct synthesis by epithelial cells", "Diffusion from blood vessels in adjacent connective tissue", "Through lymphatic vessels only", "From the luminal space"], correct: 1 },
+            { q: "What are the two major surfaces of epithelial tissue, and what is this organization called?", options: ["Superior and inferior", "Apical and basal surfaces (POLARITY)", "Luminal and abluminal", "Anterior and posterior"], correct: 1 },
+            { q: "What does the apical surface of epithelium face?", options: ["The underlying connective tissue", "The lumen/space", "Adjacent epithelial cells", "The basement membrane"], correct: 1 },
+            { q: "What does the basal surface of epithelium face?", options: ["The lumen or external environment", "The connective tissue", "Adjacent epithelial cells", "The apical surface"], correct: 1 },
+            { q: "What tissue generally anchors epithelial tissue in place?", options: ["Muscle tissue", "Underlying connective tissue", "The cell membrane alone", "Lymphoid tissue"], correct: 1 },
+            { q: "What is the primary function of the basement membrane?", options: ["Facilitate cell migration", "Anchor epithelial tissue to underlying connective tissue", "Provide contractile forces", "Store nutrients"], correct: 1 },
+            { q: "Describe the basement membrane/basal lamina and its composition.", options: ["A thick collagenous layer", "A thin sheet of ECM that anchors epithelium to underlying connective tissue", "A cellular layer of fibroblasts", "A muscular supporting layer"], correct: 1 },
+            { q: "Which tissues contribute to the formation of the basement membrane?", options: ["Only epithelial tissue", "Only connective tissue", "Both epithelial tissue and connective tissue", "Only neural crest cells"], correct: 2 },
+            { q: "When would you use the term 'basement membrane' versus 'basal lamina'?", options: ["They are interchangeable terms", "Used with light microscopy (basal lamina is for electron microscopy)", "Basement membrane in embryos, basal lamina in adults", "Only in the skin"], correct: 1 },
+            { q: "How are epithelial cells anchored to the basement membrane?", options: ["Through gap junctions", "Via hemidesmosomes", "Through tight junctions", "By direct collagen binding"], correct: 1 },
+            { q: "What are the three zones of the basement membrane?", options: ["Apical, middle, and basal", "Lamina lucida, lamina densa, and lamina fibroreticularis", "Outer, middle, and inner", "Alpha, beta, and gamma"], correct: 1 },
+            { q: "Which of the three zones of the basement membrane may be absent in some locations?", options: ["Lamina lucida", "Lamina densa", "Lamina fibroreticularis", "All are always present"], correct: 2 },
+            { q: "What are the key components of the lamina lucida?", options: ["Type IV collagen and proteoglycans", "Laminin, entactin, and integrins on the epithelial cell side", "Type I and III collagen", "Fibronectin and hyaluronic acid"], correct: 1 },
+            { q: "What is the primary collagen type found in the lamina densa?", options: ["Type I collagen", "Type II collagen", "Type IV collagen", "Type VII collagen"], correct: 2 },
+            { q: "What are the key components of the lamina fibroreticularis?", options: ["Proteoglycans and glycoproteins", "Type III, V, and VII collagen", "Laminin and entactin", "Elastin and fibrillin"], correct: 1 },
+            { q: "What are microfilaments composed of?", options: ["Tubulin dimers", "Actin", "Intermediate proteins", "Collagen molecules"], correct: 1 },
+            { q: "What are the two major functions of microfilaments?", options: ["Transport and energy storage", "Structural support and contractility", "Protein synthesis and modification", "Cell signaling only"], correct: 1 },
+            { q: "How do microfilaments contribute to maintaining cell structure?", options: ["By forming microtubules", "Help maintain cell shape and form structures such as microvilli and filopodia", "By controlling nucleus position", "By regulating gene expression"], correct: 1 },
+            { q: "How do microfilaments contribute to cellular contractility?", options: ["They store chemical energy", "They form tracks for myosin, allowing contractile movement", "They regulate calcium levels", "They anchor the nucleus"], correct: 1 },
+            { q: "What are the main functions of intermediate filaments?", options: ["Transport and energy production", "Structural support and anchoring", "Cell signaling and communication", "Nutrient absorption"], correct: 1 },
+            { q: "Are intermediate filaments involved in cellular contraction?", options: ["Yes, they are primary contractile elements", "No, they are non-contractile", "Only in muscle cells", "Only during cell division"], correct: 1 },
+            { q: "What intermediate filament is characteristic of cells of mesenchymal origin?", options: ["Cytokeratin", "Desmin", "Vimentin", "Neurofilament"], correct: 2 },
+            { q: "What intermediate filament is most characteristic of epithelial cells?", options: ["Vimentin", "Cytokeratin", "Lamin", "Neurofilament"], correct: 1 },
+            { q: "What are microtubules composed of?", options: ["Actin monomers", "Tubulin (α and β dimers)", "Intermediate proteins", "Collagen fibrils"], correct: 1 },
+            { q: "What is the role of microtubules in intracellular transport?", options: ["Direct transport via diffusion", "Act as a 'monorail system' for motor proteins such as kinesins", "Store and release energy", "Regulate osmotic pressure"], correct: 1 },
+            { q: "Which motor protein is associated with microtubule-based intracellular transport?", options: ["Myosin", "Kinesin (runs along microtubules)", "Tropomyosin", "Spectrin"], correct: 1 },
+            { q: "Which motor protein is associated with the movement of cilia and flagella?", options: ["Kinesin", "Myosin", "Dynein (runs along microtubules)", "Actin-binding protein"], correct: 2 },
+            { q: "What are two major cellular structures that depend on microtubules for movement?", options: ["Nucleus and ribosomes", "Cilia and flagella", "Mitochondria and peroxisomes", "Golgi and endoplasmic reticulum"], correct: 1 },
+            { q: "What are the main components of the cytoskeleton?", options: ["Only microfilaments", "Microtubules, intermediate filaments, and microfilaments (actin)", "Only intermediate filaments", "Collagen and proteoglycans"], correct: 1 },
+            { q: "What is another name for a tight junction?", options: ["Zonula adherens", "Zonula occludens", "Desmosome", "Gap junction"], correct: 1 },
+            { q: "What type of interactions form tight junctions?", options: ["Heterotypic interactions", "Homotypic interactions between transmembrane proteins on adjacent cells", "Integrin-ECM interactions", "Cadherin-catenin interactions only"], correct: 1 },
+            { q: "What is the main function of tight junctions?", options: ["Allow nutrient passage", "Restrict movement between cells by forming very narrow gaps", "Provide structural support", "Enable electrical signal transmission"], correct: 1 },
+            { q: "How do tight junctions contribute to epithelial cell polarity?", options: ["By storing proteins", "Maintain cell polarization by separating apical and basal/lateral membrane domains", "By organizing the nucleus", "By regulating gene expression"], correct: 1 },
+            { q: "What are the major transmembrane proteins found in tight junctions?", options: ["Integrins and cadherins", "Claudins, occludin, and JAM", "Connexins only", "Desgleins and desmocollins"], correct: 1 },
+            { q: "Which cytoskeletal component do tight junctions bind to?", options: ["Microtubules", "Actin microfilaments", "Intermediate filaments", "All equally"], correct: 1 },
+            { q: "Besides controlling movement between cells, what other role do tight junctions have?", options: ["Storing energy", "Participate in cell signaling pathways", "Producing ATP", "Sequestering waste"], correct: 1 },
+            { q: "What is another name for a cell-to-cell adhesive junction?", options: ["Tight junction", "Zonula adherens", "Hemidesmosome", "Gap junction"], correct: 1 },
+            { q: "What is the primary function of zonula adherens?", options: ["Restrict paracellular passage", "Hold adjacent cells together", "Connect cells to ECM", "Facilitate ion channel formation"], correct: 1 },
+            { q: "What proteins form the main adhesive complex in zonula adherens?", options: ["Integrins on outside, talin inside", "Cadherins on the outside + catenins on the inside", "Connexins forming channels", "Claudins and occludin"], correct: 1 },
+            { q: "What is the function of cadherins in epithelial adhesion?", options: ["Anchor to ECM proteins", "Protein on OUTSIDE of cell that participates in adhesive cell-cell junction", "Link to actin cytoskeleton", "Form channels between cells"], correct: 1 },
+            { q: "What is the function of catenins in epithelial adhesion?", options: ["Provide external adhesive surface", "Link cadherins to the actin cytoskeleton inside the cell", "Anchor to basement membrane", "Form selective barriers"], correct: 1 },
+            { q: "What is a special characteristic of cadherins that makes them calcium-dependent?", options: ["They require phosphorylation", "They require calcium ions for adhesion and stability", "They need ATP for binding", "They bind only to specific tissues"], correct: 1 },
+            { q: "What cytoskeletal element is associated with zonula adherens?", options: ["Microtubules", "Intermediate filaments", "Actin filaments", "All equally"], correct: 2 },
+            { q: "What role do vinculin and α-actinin play in cell-cell adhesive junctions?", options: ["Form the transmembrane complex", "Link cadherin-catenin complex to actin", "Restrict paracellular movement", "Create basement membrane"], correct: 1 },
+            { q: "What is the role of nectin in cell-cell adhesive junctions?", options: ["Anchor to fibronectin", "Binds to afadin on the inside of cell", "Forms connexon channels", "Produces ground substance"], correct: 1 },
+            { q: "What is the primary function of focal adhesion junctions?", options: ["Restrict paracellular passage", "Anchor cells to the ECM", "Facilitate intercellular communication", "Generate electrical signals"], correct: 1 },
+            { q: "What transmembrane protein replaces cadherins in focal adhesions?", options: ["Occludin", "Claudin", "Integrins", "JAM proteins"], correct: 2 },
+            { q: "What do integrins interact with in the ECM during focal adhesion?", options: ["Each other only", "ECM proteins such as collagen and fibronectin", "Cadherins on adjacent cells", "Connexins"], correct: 1 },
+            { q: "Which cytoskeletal component do focal adhesions attach to?", options: ["Microtubules only", "Intermediate filaments", "Actin", "All equally"], correct: 2 },
+            { q: "Which proteins help connect focal adhesion complexes to actin?", options: ["Claudins and occludin", "Vinculin, α-actinin, and talin", "Connexins and gap proteins", "Desmoplakin and plakoglobin"], correct: 1 },
+            { q: "What is the primary function of desmosomes?", options: ["Cell-ECM adhesion", "Cell-cell adhesion that helps resist shearing forces", "Restrict paracellular passage", "Facilitate gap junction formation"], correct: 1 },
+            { q: "What are the specialized cadherins found in desmosomes?", options: ["E-cadherin and N-cadherin", "Desmoglein and desmocollin", "Claudins and occludin", "Integrins and selectins"], correct: 1 },
+            { q: "What are the main intracellular proteins associated with desmosomes?", options: ["Catenins only", "Desmoplakin, plakoglobin, and plakophilin", "Talin and vinculin", "Afadin and JAM"], correct: 1 },
+            { q: "What type of cytoskeletal filament do desmosomes attach to?", options: ["Microtubules", "Microfilaments", "Intermediate filaments", "All types"], correct: 2 },
+            { q: "What type of interaction occurs between desmoglein and desmocollin?", options: ["Homotypic interaction", "A heterotypic interaction", "No direct interaction", "Through intermediate proteins only"], correct: 1 },
+            { q: "What is the primary function of hemidesmosomes?", options: ["Cell-to-cell adhesion", "Cell–ECM adhesion that helps resist shearing forces", "Facilitate communication between cells", "Control paracellular movement"], correct: 1 },
+            { q: "What transmembrane protein is found in hemidesmosomes?", options: ["Cadherin", "Claudin", "Integrin", "JAM"], correct: 2 },
+            { q: "What does the intracellular side of a hemidesmosome contain?", options: ["Free ribosomes", "An intracellular plaque that connects to intermediate filaments", "ATP synthase", "Calcium channels"], correct: 1 },
+            { q: "How do hemidesmosomes attach epithelial cells to the basal lamina?", options: ["Through cadherin-catenin bridges", "Through integrin–laminin interactions and collagen XVII", "Via gap junction connexins", "Through focaladhesion complexes"], correct: 1 },
+            { q: "What is the primary function of gap junctions?", options: ["Prevent paracellular passage", "Allow direct communication between adjacent cells through aqueous pores", "Provide mechanical strength", "Generate electrical potentials"], correct: 1 },
+            { q: "What are gap junction pores made of?", options: ["Claudins and occludin", "Connexins", "Integrins and laminin", "Collagen and elastin"], correct: 1 },
+            { q: "How many connexins form one connexon (functional gap junction channel)?", options: ["3 connexins", "6 connexins", "12 connexins", "24 connexins"], correct: 1 },
+            { q: "What can pass through gap junctions?", options: ["Large proteins and lipids", "Ions and small water-soluble molecules", "Only calcium ions", "Collagen and proteoglycans"], correct: 1 },
+            { q: "How do gap junctions help propagate electrical signals?", options: ["By blocking ion passage", "They allow ions to pass directly between adjacent cells", "By amplifying signals", "Through protein intermediates"], correct: 1 },
+            { q: "What is a junctional complex?", options: ["A single tight junction", "A cluster of junctions along a cell-cell contact point including different types of junctions", "Only desmosomes", "A gap junction grouping only"], correct: 1 },
+            { q: "Which junctions do NOT make up a junctional complex?", options: ["Tight junctions", "Zonula adherens", "Hemidesmosomes", "Gap junctions"], correct: 2 },
+            { q: "What is a terminal bar?", options: ["A single cell junction", "A group of junctional complexes that attach cells along lateral surfaces (sheets sitting on top of each other)", "A type of desmosome", "Only tight junctions"], correct: 1 },
+            { q: "What are the three major components of connective tissue?", options: ["Epithelium, muscle, and neurons", "Cells, fibers, and ground substance", "Collagen, elastin, and proteoglycans", "Osteocytes, fibroblasts, and adipocytes"], correct: 1 },
+            { q: "From which embryonic germ layer are connective tissue cells derived?", options: ["Ectoderm", "Endoderm", "Mesoderm", "Neural crest only"], correct: 2 },
+            { q: "What type of progenitor cells are found in connective tissue?", options: ["Totipotent stem cells", "Multipotent mesenchymal progenitor cells", "Unipotent precursor cells", "Only differentiated cells"], correct: 1 },
+            { q: "What term is used for multipotent mesenchymal progenitor cells in connective tissue?", options: ["Fibroblasts", "Stroma", "Ground substance", "Extracellular matrix"], correct: 1 },
+            { q: "What are the permanent connective tissue cells?", options: ["Lymphocytes and neutrophils", "Fibroblasts, adipocytes, macrophages, and mast cells", "Plasma cells and eosinophils", "Only fibroblasts"], correct: 1 },
+            { q: "What are the transient connective tissue cells?", options: ["Fibroblasts and adipocytes", "Plasma cells, lymphocytes, neutrophils, and eosinophils", "Macrophages and mast cells", "Only fibroblasts"], correct: 1 },
+            { q: "What is the main connective tissue cell responsible for ECM production?", options: ["Adipocytes", "Macrophages", "Fibroblast", "Mast cells"], correct: 2 },
+            { q: "What role does fibroblast motility play in connective tissue?", options: ["Provides structural support only", "Highly motile and migrate to areas where ECM production and tissue repair are needed", "Creates electrical signals", "Regulates immune response"], correct: 1 },
+            { q: "Do fibroblasts typically form numerous cell-cell connections?", options: ["Yes, they form many gap junctions", "Rarely form cell-cell connections; an exception is the periodontal ligament", "Only form connections during repair", "Connect exclusively to blood vessels"], correct: 1 },
+            { q: "What is a fibronexus?", options: ["A desmosome-like structure", "A connection between actin, integrins, and fibronectin in the ECM", "A type of focal adhesion only", "A junctional complex"], correct: 1 },
+            { q: "What is the cytoskeletal component involved in the fibroblast fibronexus?", options: ["Microtubules", "Intermediate filaments", "Actin", "All equally"], correct: 2 },
+            { q: "What is the basic structural feature of collagen that provides tensile strength?", options: ["Random coil structure", "Triple helix arrangement", "Alpha-helical structure", "Beta-sheet conformation"], correct: 1 },
+            { q: "Is collagen the most abundant protein in the body?", options: ["No, keratin is most abundant", "Yes, collagen is the most abundant protein", "Actin is more abundant", "Myosin is most abundant"], correct: 1 },
+            { q: "What amino acids are collagen particularly rich in?", options: ["Leucine and isoleucine", "Proline and lysine (for hydrogen bonding in triple helix)", "Aspartate and glutamate", "Serine and threonine"], correct: 1 },
+            { q: "What is the major synthetic product of mesenchyme-derived cells?", options: ["Elastin primarily", "Collagen as a key extracellular matrix component", "Hyaluronic acid only", "Proteoglycans exclusively"], correct: 1 },
+            { q: "What is the primary collagen type in dentin?", options: ["Type II collagen", "Type III collagen", "Type I collagen (providing structure and strength)", "Type IV collagen"], correct: 2 },
+            { q: "What collagen types are found in dental pulp?", options: ["Type II and IV", "Type I and III collagen", "Type IV only", "Type V and VI"], correct: 1 },
+            { q: "What is the primary collagen type in cartilage?", options: ["Type I collagen", "Type III collagen", "Type II collagen", "Type IV collagen"], correct: 2 },
+            { q: "What type of collagen is found in the basement membrane?", options: ["Type I", "Type II", "Type III", "Type IV"], correct: 3 },
+            { q: "What is the characteristic structure formed by Type IV collagen in the basement membrane?", options: ["Parallel fibrils", "A 'chicken-wire' meshwork", "Random fibers", "A triple helix only"], correct: 1 },
+            { q: "What produces the characteristic banded appearance of collagen fibrils?", options: ["Enzymatic modification", "The 1/4 stagger of microfibrils that creates a banded structure", "Mineral deposition", "Cross-linking between molecules"], correct: 1 },
+            { q: "Why is the staggered organization of collagen important in bone and dentin?", options: ["For protein folding", "Creates gap regions where mineral can be deposited", "For enzyme binding", "For cell attachment only"], correct: 1 },
+            { q: "What vitamin is essential for stable collagen assembly?", options: ["Vitamin A", "Vitamin B12", "Vitamin C (which leads to scurvy if deficient)", "Vitamin D"], correct: 2 },
+            { q: "What happens to collagen when vitamin C is deficient?", options: ["Excessive collagen production", "Proper hydroxylation is impaired, leading to less stability", "Collagen becomes stronger", "No effect on collagen"], correct: 1 },
+            { q: "What cell primarily produces elastin?", options: ["Adipocytes", "Chondrocytes", "Fibroblasts in connective tissue", "Osteocytes"], correct: 2 },
+            { q: "What forms the scaffold for elastin fiber assembly?", options: ["Collagen triple helix", "Fibrillin-1 and fibrillin-2 form a microfibril scaffold", "Proteoglycans", "Glycoproteins alone"], correct: 1 },
+            { q: "What is the basic structure of a mature elastin fiber?", options: ["Collagen-based core", "An elastin core supported by a glycoprotein microfibril scaffold", "Purely elastin without support", "Random protein aggregates"], correct: 1 },
+            { q: "What is the key molecular defect in Marfan syndrome?", options: ["Collagen mutation", "Mutation in fibrillin-1 (FBN1)", "Elastin deficiency", "Integrin malfunction"], correct: 1 },
+            { q: "What is the characteristic structure of an adipocyte?", options: ["Multiple small lipid droplets", "A single large lipid droplet surrounded by thin rim of cytoplasm", "Extensive rough endoplasmic reticulum", "Large nucleus occupying most of cell"], correct: 1 },
+            { q: "Where is the nucleus located in a typical adipocyte?", options: ["Centrally located", "Flattened nucleus pushed toward periphery by lipid droplet", "On the cell surface", "Multiple nuclei scattered throughout"], correct: 1 },
+            { q: "What surrounds each adipocyte?", options: ["Collagen fibers only", "Basal lamina", "No surrounding structure", "Epithelial cells"], correct: 1 },
+            { q: "What is connective tissue ground substance?", options: ["Mineral deposits in bone", "Gel-like component of ECM made of proteoglycans and glycoproteins", "Adipose tissue", "Collagen fibrils"], correct: 1 },
+            { q: "What is the main function of ground substance?", options: ["Provide tensile strength", "Sequester fluid and give compressive strength to tissues (cartilage)", "Generate contractile forces", "Support blood vessels only"], correct: 1 },
+            { q: "What are proteoglycans composed of?", options: ["Proteins with lipid side chains", "Protein core with glycosaminoglycan chains (GAGs)", "Only carbohydrates", "Collagen and elastin"], correct: 1 },
+            { q: "What is a characteristic behavior of proteoglycans in ground substance?", options: ["Hydrophobic and repel water", "Relatively strong negative charge and are hydrophilic", "Contractile proteins", "Provide mechanical strength only"], correct: 1 },
+            { q: "What is the main function of proteoglycans in ground substance?", options: ["Provide tensile strength", "Serve to sequester growth factors in ECM and facilitate water storage", "Form the collagen backbone", "Generate electrical signals"], correct: 1 },
+            { q: "What are glycoproteins and where are they found?", options: ["Proteins with lipid attachments", "Proteins with carbohydrate side chains attached, found everywhere including ground substance", "Only structural proteins", "Only in the nucleus"], correct: 1 },
+            { q: "How do proteoglycans compare to glycoproteins in terms of carbohydrate content?", options: ["Same amount of carbohydrate", "Proteoglycans have larger carbohydrate component than glycoproteins", "Glycoproteins have more carbohydrate", "Proteoglycans have no carbohydrate"], correct: 1 },
+            { q: "What is the most abundant connective tissue type?", options: ["Dense irregular connective tissue", "Dense regular connective tissue", "Loose connective tissue", "Specialized connective tissue"], correct: 2 },
+            { q: "How does loose connective tissue differ from dense connective tissue?", options: ["More fibers and fewer cells in loose", "More cells and ground substance, fewer fibers in loose", "Denser ground substance in loose", "No structural difference"], correct: 1 },
+            { q: "What is the general function of loose connective tissue?", options: ["Only support", "Provides support and form, but less structural strength than dense connective tissue", "Only storage", "Only immune defense"], correct: 1 },
+            { q: "How does dense irregular connective tissue differ from loose connective tissue?", options: ["Fewer cells and less ground substance", "Has more fibers, fewer cells, and less ground substance", "More ground substance and fewer fibers", "No structural differences"], correct: 1 },
+            { q: "How are the fibers arranged in dense irregular connective tissue?", options: ["Parallel to each other", "Randomly in multiple directions", "Perpendicular layers", "Concentric rings"], correct: 1 },
+            { q: "What is the primary function of dense irregular connective tissue?", options: ["Directional support", "Multidirectional structural support and resists forces from multiple directions", "Only shock absorption", "Only fluid storage"], correct: 1 },
+            { q: "Where is dense irregular connective tissue commonly found?", options: ["Only in tendons", "Deep dermis, organ capsules, and intestinal submucosa", "Only in ligaments", "Only around bones"], correct: 1 },
+            { q: "How are fibers arranged in dense regular connective tissue?", options: ["Random directions", "In the same direction (parallel alignment)", "Perpendicular layers only", "Concentric patterns"], correct: 1 },
+            { q: "What is the function of dense regular connective tissue?", options: ["Multidirectional resistance", "Unidirectional structure and resistance", "Fluid absorption", "Energy storage"], correct: 1 },
+            { q: "Where is dense regular connective tissue commonly located?", options: ["In the dermis randomly", "In tendons and ligaments", "In organ capsules", "In the submucosa"], correct: 1 }
+        ];
+
+        let questionsOrdered = shuffleQuestions(questionsBase);
+        let questionsShuffled = shuffleQuestions(shuffleArray(questionsBase));
+        let questions = [...questionsOrdered];
+        let currentMode = 'ordered';
+
+        let currentQ = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answered = new Array(questions.length).fill(false);
+        let userAnswers = new Array(questions.length).fill(-1);
+        let originalQuestionsLength = questions.length;
+        let retryQueue = [];
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnOrdered').classList.toggle('active', mode === 'ordered');
+            document.getElementById('btnShuffled').classList.toggle('active', mode === 'shuffled');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeInfo').innerHTML = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeInfo').innerHTML = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        function displayQuestion() {
+            const q = questions[currentQ];
+            const isRetry = currentQ >= originalQuestionsLength;
+
+            document.getElementById('qNumber').textContent = `Question ${currentQ + 1}${isRetry ? ' 🔄' : ''}`;
+            document.getElementById('questionText').textContent = q.q;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span><span>${option}</span>`;
+                div.onclick = () => selectAnswer(index);
+                container.appendChild(div);
+            });
+
+            document.getElementById('progressText').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+            const progress = ((currentQ + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            updateButtons();
+            updateStats();
+
+            if (answered[currentQ]) {
+                showAnswer();
+            } else {
+                document.getElementById('feedback').classList.remove('show');
+            }
+        }
+
+        function selectAnswer(index) {
+            if (answered[currentQ]) return;
+
+            userAnswers[currentQ] = index;
+            answered[currentQ] = true;
+
+            const q = questions[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            if (index === q.correct) {
+                correctCount++;
+                options[index].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                incorrectCount++;
+                options[index].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect`);
+                retryQueue.push(currentQ);
+            }
+
+            options.forEach(opt => opt.classList.add('disabled'));
+            updateButtons();
+            updateStats();
+        }
+
+        function showFeedback(isCorrect, message) {
+            const fb = document.getElementById('feedback');
+            fb.classList.add('show');
+            fb.classList.toggle('correct', isCorrect);
+            fb.classList.toggle('incorrect', !isCorrect);
+            fb.innerHTML = `<div>${message}</div>`;
+        }
+
+        function showAnswer() {
+            const q = questions[currentQ];
+            const userAns = userAnswers[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach(opt => opt.classList.add('disabled'));
+
+            if (userAns === q.correct) {
+                options[userAns].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                options[userAns].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect`);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQ < questions.length - 1) {
+                currentQ++;
+                displayQuestion();
+            } else if (retryQueue.length > 0) {
+                const nextRetryIndex = retryQueue.shift();
+                questions.push(questions[nextRetryIndex]);
+                answered.push(false);
+                userAnswers.push(-1);
+                currentQ++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQ > 0) {
+                currentQ--;
+                displayQuestion();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQ === 0;
+            document.getElementById('nextBtn').disabled = !answered[currentQ];
+            document.getElementById('nextBtn').textContent = (currentQ === questions.length - 1 && answered[currentQ]) ? 'Results →' : 'Next →';
+        }
+
+        function updateStats() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('incorrect').textContent = incorrectCount;
+            const perc = (correctCount + incorrectCount) > 0 ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) : 0;
+            document.getElementById('percentage').textContent = perc;
+        }
+
+        function showResults() {
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalIncorrect').textContent = incorrectCount;
+
+            let message = '';
+            if (percentage === 100) message = '🌟 Perfect!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+            else message = '📖 Review more';
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            currentQ = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = new Array(originalQuestionsLength).fill(false);
+            userAnswers = new Array(originalQuestionsLength).fill(-1);
+
+            // Reset questions array based on current mode
+            if (currentMode === 'ordered') {
+                questions = [...questionsOrdered];
+            } else {
+                questions = [...questionsShuffled];
+            }
+
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('resultScreen').classList.remove('show');
+            displayQuestion();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+
+            if (document.getElementById('resultScreen').classList.contains('show')) {
+                if (/[0-9]/.test(key)) resetQuiz();
+                return;
+            }
+
+            if (answered[currentQ]) {
+                if (/[0-9]/.test(key)) nextQuestion();
+                return;
+            }
+
+            if (key === '1' || key === '2' || key === '3' || key === '4') {
+                selectAnswer(parseInt(key) - 1);
+            }
+        });
+
+        displayQuestion();
+    </script>
+</body>
+</html>

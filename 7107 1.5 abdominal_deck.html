@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abdominal Anatomy Review Deck</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container { max-width: 900px; width: 100%; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            min-height: 500px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .question-number { font-weight: 600; }
+        .accuracy { color: #764ba2; font-weight: 600; }
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            background: white;
+            position: relative;
+            padding-left: 50px;
+        }
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .option-label {
+            position: absolute;
+            left: 18px;
+            font-weight: 600;
+            color: #667eea;
+            width: 20px;
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .option.correct {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        .feedback {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback-correct {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            color: #047857;
+        }
+        .feedback-incorrect {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .feedback-text {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+            border: 2px solid #e5e7eb;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .keyboard-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .review-section {
+            display: none;
+        }
+        .review-section.show {
+            display: block;
+        }
+        .review-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .review-item {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ef4444;
+        }
+        .review-q {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .review-answer {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .review-answer span {
+            font-weight: 600;
+        }
+        .home-screen {
+            text-align: center;
+        }
+        .home-screen h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .home-screen p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .completion-screen {
+            text-align: center;
+        }
+        .completion-screen h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .final-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- Home Screen -->
+            <div id="homeScreen" class="home-screen">
+                <h1>Abdominal Anatomy Review</h1>
+                <p><strong>60 Questions</strong></p>
+                <p>Abdominal Wall • Inguinal Canal • Hernia • Peritoneal Cavity</p>
+                <p style="margin-top: 25px; font-size: 14px; color: #999;">
+                    Press <strong>1-4</strong> to select an answer<br>
+                    Press <strong>DOWN ARROW</strong> to continue
+                </p>
+                <button class="btn btn-primary" onclick="startQuiz()" style="margin-top: 30px;">Start Review</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="stats">
+                    <span class="question-number" id="questionCounter">Question 1 / 60</span>
+                    <span class="accuracy" id="accuracyDisplay">Accuracy: 0%</span>
+                </div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="feedback" id="feedback">
+                    <div class="feedback-title" id="feedbackTitle"></div>
+                    <div class="feedback-text" id="feedbackText"></div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="goHome()">Home</button>
+                    <button class="btn btn-secondary" onclick="showReview()">Show Missed</button>
+                </div>
+                <div class="keyboard-hint">
+                    Press <strong>1-4</strong> to select • <strong>↓</strong> to continue • <strong>H</strong> for home
+                </div>
+            </div>
+
+            <!-- Review Screen -->
+            <div id="reviewScreen" style="display: none;" class="review-section">
+                <button class="btn btn-secondary" onclick="backToQuiz()" style="margin-bottom: 25px;">← Back to Quiz</button>
+                <div class="review-title" id="reviewTitle">Missed Questions</div>
+                <div id="reviewContainer"></div>
+                <button class="btn btn-secondary" onclick="backToQuiz()" style="margin-top: 25px;">← Back to Quiz</button>
+            </div>
+
+            <!-- Completion Screen -->
+            <div id="completionScreen" style="display: none;" class="completion-screen">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="final-stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Correct Answers</div>
+                        <div class="stat-value" id="finalCorrect">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Final Accuracy</div>
+                        <div class="stat-value" id="finalAccuracy">0%</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+                    <button class="btn btn-secondary" onclick="showReviewFromCompletion()">Review Missed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+const questions = [
+{q:"A 45-year-old patient presents with acute abdominal pain localized to the periumbilical region. Which dermatome is responsible for visceral sensation at the umbilicus?",o:["A) T4","B) T8","C) T10","D) T12"],a:2,e:"The umbilicus is innervated by the T10 dermatome. This is clinically significant because visceral pain from abdominal organs (which are autonomically innervated) can be referred to specific dermatomes, allowing clinicians to localize pathology even though viscera lack somatic innervation. Periumbilical pain often indicates midgut pathology."},
+{q:"A 32-year-old female with a history of obesity presents with visible bulging along the linea alba between the costal margins and umbilicus. Which layer of the rectus sheath is deficient in this epigastric hernia?",o:["A) External oblique aponeurosis only","B) Internal oblique aponeurosis only","C) Transversus abdominis aponeurosis only","D) All layers of the rectus sheath and linea alba"],a:3,e:"Epigastric hernias represent defects through the linea alba, which is the central tendon formed by the fusion of aponeuroses from the lateral abdominal wall muscles. These hernias can contain preperitoneal fat or bowel. The linea alba is a natural weakness in the abdominal wall and is the most common site for epigastric hernias, particularly in post-partum women or after significant weight loss."},
+{q:"During an abdominal wall examination, a clinician notes that the patient's intra-abdominal pressure increases significantly with coughing. Which PRIMARY function of the lateral abdominal wall muscles does this demonstrate?",o:["A) Trunk flexion and rotation","B) Visceral support and compression","C) Postural stabilization only","D) Rib cage elevation"],a:1,e:"The lateral abdominal wall muscles (external obliques, internal obliques, and transversus abdominis) contract to increase intra-abdominal pressure for visceral support and compression. This mechanism is also essential for stabilizing the vertebral column during lifting and straining. The increased pressure you observe with coughing is the reflex contraction of these muscles, demonstrating their protective and supportive role."},
+{q:"A 28-year-old male with diabetes undergoes appendectomy. Six months post-operatively, he develops a bulge along his surgical incision with eventual bowel protrusion. This complication is classified as which type of hernia?",o:["A) Spigelian hernia","B) Incisional hernia","C) Umbilical hernia","D) Inguinal hernia"],a:1,e:"Incisional hernias are complications arising from failed healing of surgical incisions. They have a particularly high risk in diabetic patients due to impaired wound healing. This occurs when the fascial layers fail to properly fuse and epithelialize, creating a persistent defect. Diabetics are at significantly elevated risk for incisional hernias compared to non-diabetic patients."},
+{q:"A 38-year-old woman with a history of post-partum weight loss presents with a firm mass along the linea alba above the umbilicus that reduces when lying flat. What is the most likely diagnosis?",o:["A) Umbilical hernia","B) Epigastric hernia","C) Spigelian hernia","D) Inguinal hernia"],a:1,e:"Epigastric hernias occur through defects in the linea alba (central tendon) between the costal margins and umbilicus. They commonly develop post-partum or after significant weight loss when the linea alba weakens. The mass is typically firm because it may contain preperitoneal fat or omentum rather than bowel, and it reduces with positional changes due to gravity and muscle relaxation."},
+{q:"A 55-year-old obese patient is found to have a hernia protruding through the linea semilunaris lateral to the rectus abdominis muscle. Which type of hernia is this?",o:["A) Epigastric hernia","B) Spigelian hernia","C) Umbilical hernia","D) Ventral hernia"],a:1,e:"The linea semilunaris (semilunar line) is the lateral border of the rectus abdominis muscle, marking the transition between the rectus sheath medially and the lateral abdominal wall muscles laterally. Spigelian hernias occur through the linea semilunaris, typically below the arcuate line. They are associated with obesity and abdominal wall strain."},
+{q:"During physical examination of a newborn, a clinician observes a soft, compressible mass at the umbilicus that bulges when the infant cries. Which hernia type is most likely diagnosed?",o:["A) Epigastric hernia","B) Spigelian hernia","C) Umbilical hernia","D) Incisional hernia"],a:2,e:"Umbilical hernias are congenital defects occurring through the umbilical ring where blood vessels pass during fetal development. They are particularly common in African-American infants and those with Down syndrome. Most resolve spontaneously by age 2-3 years as fascial strength increases. They enlarge with increased intra-abdominal pressure (crying, defecation), making them more apparent during these activities."},
+{q:"A patient with chronic back pain is prescribed abdominal wall strengthening exercises. How would increased abdominal muscle tone help alleviate this back pain?",o:["A) Direct strengthening of erector spinae muscles","B) Stabilization of the vertebral column through increased intra-abdominal pressure","C) Reduction of spinal nerve compression","D) Reversal of posterior spinal ligament hypertrophy"],a:1,e:"Abdominal wall muscle contraction increases intra-abdominal pressure, which creates an internal \"corset\" effect that stabilizes the vertebral column. This reduces excessive spinal motion and stress on intervertebral discs and posterior ligaments. This mechanism explains why core strengthening is so effective for chronic low back pain management, independent of direct spinal muscle activation."},
+{q:"A 50-year-old male presents with asymmetrical rectus abdominis development with visible underdevelopment on one side. Which postural complication is most likely to develop as a consequence?",o:["A) Hyperlordosis with posterior pelvic tilt","B) Anterior pelvic tilt with potential glute atrophy","C) Scoliosis with rib cage deformity","D) Kyphosis with thoracic limitation"],a:1,e:"Underdeveloped rectus abdominis muscles fail to adequately control pelvic tilt. The rectus abdominis is a primary pelvic flexor and anterior stabilizer; weakness allows the pelvis to tilt anteriorly, increasing lumbar lordosis. This compensatory posture reduces glute activation and leads to glute atrophy over time, creating a problematic postural cycle that can cause chronic low back pain."},
+{q:"During abdominal wall relaxation (such as during inspiration), what structural change occurs that allows abdominal distension?",o:["A) Contraction of all lateral abdominal muscles","B) Relaxation of abdominal musculature while the spine extends posteriorly","C) Increased tension in the linea alba","D) Contraction of the transversus abdominis"],a:1,e:"During inspiration and abdominal distension, the abdominal muscles relax while the spine extends posteriorly. This allows the abdominal cavity to accommodate increased volume. The coordinated relaxation of the external obliques, internal obliques, and transversus abdominis creates space for organ movement and diaphragmatic excursion during breathing."},
+{q:"A 60-year-old patient with chronic obstructive pulmonary disease presents with a large ventral hernia at a previous surgical site. Which factor most significantly increases hernia risk in this patient population?",o:["A) Advanced age alone","B) Chronic increased intra-abdominal pressure from coughing","C) Hereditary collagen deficiency","D) Chronic corticosteroid use reducing collagen synthesis"],a:1,e:"Chronic coughing creates persistent elevation of intra-abdominal pressure, placing constant mechanical stress on abdominal wall fascial layers. This is particularly problematic at surgical incision sites where fascial strength is already compromised. While age, heredity, and steroid use contribute to hernia risk, the chronic pressure gradient from COPD is the primary mechanical factor in this case."},
+{q:"A patient with a reducible inguinal hernia experiences sudden onset severe pain in the groin with inability to reduce the hernia manually. What is the most likely acute complication?",o:["A) Hernia recurrence","B) Incarceration with potential strangulation","C) Infection of the hernia sac","D) Spontaneous rupture of the hernia"],a:1,e:"Incarceration occurs when hernia contents become trapped and cannot be reduced. If blood supply to the incarcerated bowel is compromised, strangulation develops, which is a surgical emergency. Strangulated bowel rapidly becomes ischemic and can perforate, leading to peritonitis and sepsis. The sudden pain and inability to reduce the hernia are classic signs of acute incarceration/strangulation."},
+{q:"A 35-year-old female presents with a tender mass along the linea semilunaris below the arcuate line. Imaging confirms a Spigelian hernia. Which muscle layer is primarily involved in the posterior boundary of this hernia defect?",o:["A) Internal oblique aponeurosis","B) Transversus abdominis aponeurosis","C) External oblique aponeurosis","D) Rectus abdominis muscle"],a:1,e:"Spigelian hernias occur through the linea semilunaris, which is the medial border of the external oblique aponeurosis. Below the arcuate line, the posterior rectus sheath is formed only by the transversus abdominis aponeurosis (the internal oblique aponeurosis splits). Spigelian hernias penetrate between the internal oblique and transversus abdominis, with the transversus aponeurosis forming the posterior boundary of the defect."},
+{q:"A 42-year-old obese male with no prior abdominal surgery presents with a painless bulge in the midline above the umbilicus that enlarges progressively over months. Which finding would help differentiate this from an incisional hernia?",o:["A) Presence of surgical scar","B) Ability to reduce the hernia when lying flat","C) Tenderness on palpation","D) Associated nausea or vomiting"],a:0,e:"Incisional hernias, by definition, develop at the site of a previous surgical incision. The presence or absence of a surgical scar is the key distinguishing feature. Since this patient has no surgical history, this is an epigastric hernia (spontaneous defect in the linea alba), not an incisional hernia. Both can be painless and progressive, but the absence of prior surgery is diagnostic."},
+{q:"A patient with newly diagnosed umbilical hernia in a 3-month-old infant is counseled about the natural history. What is the most appropriate management recommendation?",o:["A) Immediate surgical repair","B) Watchful waiting with observation, as most resolve spontaneously by age 2-3 years","C) Abdominal binding to prevent further enlargement","D) Dietary modification to reduce abdominal gas"],a:1,e:"The majority of congenital umbilical hernias (approximately 90%) resolve spontaneously by age 2-3 years as fascial strength increases and the umbilical ring closes. Surgical repair is indicated only if the hernia persists beyond age 3-4 years, becomes incarcerated, or causes complications. Watchful waiting with regular follow-up is the standard approach for uncomplicated umbilical hernias in infants and young children."},
+{q:"A 28-year-old patient presents with a firm, non-tender mass in the epigastrium. Imaging shows the mass contains fatty tissue within the hernia sac. Why is epigastric hernia content frequently preperitoneal fat rather than bowel?",o:["A) Bowel is too mobile to remain in the hernia sac","B) The hernia defect is too small to accommodate bowel","C) Fat is preferentially pushed through smaller defects in the linea alba before bowel","D) Epigastric hernias occur only in the upper rectus sheath where fat predominates"],a:2,e:"Epigastric hernias often contain preperitoneal fat (fatty tissue anterior to the peritoneum) because this fat herniates through relatively small linea alba defects before bowel does. As the defect enlarges over time, omentum or bowel may eventually herniate. The presence of fat in the hernia sac is common and often why these hernias feel firm rather than soft and compressible like typical bowel hernias."},
+{q:"A surgeon notes during hernia repair that fascial layers are friable and poorly healing at the surgical site. The patient has a history of chronic corticosteroid use for autoimmune disease. How does corticosteroid use compromise hernia healing?",o:["A) Steroids increase collagen cross-linking, making tissue brittle","B) Steroids inhibit collagen synthesis and fibroblast function","C) Steroids increase local inflammation, preventing proper wound healing","D) Steroids cause direct tissue necrosis at the incision site"],a:1,e:"Chronic corticosteroid use impairs wound healing by suppressing fibroblast activity and inhibiting collagen synthesis. This results in weaker fascial layers and reduced tensile strength, significantly increasing the risk of incisional hernia formation and hernia recurrence. Patients on chronic steroids require particularly careful surgical technique and may need mesh reinforcement even for primary hernia repairs."},
+{q:"A 65-year-old patient presents with a visible bulge along the linea alba with pain on palpation and reports the bulge is irreducible. Which finding best indicates this hernia requires emergent intervention?",o:["A) Irreducibility alone","B) Associated nausea without vomiting","C) Progressive pain with signs of obstruction or peritonitis","D) Tenderness with mild erythema"],a:2,e:"While irreducibility indicates incarceration, the presence of progressive pain combined with signs of bowel obstruction (nausea, vomiting, abdominal distension) or peritonitis (fever, guarding, rigidity) indicates strangulation, which is a surgical emergency. Simple incarceration without ischemia may be managed conservatively, but strangulation requires urgent operative intervention to prevent bowel necrosis and perforation."},
+{q:"A 40-year-old patient undergoes surgical repair of an abdominal wall hernia. During the procedure, the surgeon identifies the neurovascular plane between which two muscle layers?",o:["A) Between external oblique and internal oblique","B) Between internal oblique and transversus abdominis","C) Between transversus abdominis and peritoneum","D) Between rectus abdominis and linea alba"],a:1,e:"The neurovascular plane (also called the plane of dissection) lies between the internal oblique and transversus abdominis muscles. This plane contains important nerves (thoracoabdominal and subcostal) and vessels, as well as the anastomotic network that creates watershed tissue. Surgeons take care to preserve this plane during hernia repairs to maintain vascular supply and nerve function to the abdominal wall."},
+{q:"A 38-year-old patient with appendicitis presents with referred pain at the umbilicus (T10 dermatome), even though the appendix is innervated by autonomic nerve fibers. How is this clinical phenomenon explained?",o:["A) Autonomic fibers directly innervate skin at the umbilicus","B) Visceral pain is referred to the somatic dermatome corresponding to the organ's embryological origin","C) The appendix has dual innervation from both autonomic and somatic nerves","D) Referred pain occurs because visceral sensory fibers travel with sympathetic nerves to spinal cord"],a:1,e:"This is referred pain, a crucial clinical concept. Visceral organs receive autonomic innervation but can perceive pain through visceral sensory fibers that enter the spinal cord at the same level as somatic dermatomes. The midgut (including the appendix) is embryologically innervated by T10 sensory fibers, so appendiceal pain is referred to the T10 dermatome at the umbilicus. This allows clinicians to localize visceral pathology through somatic pain patterns."},
+{q:"A trauma patient suffers a laceration of the neurovascular plane during abdominal wall injury. Which clinical consequence is most likely?",o:["A) Complete loss of abdominal wall sensation","B) Compromised blood supply to the abdominal wall with risk of tissue necrosis","C) Immediate peritoneal perforation and evisceration","D) Loss of muscle innervation with complete flaccid paralysis"],a:1,e:"The neurovascular plane contains the major collateral circulation and anastomoses (watershed tissue) supplying the abdominal wall. Injury to this plane compromises blood flow and increases risk of tissue ischemia and necrosis. While nerve damage may occur (causing sensory or motor deficits), the vascular compromise is the most immediately life-threatening consequence due to the high oxygen demands of muscle tissue."},
+{q:"Referring to the anatomical layers of the abdominal wall, which nerves are found within the neurovascular plane between the internal oblique and transversus abdominis?",o:["A) Only parasympathetic fibers from the vagus nerve","B) Thoracoabdominal nerves (T7-T11), subcostal nerve (T12), and iliohypogastric/ilioinguinal nerves (L1)","C) Only somatic sensory fibers with no motor innervation","D) Exclusively sympathetic fibers with no parasympathetic contribution"],a:1,e:"The neurovascular plane contains the thoracoabdominal nerves (T7-T11, running downward from intercostal spaces), subcostal nerve (T12), and lower abdominal nerves including the iliohypogastric and ilioinguinal nerves from L1. These carry both sensory and motor innervation. Thoracoabdominal nerves provide the primary innervation to the external and internal obliques and rectus abdominis, making preservation of this plane essential during surgery."},
+{q:"A 45-year-old patient reports loss of sensation in a band across the lower abdomen at the level of the umbilicus. Which nerve injury would most likely explain this finding?",o:["A) T4 dermatome (areola level)","B) T10 dermatome (umbilicus level)","C) T12/subcostal nerve","D) L1 nerve (iliohypogastric/ilioinguinal)"],a:1,e:"The T10 dermatome corresponds to the umbilical region. Loss of sensation in a band at the umbilicus indicates injury to T10 sensory fibers, which could result from traumatic nerve injury, surgery, or spinal cord pathology at the T10 level. The T4 dermatome (areola) is much higher on the trunk, while T12 and L1 dermatomes are lower in the abdomen and flanks."},
+{q:"An anatomist points out watershed tissue in the abdominal wall during a dissection. This region contains multiple blood sources and anastomoses. Where is this watershed tissue located?",o:["A) Exclusively in the linea alba","B) In the neurovascular plane between the internal oblique and transversus abdominis","C) Only in the subcutaneous tissue","D) Throughout the rectus sheath only"],a:1,e:"Watershed tissue in the abdominal wall is located in the neurovascular plane, where multiple arterial systems create extensive anastomoses. This rich vascular network provides multiple collateral pathways, making the abdominal wall highly resistant to ischemia and explaining why even significant arterial ligation is often tolerated without tissue loss. This collateral circulation also complicates hemostasis during abdominal surgery."},
+{q:"A 55-year-old patient undergoes imaging for abdominal aortic aneurysm. The radiologist notes the course of the abdominal aorta and its segmental branches. What are these segmental branches called as they course inferiorly from the aorta?",o:["A) Intercostal arteries (all levels)","B) Intercostal arteries above T12, then lumbar arteries below T12","C) Superior mesenteric arteries","D) Renal arteries"],a:1,e:"The segmental vascular supply to the abdominal wall comes from the abdominal aorta. Above the 12th rib, these segmental branches are called intercostal arteries (which continue from the thorax). Below T12, they are called lumbar arteries. This continuation of the intercostal-to-lumbar arterial system provides the segmental blood supply coursing downward along the abdominal wall."},
+{q:"A surgical patient undergoes ligation of the internal thoracic artery as part of mammary graft harvesting. Which region of the abdominal wall would lose its primary vascular supply from this vessel?",o:["A) Lower abdominal wall below the umbilicus","B) Superior abdominal wall and epigastrium","C) Lateral abdominal wall at the linea semilunaris","D) Posterior abdominal wall"],a:1,e:"The internal thoracic artery arises from the subclavian artery and divides near the xiphoid process to provide the superior vascular supply to the upper abdominal wall and epigastrium. This vessel's branches supply the superior aspect of the rectus sheath and surrounding tissues. Loss of this supply could compromise healing of upper abdominal incisions or create ischemic complications."},
+{q:"A 62-year-old patient with history of aortic atherosclerosis undergoes vascular imaging. The study reveals significant stenosis of the external iliac artery. Which vessel arising from the external iliac artery supplies the inferior abdominal wall?",o:["A) Superior epigastric artery","B) Inferior epigastric artery","C) Lumbar arteries","D) Subcostal artery"],a:1,e:"The inferior epigastric artery arises from the external iliac artery and provides the primary vascular supply to the inferior abdominal wall below the umbilicus. Stenosis of the external iliac artery can compromise this supply, potentially leading to ischemic complications or poor wound healing in lower abdominal surgery. The inferior epigastric artery anastomoses with the superior epigastric artery in the rectus sheath."},
+{q:"During a complex abdominal wall reconstruction, a surgeon identifies rich anastomoses between the superior epigastric artery and inferior epigastric artery. Which anatomical structure contains these anastomoses?",o:["A) Linea alba","B) Rectus sheath surrounding the rectus abdominis","C) External oblique fascia","D) Subcutaneous tissue"],a:1,e:"The superior epigastric artery (from the internal thoracic artery) and inferior epigastric artery (from the external iliac artery) anastomose extensively within the rectus sheath as they course along the rectus abdominis muscle. This creates crucial collateral circulation in the midline. These anastomoses ensure adequate blood supply to the rectus muscle and surrounding tissues, making the midline relatively resistant to ischemia."},
+{q:"A 48-year-old patient undergoes emergency repair of a large abdominal wall defect. The surgeon notes that despite ligation of several segmental arteries from the aorta, the tissue remains well-perfused. Which vascular feature explains this clinical observation?",o:["A) The abdominal wall has only a single dominant arterial supply","B) Extensive collateral circulation and anastomoses in the neurovascular plane provide redundancy","C) Venous return is sufficient to maintain tissue perfusion independently","D) The peritoneum provides direct vascular supply to the abdominal wall"],a:1,e:"The abdominal wall has an extremely rich collateral circulation due to extensive anastomoses between superior, inferior, and segmental arterial systems. This redundancy means that ligation of individual or even multiple arterial branches rarely causes significant ischemia. The watershed tissue in the neurovascular plane contains these multiple vascular channels, making the abdominal wall one of the most vascularly robust regions of the body."},
+{q:"A vascular surgeon explains the three primary sources of blood supply to the abdominal wall. In order from superior to inferior, which arteries represent these three sources?",o:["A) Aorta → Internal thoracic → External iliac","B) Internal thoracic → Segmental aorta → External iliac","C) Subclavian → Lumbar → Common iliac","D) Intercostal → Aorta → Inguinal arteries"],a:1,e:"The three primary vascular sources of the abdominal wall are: (1) Superior supply from the internal thoracic artery (from subclavian), which divides near xiphoid; (2) Middle/segmental supply from the abdominal aorta via intercostal and lumbar arteries; (3) Inferior supply from the external iliac artery via inferior epigastric artery. This three-level system ensures robust collateral circulation throughout the abdominal wall."},
+{q:"A surgeon performing an abdominal wall repair notes the presence of plentiful veins in the hypodermis but no paired arteries in this superficial fat layer. What is the physiological rationale for this vascular arrangement?",o:["A) Veins are more resistant to damage than arteries","B) Superficial arteries would create high pressure that would bleed profusely if lacerated; veins maintain lower pressure","C) Arteries cannot develop in fatty tissue due to metabolic incompatibility","D) The superficial layer receives arterial supply from deeper structures only"],a:1,e:"This is an elegant evolutionary adaptation. High-pressure arteries in the subcutaneous layer would create catastrophic hemorrhage with minor skin lacerations. By limiting superficial vessels to low-pressure veins, the body minimizes life-threatening bleeding from superficial wounds. All the named arteries have paired veins, but superficial arteries are absent, making venous return the primary mechanism for superficial regions."},
+{q:"A 58-year-old patient with cirrhosis presents with a striking pattern of varicose veins radiating from the umbilicus. Which pathophysiological mechanism explains this clinical finding?",o:["A) Direct infection of umbilical vessels causing inflammation","B) Portal hypertension causes backup of blood; the obliterated umbilical vein reopens as a collateral pathway","C) Increased abdominal muscle tone compressing inferior vena cava","D) Congenital persistence of fetal umbilical circulation"],a:1,e:"Caput medusa (literally \"head of medusa\") is a classic sign of portal hypertension. When blood cannot flow normally into the liver, it backs up through portal venous channels. The paraumbilical veins become distended, and the normally obliterated umbilical vein reopens as a major collateral pathway to bypass the portal circulation. These dilated paraumbilical veins radiating from the umbilicus create the characteristic appearance."},
+{q:"During anatomical dissection of the anterior abdominal wall, a student identifies three umbilical folds. The medial umbilical fold contains which embryological remnant?",o:["A) Obliterated umbilical artery","B) Obliterated umbilical vein","C) Obliterated allantois (embryological bladder-umbilicus shunt)","D) Remnant of gubernaculum"],a:2,e:"The median umbilical fold (middle structure) contains the obliterated allantois, which was a fetal shunt between the bladder and umbilicus. The medial umbilical folds (paired, on either side) contain the obliterated umbilical arteries. The lateral umbilical folds contain the inferior epigastric vessels. These remnants are clinically important as they define anatomical landmarks for hernia classification."},
+{q:"Which umbilical fold contains the inferior epigastric vessels, and what is its anatomical significance?",o:["A) Median umbilical fold; defines the medial border of Hesselbach's triangle","B) Medial umbilical fold; forms the lateral border of the inguinal canal","C) Lateral umbilical fold; forms the lateral border of Hesselbach's triangle","D) Medial umbilical fold; forms the medial boundary of the deep inguinal ring"],a:2,e:"The lateral umbilical folds contain the inferior epigastric vessels and form the lateral border of Hesselbach's triangle (also called the medial inguinal fossa). Hesselbach's triangle is bounded medially by the lateral edge of the rectus abdominis, laterally by the inferior epigastric vessels, and inferiorly by the inguinal ligament. Direct inguinal hernias occur within Hesselbach's triangle."},
+{q:"A 7-year-old boy presents with an inguinal bulge noted by his parents. The surgical team explains that the inguinal canal has an embryological origin related to testicular descent. During which week of gestation does testicular descent through the inguinal canal occur?",o:["A) Week 8","B) Week 12","C) Week 26","D) Week 32"],a:2,e:"Testicular descent begins at week 6 from the retroperitoneal region near the kidneys, passes through the deep inguinal ring around week 12, and completes passage through the inguinal canal by week 26. The process is guided by the gubernaculum and typically completed within 2-3 days in the third trimester. This explains why males have a significantly higher risk of inguinal hernia—the inguinal canal remains a permanent anatomical defect in the abdominal wall after testicular descent."},
+{q:"A surgeon explains to a patient that during fetal development, the gubernaculum guided testicular descent. Where does the gubernaculum ultimately reside in the adult male?",o:["A) In the inguinal canal alongside the spermatic cord","B) Attached to the bottom of the scrotum, having pulled the testes downward","C) Obliterated and remnant only as the scrotal ligament","D) Persists as the pampiniform plexus"],a:1,e:"The gubernaculum is a mesenchymal condensation that acts as a guide and pulling force during testicular descent. It attaches to the bottom of the scrotum and actively pulls the testes downward through the inguinal canal. As the testes descend, they bring fascial layers with them, which eventually form the spermatic fascia. The gubernaculum's action explains the anatomical configuration of scrotal structures and the vulnerability of the inguinal canal as a hernia site."},
+{q:"A 35-year-old male presents with left inguinal hernia. Which structure, descending through the inguinal canal during fetal development, pulled tissue downward to create the spermatic fascia?",o:["A) The gubernaculum","B) The genital branch of the genitofemoral nerve","C) The testis itself","D) The pampiniform plexus"],a:2,e:"As the testis descends through the inguinal canal (guided by the gubernaculum), it pulls the peritoneum, fascia, and other surrounding tissues downward with it. These layers become organized as the spermatic fascia. The testis acts as a mechanical force dragging tissue through the canal, creating the anatomical layers that form the coverings of the spermatic cord. This mechanical process explains why the inguinal canal remains a persistent defect."},
+{q:"Which of the following is NOT a normal component of the spermatic cord contents?",o:["A) Testicular artery","B) Pampiniform plexus of veins","C) Vas deferens","D) Ilioinguinal nerve"],a:3,e:"The spermatic cord contains: (1) testicular artery (from abdominal aorta), (2) testicular veins forming the pampiniform plexus, and (3) vas deferens. The genital branch of the genitofemoral nerve runs with the cord but is technically separate from it. The ilioinguinal nerve (L1) innervates the external spermatic fascia and passes medial to the cord, not within it. Understanding cord contents is essential for inguinal hernia repair."},
+{q:"A 42-year-old patient reports pain along the L1 dermatome distribution. His physical examination reveals intact cremasteric reflexes and normal testicular sensation. Which clinical finding would raise concern for a retroperitoneal pathology rather than scrotal/inguinal pathology?",o:["A) Pain localized to the inguinal region only","B) Pain radiating to the flank and lower abdomen with imaging evidence of renal or reproductive organ pathology","C) Tenderness over the external inguinal ring","D) Visible inguinal bulge with coughing"],a:1,e:"L1 dermatome pain classically indicates kidney or reproductive organ pathology due to their embryological origin and innervation. While inguinal hernia can cause L1 distribution pain (via ilioinguinal nerve), the presence of flank pain, elevated creatinine, or imaging evidence of renal pathology suggests retroperitoneal origin. The external spermatic fascia is innervated by the ilioinguinal and iliohypogastric nerves (L1), which is why L1 pain raises concern for genitourinary pathology."},
+{q:"A 28-year-old male reports a painless bulge in the groin that enlarges noticeably when he coughs, laughs, or strains during bowel movements. This clinical presentation is classic for which type of hernia?",o:["A) Direct inguinal hernia only","B) Indirect inguinal hernia only","C) Either direct or indirect inguinal hernia","D) Femoral hernia"],a:2,e:"The classic presentation of a hernia that changes with abdominal pressure (coughing, laughing, straining, urinating, defecating) is characteristic of inguinal hernias in general. Both direct and indirect inguinal hernias exhibit this behavior because both pass through the inguinal canal where changes in intra-abdominal pressure directly affect hernia prominence. The key distinguishing feature is anatomical (direct through superficial ring only vs. indirect through both rings), not clinical presentation."},
+{q:"A surgeon is planning repair of an inguinal hernia. He must distinguish between a direct inguinal hernia and an indirect inguinal hernia. Which statement accurately describes this anatomical difference?",o:["A) Direct inguinal hernia passes through both superficial and deep inguinal rings; indirect passes through superficial ring only","B) Indirect inguinal hernia passes through both superficial and deep inguinal rings; direct passes through superficial ring only","C) Direct hernias occur only in females; indirect hernias only in males","D) Both types pass through the same anatomical path but differ in contents"],a:1,e:"This distinction is anatomically precise: Indirect inguinal hernias pass through BOTH the deep inguinal ring and the superficial inguinal ring (following the path of the spermatic cord/round ligament in females). Direct inguinal hernias pass through the superficial ring only, bulging through Hesselbach's triangle. Indirect hernias are more common (90% of inguinal hernias) and occur more frequently in males due to the testicular descent pathway."},
+{q:"A patient with a known inguinal hernia is counseled that while the hernia itself is usually painless, it carries significant risk. Why are hernias often painless even though they contain viscera?",o:["A) Bowel is insensitive to pressure due to lack of somatic nerve innervation","B) Hernia sacs are lined with anesthetic peritoneum","C) Abdominal viscera are primarily innervated by autonomic nerves, not somatic nerves","D) The inguinal canal blocks transmission of pain signals"],a:2,e:"This is a critical clinical concept: abdominal viscera receive autonomic (visceral) innervation, not somatic innervation. Therefore, simple protrusion of bowel into a hernia sac does not cause pain because there are no somatic nociceptors in the visceral peritoneum. Pain only develops if the hernia becomes incarcerated (trapped) or strangulated (ischemic), which causes visceral ischemia and peritoneal inflammation. This explains why patients may be unaware of hernias until complications develop."},
+{q:"A 58-year-old male presents with sudden severe groin pain and a palpable, irreducible inguinal mass. Imaging shows bowel obstruction with compromised blood flow to incarcerated bowel. Which complication has occurred?",o:["A) Simple inguinal hernia","B) Incarcerated inguinal hernia without ischemia","C) Strangulated inguinal hernia","D) Femoral hernia with obstruction"],a:2,e:"Strangulation occurs when incarcerated bowel loses its blood supply, leading to ischemia. The sudden pain (in contrast to the painless nature of uncomplicated hernias) indicates visceral ischemia and peritoneal inflammation. Strangulated hernias are surgical emergencies because ischemic bowel rapidly becomes necrotic, perforates, and causes peritonitis and sepsis. Immediate surgical intervention is required to prevent death."},
+{q:"A medical student studying abdominal anatomy learns that most abdominal viscera are intraperitoneal structures. Which of the following is a classic intraperitoneal organ suspended by mesentery?",o:["A) Kidney","B) Abdominal aorta","C) Stomach","D) Pancreas"],a:2,e:"Intraperitoneal structures are suspended by mesentery within the peritoneal cavity and include the stomach, liver, spleen, greater omentum, and most of the small intestine and transverse colon. These organs are completely covered by visceral peritoneum and can move relatively freely within the peritoneal cavity. The kidney, aorta, and pancreas are primarily retroperitoneal structures."},
+{q:"A surgeon describes an important abdominal structure as rich in leukocytes and capable of actively migrating toward areas of trauma or inflammation. Which structure exhibits this remarkable immunological behavior?",o:["A) Visceral peritoneum","B) Greater omentum","C) Mesentery","D) Parietal peritoneum"],a:1,e:"The greater omentum (also called the \"policeman of the abdomen\") is a unique double layer of peritoneum rich in lymphocytes and macrophages. It actively migrates toward areas of inflammation, trauma, or infection to wall off pathology and prevent spread. This process, called \"omental migration,\" is visible during surgery as the omentum moves toward inflammation (appendicitis, perforated ulcer, etc.). This immune function makes the omentum a critical component of abdominal defense."},
+{q:"A 45-year-old patient with history of hypertension presents with acute flank pain and imaging reveals retroperitoneal hemorrhage from aortic dissection. Which of the following structures is primary retroperitoneal and would explain the retroperitoneal location of this hemorrhage?",o:["A) Liver","B) Stomach","C) Abdominal aorta","D) Transverse colon"],a:2,e:"Primary retroperitoneal structures are located behind the parietal peritoneum and include the urinary system (kidneys, ureters, bladder), abdominal aorta, inferior vena cava, esophagus, and rectum. The aorta's retroperitoneal location explains why aortic pathology (dissection, aneurysm, rupture) presents with retroperitoneal hemorrhage rather than intraperitoneal effusion. These structures have minimal peritoneal coverage."},
+{q:"A radiologist reviews a CT scan and notes that the duodenum and pancreas now have visceral peritoneum covering only their anterior surfaces, indicating they are secondarily retroperitoneal. What embryological event explains this peritoneal configuration?",o:["A) Failure of mesentery formation during development","B) Migration of these structures posteriorly during development after initial mesenteric suspension","C) Obliteration of the epiploic foramen","D) Fusion of the greater and lesser omentum"],a:1,e:"Secondarily retroperitoneal structures (duodenum except D1, pancreas except tail, ascending and descending colons) begin as mesentery-suspended intraperitoneal structures. During development, they migrate posteriorly and fuse to the peritoneum, eventually becoming covered with posterior peritoneal layers only. This creates their current configuration where they have visceral peritoneum only on their anterior (free) surface. The mesentery flips anterior to form a new plane, becoming the root of the mesentery that houses vasculature."},
+{q:"The mesentery of the small bowel extends from the posterior abdominal wall and forms a \"hairpin turn\" of peritoneum. Which blood vessels are housed within the mesentery?",o:["A) Lumbar arteries and veins only","B) Superior and inferior mesenteric vessels with their branches","C) Testicular and ovarian vessels only","D) Portal venous system exclusively"],a:1,e:"The mesentery is a double layer of visceral peritoneum that suspends bowel and houses the superior and inferior mesenteric arteries, their branches, and corresponding veins, plus mesenteric lymph nodes and lymphatic vessels. The mesentery firmly roots the small intestine within the peritoneal cavity while providing a vascular highway. Compromised mesenteric blood flow causes bowel ischemia, a life-threatening emergency."},
+{q:"A CT scan reveals fluid filling the gastrohepatic recess (potential space between stomach and liver). What is the clinical significance of this finding?",o:["A) It indicates localized inflammation of the stomach lining only","B) It suggests the entire peritoneal cavity is likely filled with fluid, since the gastrohepatic recess fills only after larger peritoneal spaces are saturated","C) It indicates portal hypertension with ascites","D) It is a normal finding requiring no further investigation"],a:1,e:"This is a key radiological principle: fluid in the peritoneal cavity distributes predictably based on gravity and peritoneal compartments. The gastrohepatic recess fills only after the greater sac and other dependent areas are already full. Finding fluid in this recess indicates significant intraperitoneal effusion throughout the cavity, suggesting systemic pathology (peritonitis, ascites, hemorrhage) rather than localized inflammation."},
+{q:"A 62-year-old patient with pancreatic cancer develops intraperitoneal effusion. Which of the following best explains the pathophysiology of malignancy-related peritoneal effusion?",o:["A) Direct visceral perforation from the tumor","B) Tumor-induced peritoneal inflammation with increased capillary permeability and leakage of plasma","C) Blockade of lymphatic drainage in the mesentery","D) All of the above are possible mechanisms"],a:3,e:"Malignancy-related effusions have multiple mechanisms: (1) peritoneal inflammation from tumor presence increases capillary permeability, (2) tumor invasion can obstruct lymphatic drainage in the mesentery, reducing fluid reabsorption, and (3) tumor perforation of viscera can lead to mixed ascites/hemorrhage. In advanced malignancy, typically multiple mechanisms operate simultaneously to produce large-volume peritoneal effusion."},
+{q:"A 35-year-old patient presents with acute abdominal pain and imaging reveals free intraperitoneal fluid with gas. Which clinical scenario best explains this presentation?",o:["A) Simple peritonitis from appendicitis","B) Perforated viscus (bowel perforation) with pneumoperitoneum","C) Portal hypertension with ascites","D) Renal infarction with retroperitoneal hemorrhage"],a:1,e:"The combination of free intraperitoneal fluid AND gas (pneumoperitoneum) indicates a hollow viscus perforation. This is a surgical emergency requiring immediate intervention to repair the defect, drain the peritoneal cavity, and initiate antibiotics. Perforated bowel rapidly leads to peritonitis, sepsis, and death if untreated. Common causes include perforated gastric ulcer, perforated appendix, or traumatic bowel injury."},
+{q:"A clinician notes that fluid from a patient's peritoneal effusion appears lower on the peritoneal cavity than the original source of pathology. What explains this clinical observation?",o:["A) Pathology always descends within the abdomen as disease progresses","B) Gravity causes fluid to accumulate in dependent (lower) areas of the peritoneal cavity","C) Fluid is actively pumped inferiorly by peritoneal contractions","D) The peritoneum preferentially absorbs fluid from higher positions"],a:1,e:"This is a fundamental principle of peritoneal fluid distribution: gravity causes free fluid to move to the lowest point in the peritoneal cavity regardless of the pathology's location. Appendicitis (right lower quadrant) may present with maximal fluid in the pelvis; splenic infarction (left upper quadrant) may show fluid in the left gutter or pelvis. Understanding this principle is crucial for clinical interpretation of imaging and surgical planning."},
+{q:"A 48-year-old patient with cirrhosis develops ascites. Which peritoneal structure is responsible for maintaining normal protein concentration and preventing fluid accumulation in the peritoneal cavity?",o:["A) Visceral peritoneum passive filtration only","B) Peritoneal lymphatic drainage","C) Active peritoneal pumping","D) Mesenteric blood vessels"],a:1,e:"Normally, peritoneal lymphatic drainage maintains protein balance and prevents fluid accumulation. In cirrhosis, portal hypertension causes increased venous pressure, which overwhelms lymphatic drainage capacity. Additionally, hepatic lymphatic dysfunction occurs directly. The result is net fluid filtration exceeding reabsorption, leading to ascites. Understanding this mechanism explains why diuretics and sodium restriction (reducing fluid load) are primary medical treatments for cirrhotic ascites."},
+{q:"During abdominal surgery, a surgeon identifies two peritoneal potential spaces that are connected by the epiploic foramen. Which structures bound the epiploic foramen?",o:["A) Greater and lesser omentum only","B) Anterior: hepatoduodenal ligament; Posterior: IVC; Superior: liver; Inferior: first part of duodenum","C) Mesentery and posterior peritoneum","D) Rectus sheath and falciform ligament"],a:1,e:"The epiploic foramen (of Winslow) is the connection between the greater peritoneal sac and lesser peritoneal sac (omental bursa). It has critical anatomical boundaries: anteriorly the hepatoduodenal ligament (contains hepatic artery, portal vein, common bile duct), posteriorly the IVC, superiorly the liver, and inferiorly the duodenum. This foramen is clinically important because inflammation or infection in the lesser sac can be difficult to access surgically."},
+{q:"A 58-year-old with history of perforated peptic ulcer 20 years ago presents with recurrent abdominal pain. Imaging reveals loculated fluid in the lesser sac (omental bursa). What is the most likely explanation?",o:["A) New peptic ulcer perforation","B) Chronic adhesions and loculated fluid from the previous perforation causing recurrent symptoms","C) Portal hypertension","D) Malignancy seeding the peritoneum"],a:1,e:"Previous perforations create adhesions and organize fibrin, potentially leaving loculated fluid collections in the peritoneal cavity, particularly in compartments like the lesser sac. These chronic fluid collections can cause recurrent symptoms from traction on adjacent structures or intermittent inflammation. The patient's history of perforation is the key clue; reimaging and clinical evaluation are needed to differentiate recurrent perforation from chronic sequelae of the prior event."},
+{q:"A radiologist comparing CT images notes that intraperitoneal fluid from appendicitis appears as hyperintense (bright) material within the peritoneal space. What does this hyperintensity represent on CT imaging?",o:["A) Fat within the peritoneal cavity","B) Blood or protein-rich fluid from inflammation or bleeding","C) Air from perforation","D) Contrast extravasation from vessels"],a:1,e:"On CT imaging, intraperitoneal fluid from inflammation (appendicitis, peritonitis) or bleeding appears hyperdense (bright/hyperintense) compared to simple ascites. This represents elevated protein content from inflammatory exudate or blood products. Simple ascites (as in cirrhosis) appears hypodense (dark). Hemorrhagic effusion appears acutely hyperdense but may evolve over days. The density of peritoneal fluid provides radiological clues to the underlying pathology."},
+{q:"A 72-year-old with pancreatic cancer develops massive ascites. His peritoneum is studded with tumor nodules (peritoneal carcinomatosis). Which mechanism explains why malignant ascites accumulates so rapidly despite aggressive diuretic therapy?",o:["A) Tumor directly perforates the peritoneum causing leakage","B) Peritoneal carcinomatosis causes obstruction of lymphatic drainage and increased peritoneal inflammation","C) Malignant cells produce vasodilatory substances increasing capillary permeability","D) All of the above mechanisms contribute"],a:3,e:"Peritoneal carcinomatosis creates a perfect storm for massive ascites: (1) tumor nodules directly obstruct lymphatic drainage in the mesentery and peritoneum, (2) cancer cells produce inflammatory cytokines increasing vascular permeability, (3) tumor can invade blood vessels and peritoneum. The result is massive, rapidly accumulating ascites that is often resistant to diuretics. Palliative paracentesis is often necessary for symptom relief."},
+{q:"A patient with known intraperitoneal effusion is positioned supine for abdominal imaging. Where would you expect intraperitoneal fluid to accumulate due to gravity?",o:["A) Around the liver and upper abdomen","B) In the pelvis and dependent portions of the peritoneal cavity","C) Evenly distributed throughout the abdomen","D) Preferentially around the stomach and lesser sac"],a:1,e:"When upright or supine, gravity causes peritoneal fluid to accumulate in the lowest/dependent areas—the pelvis in upright position, or posterior dependent areas when supine. In males, fluid accumulates in the rectovesical pouch; in females, in the pouch of Douglas (rectouterine pouch). This principle guides imaging protocol and helps clinicians predict where effusions will be most apparent and easiest to sample via paracentesis."},
+{q:"A surgeon opens the peritoneal cavity during abdominal exploration for sepsis. He notes the greater omentum appears inflamed and adhesed to the area of a perforated appendix. What is the physiological significance of this finding?",o:["A) The omentum failed to contain the infection, indicating poor prognosis","B) The omentum is attempting to wall off and contain the inflammatory process (omental migration)","C) This is pathological and indicates advanced peritonitis","D) The omentum migration indicates malignancy"],a:1,e:"This represents a beneficial physiological response: the omentum's rich leukocytic content and active migration toward inflammation is an evolutionary adaptation to contain infection and prevent spread throughout the peritoneal cavity. The adhesions represent the omentum's attempt to \"wall off\" the perforated appendix. While we often surgically divide these adhesions for better visualization and source control, the omental response is a protective mechanism. This demonstrates why the omentum is sometimes called the \"policeman of the abdomen.\""},
+{q:"A 42-year-old female patient with systemic lupus erythematosus (SLE) presents with abdominal pain and is found to have intraperitoneal effusion. Which pathophysiological mechanism best explains peritoneal involvement in SLE?",o:["A) Direct infectious peritonitis from SLE","B) Autoimmune-mediated peritoneal inflammation with immune complex deposition","C) SLE directly perforates a hollow viscus","D) Lymphatic obstruction from SLE vasculitis"],a:1,e:"In SLE, immune complexes deposit in peritoneal vessels and peritoneum, triggering complement activation and inflammation. This creates sterile peritonitis with effusion that is not infectious but purely inflammatory/autoimmune. The effusion typically contains elevated protein and inflammatory cells (elevated WBC). Distinguishing autoimmune peritonitis from infectious peritonitis is critical for treatment (immunosuppression vs. antibiotics). SLE serositis, including peritonitis, is a recognized manifestation of the disease."}
+];
+
+let currentQuestion = 0;
+let correct = 0;
+let answered = [];
+let missed = [];
+let screen = 'home';
+
+
+function startQuiz() {
+    currentQuestion = 0;
+    correct = 0;
+    answered = [];
+    missed = [];
+    screen = 'quiz';
+    document.getElementById('homeScreen').style.display = 'none';
+    document.getElementById('quizScreen').style.display = 'block';
+    document.getElementById('completionScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'none';
+    loadQuestion();
+}
+
+function loadQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById('questionText').textContent = q.q;
+
+    const optionsHTML = q.o.map((option, idx) => {
+        const letter = String.fromCharCode(65 + idx);
+        return `<div class="option" onclick="selectAnswer(${idx})" onkeydown="if(event.key === ' ') selectAnswer(${idx})">
+                    <span class="option-label">${letter}</span>
+                    ${option}
+                </div>`;
+    }).join('');
+
+    document.getElementById('optionsContainer').innerHTML = optionsHTML;
+    document.getElementById('feedback').classList.remove('show', 'feedback-correct', 'feedback-incorrect');
+    updateStats();
+}
+
+function selectAnswer(idx) {
+    if(answered[currentQuestion] !== undefined) return;
+
+    const q = questions[currentQuestion];
+    const isCorrect = idx === q.a;
+    answered[currentQuestion] = { idx: idx, correct: isCorrect };
+
+    if(isCorrect) correct++;
+    else missed.push(currentQuestion);
+
+    const options = document.querySelectorAll('.option');
+    options.forEach((opt, i) => {
+        if(i === idx) {
+            opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+            opt.style.pointerEvents = 'none';
+        }
+    });
+
+    showFeedback(isCorrect, q.e);
+}
+
+function showFeedback(isCorrect, explanation) {
+    const fb = document.getElementById('feedback');
+    fb.classList.add('show', isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+    document.getElementById('feedbackTitle').textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+    document.getElementById('feedbackText').textContent = explanation;
+}
+
+function nextQuestion() {
+    if(answered[currentQuestion] === undefined) return;
+    currentQuestion++;
+    if(currentQuestion >= questions.length) {
+        showCompletion();
+    } else {
+        loadQuestion();
+    }
+}
+
+function updateStats() {
+    document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} / ${questions.length}`;
+    const acc = currentQuestion > 0 ? Math.round((correct / currentQuestion) * 100) : 0;
+    document.getElementById('accuracyDisplay').textContent = `Accuracy: ${acc}%`;
+    const prog = ((currentQuestion + 1) / questions.length) * 100;
+    document.getElementById('progressFill').style.width = prog + '%';
+}
+
+function showCompletion() {
+    screen = 'completion';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('completionScreen').style.display = 'block';
+    document.getElementById('finalCorrect').textContent = correct;
+    const finalAcc = Math.round((correct / questions.length) * 100);
+    document.getElementById('finalAccuracy').textContent = finalAcc + '%';
+}
+
+function showReview() {
+    if(missed.length === 0) {
+        alert('Perfect score! No missed questions.');
+        return;
+    }
+    screen = 'review';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'block';
+    renderReview();
+}
+
+function showReviewFromCompletion() {
+    if(missed.length === 0) {
+        alert('Perfect score! No missed questions.');
+        return;
+    }
+    screen = 'review';
+    document.getElementById('completionScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'block';
+    renderReview();
+}
+
+function renderReview() {
+    document.getElementById('reviewTitle').textContent = `Missed Questions (${missed.length})`;
+    const html = missed.map(idx => {
+        const q = questions[idx];
+        const userAns = answered[idx];
+        const correctOpt = q.o[q.a];
+        return `
+            <div class="review-item">
+                <div class="review-q">${q.q}</div>
+                <div class="review-answer">Your answer: <span>${q.o[userAns.idx]}</span></div>
+                <div class="review-answer">Correct: <span>${correctOpt}</span></div>
+                <div class="review-answer" style="margin-top: 10px; color: #555;">${q.e}</div>
+            </div>
+        `;
+    }).join('');
+    document.getElementById('reviewContainer').innerHTML = html;
+}
+
+function backToQuiz() {
+    screen = 'quiz';
+    document.getElementById('reviewScreen').style.display = 'none';
+    document.getElementById('quizScreen').style.display = 'block';
+}
+
+function goHome() {
+    screen = 'home';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('homeScreen').style.display = 'block';
+}
+
+function restartQuiz() {
+    startQuiz();
+}
+
+document.addEventListener('keydown', (e) => {
+    if(screen === 'quiz') {
+        if(e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
+            const idx = parseInt(e.key) - 1;
+            if(idx < 4 && answered[currentQuestion] === undefined) {
+                selectAnswer(idx);
+            }
+        } else if(e.key === 'ArrowDown') {
+            nextQuestion();
+        } else if(e.key === 'h' || e.key === 'H') {
+            goHome();
+        }
+    }
+});
+    </script>
+</body>
+</html>

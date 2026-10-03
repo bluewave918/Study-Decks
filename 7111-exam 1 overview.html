@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dent 7111 Quizlet - Multiple Choice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .progress-section {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        .question-box {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.05em;
+            background: white;
+            position: relative;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+            font-weight: 600;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+            font-weight: 600;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 12px;
+            font-weight: 600;
+        }
+
+        .option.correct .option-letter {
+            background: #28a745;
+        }
+
+        .option.incorrect .option-letter {
+            background: #dc3545;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-next, .btn-prev {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-next:hover, .btn-prev:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-next:disabled, .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .result-screen {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .result-message {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .score-details {
+            background: #f5f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dent 7111 - Quizlet Learn</h1>
+            <p style="color: rgba(255,255,255,0.9);">Multiple Choice Mode</p>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <span id="correct">0</span> Correct
+                </div>
+                <div class="stat-box">
+                    <span id="incorrect">0</span> Incorrect
+                </div>
+                <div class="stat-box">
+                    <span id="percentage">0</span>%
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div id="progressText">Question 1 of 95</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer">
+            <div class="question-box">
+                <div class="question-number" id="qNumber">Question 1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-prev" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+                <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+            </div>
+        </div>
+
+        <div class="result-screen" id="resultScreen">
+            <h2>Quiz Complete!</h2>
+            <div class="final-score" id="finalScore">0%</div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="score-details">
+                <div>Correct: <strong id="finalCorrect">0</strong> / 95</div>
+                <div>Incorrect: <strong id="finalIncorrect">0</strong> / 95</div>
+            </div>
+            <button class="btn-reset" onclick="resetQuiz()" style="margin-top: 20px;">🔄 Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "What are microfilaments made of?", options: ["Tubulin", "Actin", "Keratin", "Collagen"], correct: 1 },
+            { q: "What do microfilaments do?", options: ["Transport proteins", "Provide cell structure and tracks for myosin", "Store calcium", "Synthesize ATP"], correct: 1 },
+            { q: "What are intermediate filaments made of?", options: ["Actin", "Tubulin", "Vimentin or cytokeratins", "Myosin"], correct: 2 },
+            { q: "Can intermediate filaments contract?", options: ["Yes, very quickly", "No - they are NOT used for contraction", "Only in muscle cells", "Only with myosin"], correct: 1 },
+            { q: "What is the main function of intermediate filaments?", options: ["Photosynthesis", "Muscle contraction", "Structural support - they are very strong", "Hormone production"], correct: 2 },
+            { q: "What are microtubules called in terms of their function?", options: ["Structural scaffolding", "The 'monorail system'", "Enzymatic networks", "Energy conduits"], correct: 1 },
+            { q: "What do microtubules make up?", options: ["Cell membrane", "Cilia and flagella", "Nuclear envelope", "Ribosomes"], correct: 1 },
+            { q: "What do tight junctions control?", options: ["Protein synthesis", "Movement of molecules between cells", "DNA replication", "Lipid metabolism"], correct: 1 },
+            { q: "How narrow is the gap between cells in tight junctions?", options: ["Very wide for transport", "Very narrow - restricts passage", "Medium-sized", "Variable"], correct: 1 },
+            { q: "Which cytoskeleton does tight junction bind to?", options: ["Intermediate filaments", "Microtubules", "Actin microfilaments", "Myosin"], correct: 2 },
+            { q: "Name a protein found in tight junctions", options: ["Desmoplakin", "Claudins", "Talin", "Integrin"], correct: 1 },
+            { q: "What do tight junctions maintain?", options: ["Mitochondrial function", "Cell polarity", "Ribosomal activity", "ER structure"], correct: 1 },
+            { q: "What do zonula adherens junctions do?", options: ["Break down ECM", "Transport ATP", "Hold cells together (cell-to-cell adhesion)", "Synthesize proteins"], correct: 2 },
+            { q: "What are the 2 main protein complexes in zonula adherens?", options: ["Claudins and occludin", "Cadherins and catenins", "Integrins and talin", "Connexins and connexons"], correct: 1 },
+            { q: "Which proteins attach zonula adherens to actin?", options: ["Desmoplakin and plakoglobin", "Vinculin and actinin", "Claudins and JAM", "Laminin and collagen"], correct: 1 },
+            { q: "What do desmosomes connect to?", options: ["Microtubules", "Actin microfilaments", "Intermediate filaments (NOT actin)", "Ribosomes"], correct: 2 },
+            { q: "What type of adhesion are desmosomes?", options: ["Cell-to-matrix", "Cell-to-cell adhesion", "Junction to nucleus", "Membrane-to-ECM"], correct: 1 },
+            { q: "What are the cadherin equivalents in desmosomes called?", options: ["Integrins", "Desmoglein and desmocollin", "Occludin", "Fibronectin"], correct: 1 },
+            { q: "What do desmosomes look like under the microscope?", options: ["Smooth bands", "Dark bands with plaques", "Tubular structures", "Hexagonal patterns"], correct: 1 },
+            { q: "What do focal adhesions connect to?", options: ["Other cells", "Extracellular matrix (cell-to-matrix)", "Nucleus", "Ribosomes"], correct: 1 },
+            { q: "What replaces cadherins in focal adhesions?", options: ["Claudins", "Integrins", "Connexins", "Desmogleins"], correct: 1 },
+            { q: "Name an ECM protein that binds integrins", options: ["Keratin", "Collagen", "Actin", "Myosin"], correct: 1 },
+            { q: "What do hemidesmosomes connect to?", options: ["Other cells", "Mitochondria", "Basal lamina (cell-to-matrix)", "Ribosomes"], correct: 2 },
+            { q: "Which cytoskeleton do hemidesmosomes use?", options: ["Actin", "Intermediate filaments", "Microtubules", "Myosin"], correct: 1 },
+            { q: "What do hemidesmosomes resist?", options: ["Osmotic pressure", "Shear stress", "Chemical damage", "Heat"], correct: 1 },
+            { q: "What do gap junctions form?", options: ["Adherent connections", "Cell-to-cell aqueous pores", "Tight seals", "Structural anchors"], correct: 1 },
+            { q: "How many connexins make one connexon?", options: ["4", "6", "8", "12"], correct: 1 },
+            { q: "What is a key characteristic of epithelial tissue?", options: ["Highly vascular", "Avascular (no blood vessels)", "Loosely organized", "Rich in muscle fibers"], correct: 1 },
+            { q: "What are cells in epithelial tissue?", options: ["Loosely scattered", "Tightly attached in sheets", "Randomly distributed", "Embedded in bone"], correct: 1 },
+            { q: "Name a function of epithelial tissue", options: ["Oxygen production", "Protection, absorption, or secretion", "Enzyme storage", "Waste excretion"], correct: 1 },
+            { q: "What are simple squamous epithelial cells?", options: ["Multiple layers of thick cells", "Single layer of flat, thin cells", "Cube-shaped cells", "Columnar cells"], correct: 1 },
+            { q: "What are simple cuboidal cells?", options: ["Flat and thin", "Single layer of cube-shaped cells", "Multiple layers", "Very tall"], correct: 1 },
+            { q: "What are simple columnar cells?", options: ["Round cells", "Single layer of tall, rectangular cells", "Flat layers", "Transparent cells"], correct: 1 },
+            { q: "What is pseudostratified columnar epithelium?", options: ["Multiple distinct layers", "Irregular single layer that LOOKS like multiple layers", "Flat and thin", "Hexagonal arrangement"], correct: 1 },
+            { q: "Where is urothelium (transitional epithelium) found?", options: ["Lungs", "Stomach", "Bladder and urethra", "Small intestine"], correct: 2 },
+            { q: "What are the 3 main components of connective tissue?", options: ["Cells, proteins, lipids", "Cells (fibroblasts), ECM fibers, ground substance", "Neurons, glial cells, myelin", "Organelles, ribosomes, ATP"], correct: 1 },
+            { q: "What is the most abundant cell type in connective tissue?", options: ["Osteocytes", "Fibroblasts", "Adipocytes", "Macrophages"], correct: 1 },
+            { q: "What is loose connective tissue?", options: ["Dense and organized", "Most abundant; more cells/ground substance, fewer fibers", "Only in tendons", "Mainly water"], correct: 1 },
+            { q: "Where is loose connective tissue found?", options: ["Only in bones", "Under epithelia; fills spaces", "Only in ligaments", "In the brain"], correct: 1 },
+            { q: "What are the 2 types of dense connective tissue?", options: ["Simple and complex", "Irregular and regular", "Elastic and plastic", "Hard and soft"], correct: 1 },
+            { q: "How are fibers arranged in dense irregular tissue?", options: ["Unidirectionally", "Randomly in all directions", "Spirally", "Concentrically"], correct: 1 },
+            { q: "Where is dense irregular tissue found?", options: ["Tendons", "Deep dermis, organ capsules", "Cartilage", "Ligaments"], correct: 1 },
+            { q: "How are fibers arranged in dense regular tissue?", options: ["Randomly", "Unidirectionally (parallel)", "In circles", "Scattered"], correct: 1 },
+            { q: "Where is dense regular tissue found?", options: ["Lungs", "Brain", "Tendons and ligaments", "Stomach"], correct: 2 },
+            { q: "What is the main job of fibroblasts?", options: ["Break down bone", "Produce and maintain ECM", "Transmit signals", "Store energy"], correct: 1 },
+            { q: "What is ground substance made of?", options: ["Muscle proteins", "Proteoglycans and glycoproteins", "Bone minerals", "Fat cells"], correct: 1 },
+            { q: "What does ground substance sequester?", options: ["Minerals", "Fluid and growth factors", "Gases", "Cholesterol"], correct: 1 },
+            { q: "What charge do proteoglycans have?", options: ["Positive", "Neutral", "Negative", "Variable"], correct: 2 },
+            { q: "What is the structure of proteoglycans?", options: ["Simple amino acids", "Protein core with GAG chains", "Pure lipids", "RNA strands"], correct: 1 },
+            { q: "What is a major function of proteoglycans?", options: ["Hormone production", "Provide compressive strength (especially cartilage)", "Electric conduction", "Temperature regulation"], correct: 1 },
+            { q: "What is the basement membrane?", options: ["A thick bone layer", "Thin sheet of ECM anchoring epithelium to connective tissue", "A nerve structure", "Part of the cell nucleus"], correct: 1 },
+            { q: "What is the basement membrane called under electron microscopy?", options: ["Plasma membrane", "Basal lamina", "Nuclear envelope", "ER membrane"], correct: 1 },
+            { q: "What is fertilization?", options: ["Cell division", "Fusion of female ovum and male sperm", "Hormone secretion", "Embryo folding"], correct: 1 },
+            { q: "How many chromosomes result from fertilization?", options: ["23", "46 (diploid)", "92", "Varies"], correct: 1 },
+            { q: "What is the fertilized egg called?", back: "Zygote", options: ["Morula", "Zygote", "Blastocyst", "Embryo"], correct: 1 },
+            { q: "What does cleavage produce?", options: ["Placenta", "Morula (solid ball of cells)", "Yolk sac", "Amnion"], correct: 1 },
+            { q: "What is a morula?", options: ["A fluid-filled structure", "Solid ball of cells formed after cleavage", "A membrane", "Part of the placenta"], correct: 1 },
+            { q: "What is a blastocyst?", options: ["Solid ball of cells", "Hollow, fluid-filled structure", "An organ", "Part of mother's tissue"], correct: 1 },
+            { q: "What are the 2 main parts of a blastocyst?", options: ["Yolk and amnion", "Embryoblast (inner) and trophoblast (outer)", "Ectoderm and mesoderm", "Placenta and cord"], correct: 1 },
+            { q: "What does the embryoblast become?", options: ["Placenta", "The embryo proper", "Yolk sac", "Amnion"], correct: 1 },
+            { q: "What does the trophoblast become?", options: ["Brain tissue", "Muscle tissue", "Placenta and surrounding tissues", "Bone"], correct: 2 },
+            { q: "When does implantation occur?", options: ["Day 1", "Day 7-10 after fertilization", "Week 2", "Week 8"], correct: 1 },
+            { q: "Where does blastocyst implant?", options: ["Ovary", "Fallopian tube", "Endometrium (uterine wall)", "Cervix"], correct: 2 },
+            { q: "What are the 2 layers of the bilaminar disc?", options: ["Ectoderm and mesoderm", "Epiblast (dorsal) and hypoblast (ventral)", "Neural and non-neural", "Germ and somatic"], correct: 1 },
+            { q: "Which layer is the epiblast?", options: ["Lower layer", "Dorsal (upper) layer", "Middle layer", "Outer layer"], correct: 1 },
+            { q: "What does epiblast give rise to?", options: ["Only nervous system", "All three germ layers", "Only muscles", "Only bones"], correct: 1 },
+            { q: "Which layer is the hypoblast?", options: ["Upper layer", "Ventral (lower) layer", "Central layer", "Outer layer"], correct: 1 },
+            { q: "What does hypoblast form?", options: ["Nervous system", "Muscles", "Roof of secondary yolk sac", "Skeleton"], correct: 2 },
+            { q: "What does the yolk sac become?", options: ["Placenta", "Primitive gut → GI tract", "Bone marrow", "Blood cells"], correct: 1 },
+            { q: "Which layer does amnion develop from?", options: ["Hypoblast", "Trophoblast", "Epiblast", "Mesoderm"], correct: 2 },
+            { q: "What does amnion contain?", options: ["Blood", "Amniotic cavity with amniotic fluid", "Nutrients only", "Organs"], correct: 1 },
+            { q: "What is gastrulation?", options: ["Organ formation", "Formation of the 3 germ layers", "Fertilization", "Birth process"], correct: 1 },
+            { q: "When does gastrulation occur?", options: ["Week 1", "Week 2", "Week 3", "Week 8"], correct: 2 },
+            { q: "What is the primitive streak?", options: ["A nerve bundle", "Groove along midline defining body axis", "A blood vessel", "Muscle tissue"], correct: 1 },
+            { q: "Where is the primitive node?", options: ["Tail end", "Cranial (head) end of primitive streak", "Middle", "Side"], correct: 1 },
+            { q: "What happens at the primitive node?", options: ["Cells divide only", "Cells invaginate to form primitive pit", "Cells differentiate only", "Apoptosis"], correct: 1 },
+            { q: "What does ectoderm give rise to?", options: ["Muscles and bones", "Nervous system, epidermis, tooth enamel, sensory organs", "Liver and pancreas", "Heart and blood"], correct: 1 },
+            { q: "What is a major ectoderm derivative?", options: ["Cartilage", "Neural crest cells", "Red blood cells", "Stomach lining"], correct: 1 },
+            { q: "What does mesoderm give rise to?", options: ["Skin", "Muscle, bone, cartilage, blood, dermis, reproductive organs", "Hair", "Nails"], correct: 1 },
+            { q: "What does endoderm give rise to?", options: ["Bones", "GI tract lining, respiratory tract, liver, pancreas", "Heart", "Skin"], correct: 1 },
+            { q: "What forms the neural plate?", options: ["Ectoderm cells (neuroectoderm)", "Mesoderm cells", "Endoderm cells", "Hypoblast"], correct: 0 },
+            { q: "When does neural tube close?", options: ["Week 1", "Week 2", "Around week 3 (22 days)", "Week 8"], correct: 2 },
+            { q: "What is the neural crest?", options: ["Part of brain", "Sometimes called the '3.5 germ layer'", "A hormone", "A bone"], correct: 1 },
+            { q: "What does neural crest form in dentistry?", options: ["Enamel", "Dental pulp and dentin", "Cementum", "Periodontal ligament"], correct: 1 },
+            { q: "What is the notochord?", options: ["A bone", "Vertebral precursor", "A nerve", "A muscle"], correct: 1 },
+            { q: "What does notochord become?", options: ["Spinal cord", "Regresses to form vertebrae", "Nervous system", "Muscles"], correct: 1 },
+            { q: "What are the 2 directions of embryo folding?", options: ["Left and right", "Cranio-caudal (head-tail) and lateral (side-to-side)", "Up and down", "Forward and backward"], correct: 1 },
+            { q: "What does cranio-caudal folding create?", options: ["Gut tube", "Oropharyngeal membrane where mouth will be", "Heart", "Lungs"], correct: 1 },
+            { q: "What does lateral folding create?", options: ["Nervous system", "Muscles", "Gut tube", "Skeleton"], correct: 2 },
+            { q: "How many pharyngeal arches are there?", options: ["3", "5 (labeled 1-6, with 5 missing)", "4", "6"], correct: 1 },
+            { q: "What are the 4 main components of pharyngeal arches?", options: ["Bones only", "Muscles only", "Arches, grooves, pouches, membranes", "Nerves only"], correct: 2 },
+            { q: "What nerve innervates arch 1?", options: ["CN VII", "CN V (Trigeminal)", "CN IX", "CN X"], correct: 1 },
+            { q: "What nerve innervates arch 2?", options: ["CN V", "CN VII (Facial)", "CN IX", "CN X"], correct: 1 },
+            { q: "What does pharyngeal pouch 1 become?", options: ["Thyroid", "Middle ear and Eustachian tube", "Thymus", "Parathyroid"], correct: 1 },
+            { q: "What does pharyngeal pouch 2 become?", options: ["Tonsils in throat", "Palatine tonsils", "Thymus", "Parathyroid"], correct: 1 },
+            { q: "What does pharyngeal pouch 3 become?", options: ["Thyroid", "Inferior parathyroid and thymus", "Tonsils", "Eustachian tube"], correct: 1 },
+            { q: "What causes cleft palate/lip?", options: ["Excess nutrition", "Incomplete or abnormal fusion during development", "Genetic dominance only", "Viral infection only"], correct: 1 },
+            { q: "What do Hox genes regulate?", options: ["Protein folding", "Anterior-posterior (head-tail) identity", "Digestion", "Movement"], correct: 1 },
+            { q: "What do Dlx genes regulate?", options: ["Bone density", "Proximal-distal identity (inner to outer)", "Heart rate", "Temperature"], correct: 1 },
+            { q: "Where does anterior 2/3 of tongue come from?", options: ["Arch 2", "Arch 1", "Arch 3", "Arch 4"], correct: 1 },
+            { q: "Where does posterior 1/3 of tongue come from?", options: ["Arch 1", "Arch 2", "Arch 3", "Arch 4"], correct: 2 },
+            { q: "Does thyroid come from pharyngeal arches?", options: ["Yes, arch 1", "No - its own pouch behind arch 1", "Yes, arch 2", "Yes, arch 3"], correct: 1 },
+            { q: "What is endochondral bone formation?", options: ["Bone from fibrous tissue", "Bone forms from a cartilage template", "Bone melting", "Cartilage hardening"], correct: 1 },
+            { q: "What is intramembranous bone formation?", options: ["From cartilage", "From fibrous connective tissue (no cartilage template)", "From muscle", "From blood"], correct: 1 },
+            { q: "What are the 2 layers of bone?", options: ["Inner and outer", "Cortical (outer, dense) and spongy/trabecular (inner)", "Hard and soft", "Living and dead"], correct: 1 },
+            { q: "What does spongy bone contain?", options: ["Only marrow", "Blood vessels, marrow, fibrous network", "Only fat", "Only minerals"], correct: 1 },
+            { q: "What do osteoblasts do?", options: ["Break down bone", "Build/form bone", "Transport minerals", "Store nutrients"], correct: 1 },
+            { q: "What do osteocytes do?", options: ["Build bone", "Maintain mature bone", "Break down bone", "Produce marrow"], correct: 1 },
+            { q: "What do osteoclasts do?", options: ["Build bone", "Maintain bone", "Break down/resorb bone", "Store calcium"], correct: 2 },
+            { q: "What shape are osteons?", options: ["Square", "Cylindrical layers (concentric lamellae)", "Hexagonal", "Triangular"], correct: 1 },
+            { q: "What runs through Haversian canals?", options: ["Nerves only", "Capillaries (blood vessels)", "Marrow only", "Lymph only"], correct: 1 },
+            { q: "How much bone do children turnover per year?", options: ["5%", "15%", "30-100%", "10%"], correct: 2 },
+            { q: "How much bone do adults turnover per year?", options: ["30-100%", "50%", "5% cortical and 15% trabecular", "100%"], correct: 2 },
+            { q: "How are osteoclasts controlled?", options: ["Directly by PTH", "Through osteoblasts via RANK-RANKL-OPG signaling", "By diet alone", "Automatically"], correct: 1 },
+            { q: "What is the neurocranium?", options: ["Facial bones only", "Bone area containing the brain", "Lower jaw", "Cheekbone"], correct: 1 },
+            { q: "What is the calvaria?", options: ["Lower skull", "Top of skull; intramembranous bone", "Jaw bone", "Spine"], correct: 1 },
+            { q: "What is the cranial base?", options: ["Cheekbone area", "Base of skull; endochondral bone + neural crest", "Forehead", "Jaw"], correct: 1 },
+            { q: "What is the facial skeleton?", options: ["Brain covering", "Face region; formed from pharyngeal arches", "Neck", "Back of skull"], correct: 1 }
+        ];
+
+        let currentQ = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answered = new Array(questions.length).fill(false);
+        let userAnswers = new Array(questions.length).fill(-1);
+
+        function displayQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('qNumber').textContent = `Question ${currentQ + 1}`;
+            document.getElementById('questionText').textContent = q.q;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span>${option}`;
+                div.onclick = () => selectAnswer(index);
+                container.appendChild(div);
+            });
+
+            document.getElementById('progressText').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+            const progress = ((currentQ + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            updateButtons();
+            updateStats();
+
+            if (answered[currentQ]) {
+                showAnswer();
+            } else {
+                document.getElementById('feedback').classList.remove('show');
+            }
+        }
+
+        function selectAnswer(index) {
+            if (answered[currentQ]) return;
+
+            userAnswers[currentQ] = index;
+            answered[currentQ] = true;
+
+            const q = questions[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            if (index === q.correct) {
+                correctCount++;
+                options[index].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                incorrectCount++;
+                options[index].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect. The correct answer is: ${q.options[q.correct]}`);
+            }
+
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+            });
+
+            updateButtons();
+            updateStats();
+        }
+
+        function showFeedback(isCorrect, message) {
+            const fb = document.getElementById('feedback');
+            fb.classList.add('show');
+            fb.classList.toggle('correct', isCorrect);
+            fb.classList.toggle('incorrect', !isCorrect);
+            fb.innerHTML = `<div class="feedback-title">${message}</div>`;
+        }
+
+        function showAnswer() {
+            const q = questions[currentQ];
+            const userAns = userAnswers[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach(opt => opt.classList.add('disabled'));
+
+            if (userAns === q.correct) {
+                options[userAns].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                options[userAns].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect. The correct answer is: ${q.options[q.correct]}`);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQ < questions.length - 1) {
+                currentQ++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQ > 0) {
+                currentQ--;
+                displayQuestion();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQ === 0;
+            document.getElementById('nextBtn').disabled = !answered[currentQ];
+
+            if (currentQ === questions.length - 1 && answered[currentQ]) {
+                document.getElementById('nextBtn').textContent = 'See Results →';
+            } else {
+                document.getElementById('nextBtn').textContent = 'Next →';
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('incorrect').textContent = incorrectCount;
+            const percentage = questions.length > 0 ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) : 0;
+            document.getElementById('percentage').textContent = isNaN(percentage) ? 0 : percentage;
+        }
+
+        function showResults() {
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalIncorrect').textContent = incorrectCount;
+
+            let message = '';
+            if (percentage === 100) message = '🌟 Perfect Score! Outstanding!';
+            else if (percentage >= 90) message = '🎉 Excellent work!';
+            else if (percentage >= 80) message = '👍 Great job!';
+            else if (percentage >= 70) message = '📚 Good effort, review weak areas';
+            else if (percentage >= 60) message = '💪 Keep studying!';
+            else message = '📖 Need more review';
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            currentQ = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            answered = new Array(questions.length).fill(false);
+            userAnswers = new Array(questions.length).fill(-1);
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('resultScreen').classList.remove('show');
+            displayQuestion();
+        }
+
+        displayQuestion();
+    </script>
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dent 7111 - Section 2: Embryology (Ordered)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.9em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .mode-info {
+            background: rgba(255,255,255,0.15);
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.95);
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .controls-top {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-mode {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 9px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-mode:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-mode.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .progress-section {
+            color: white;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.3s;
+            border-radius: 3px;
+        }
+
+        .question-box {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.25em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .option {
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.98em;
+            background: white;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+            font-weight: 600;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+            font-weight: 600;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            margin-right: 10px;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .option.correct .option-letter {
+            background: #28a745;
+        }
+
+        .option.incorrect .option-letter {
+            background: #dc3545;
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.9em;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 9px 18px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-next, .btn-prev {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-next:hover, .btn-prev:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-next:disabled, .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-screen {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 18px 0;
+        }
+
+        .result-message {
+            font-size: 1.15em;
+            color: #333;
+            margin-bottom: 18px;
+        }
+
+        .score-details {
+            background: #f5f7ff;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 18px 0;
+            font-size: 0.95em;
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            margin-top: 12px;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Section 2: Embryology</h1>
+            <p>Complete 82-Card Comprehensive Quiz</p>
+        </div>
+
+        <div class="mode-info" id="modeInfo">
+            📖 LEARNING MODE: Questions in original order (content builds logically)
+        </div>
+
+        <div class="controls-top">
+            <button class="btn-mode active" id="btnOrdered" onclick="setMode('ordered')">📖 Ordered</button>
+            <button class="btn-mode" id="btnShuffled" onclick="setMode('shuffled')">🔀 Shuffled</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">✓ <span id="correct">0</span></div>
+            <div class="stat-box">✗ <span id="incorrect">0</span></div>
+            <div class="stat-box"><span id="percentage">0</span>%</div>
+        </div>
+
+        <div class="progress-section">
+            <div id="progressText">Question 1 of 105</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer">
+            <div class="question-box">
+                <div class="question-number" id="qNumber">Question 1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-prev" id="prevBtn" onclick="previousQuestion()" disabled>← Prev</button>
+                <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+            </div>
+        </div>
+
+        <div class="result-screen" id="resultScreen">
+            <h2>Quiz Complete!</h2>
+            <div class="final-score" id="finalScore">0%</div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="score-details">
+                <div>✓ Correct: <strong id="finalCorrect">0</strong> / 105</div>
+                <div>✗ Incorrect: <strong id="finalIncorrect">0</strong> / 105</div>
+            </div>
+            <button class="btn-reset" onclick="resetQuiz()">🔄 Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        function shuffleQuestions(questionsArray) {
+            return questionsArray.map(q => {
+                const options = [...q.options];
+                const correctAnswer = options[q.correct];
+
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+
+                const newCorrect = options.indexOf(correctAnswer);
+
+                return {
+                    q: q.q,
+                    options: options,
+                    correct: newCorrect
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        let questionsBase = [
+            { q: "What marks the beginning of prenatal development?", options: ["Week 1 of pregnancy", "The start of pregnancy and continues until birth", "First cell division", "Implantation only"], correct: 1 },
+            { q: "What time periods are included in the first 8 weeks?", options: ["Only embryonic period", "Preimplantation and embryonic period", "Fetal period", "Organogenesis only"], correct: 1 },
+            { q: "What is the time period AFTER 8 weeks called?", options: ["Embryonic period", "Preimplantation period", "Fetal period", "Gastrulation period"], correct: 2 },
+            { q: "What is the primordium?", options: ["The first cell division", "Earliest indicator of tissue or organ during development", "The primitive streak", "The notochord"], correct: 1 },
+            { q: "What does mitosis of the zygote lead to?", options: ["Gastrulation immediately", "Formation of blastocyst", "Formation of germ layers", "Neural tube formation"], correct: 1 },
+            { q: "Once the blastocyst implants in the interline wall, what happens?", options: ["Gastrulation begins", "Gives way to a disc to make the 3 germ layers", "Neural tube closes", "Organogenesis completes"], correct: 1 },
+            { q: "What do Homeobox genes code for?", options: ["Structural proteins", "Transcription factors to regulate embryogenesis (which end is which) - HUGELY CONSERVED", "Cell adhesion molecules", "Extracellular matrix components"], correct: 1 },
+            { q: "What is the primary function of HOX genes?", options: ["Cell migration", "Patterning the body axis and determining where limbs and body segments will grow - SEGMENTATION", "Forming the notochord", "Creating the neural tube"], correct: 1 },
+            { q: "What do Msx genes control?", options: ["Cell adhesion", "The cellular process of differentiation and proliferation during development", "Neural crest migration", "Germ layer identity"], correct: 1 },
+            { q: "What is the primary function of Dlx genes?", options: ["Regulating body axis", "Controlling development of ectodermal tissues from lateral border of neural plate (Makes lateral vs medial different in same arch)", "Forming somites", "Creating the notochord"], correct: 1 },
+            { q: "What role do Shh genes play?", options: ["Skeletal development", "Important role in early induction of facial primordium", "Neural crest formation", "Gastrulation"], correct: 1 },
+            { q: "Which type of cell adhesion is CALCIUM DEPENDENT?", options: ["CAM", "Cadherins", "N-CAM", "Integrins"], correct: 1 },
+            { q: "Which type of cell adhesion is CALCIUM INDEPENDENT?", options: ["Cadherins", "CAM (Calcium independent)", "Desmosomes", "All require calcium"], correct: 1 },
+            { q: "What adhesion molecule do NEUROECTODERM progenitors express?", options: ["L-CAM", "Cadherins", "N-CAM", "Integrins"], correct: 2 },
+            { q: "What adhesion molecule do SKIN ECTODERM progenitors express?", options: ["N-CAM", "Cadherins", "L-CAM", "CAM"], correct: 2 },
+            { q: "What is the cleavage event?", options: ["Gastrulation", "First split where zygote goes from unicellular to multicellular after fertilization", "Primitive streak formation", "Neural tube closure"], correct: 1 },
+            { q: "After zygote undergoes cleavage, what is the ball of identical cells called?", options: ["Blastocyst", "Morula", "Embryoblast", "Trophoblast"], correct: 1 },
+            { q: "What are the 3 KEY PARTS of the blastocyst?", options: ["Epiblast, hypoblast, and primitive streak", "Inner cell mass, fluid filled cavity, and trophoblast", "Ectoderm, mesoderm, and endoderm", "Notochord, neural plate, and somites"], correct: 1 },
+            { q: "Why do we NEED the blastocoel (fluid filled cavity)?", options: ["For waste removal only", "Reserve of proteins and nutrients (too big to rely on diffusion)", "For neural tube formation", "For cell migration"], correct: 1 },
+            { q: "What does the TROPHOBLAST become?", options: ["The embryo proper", "Placenta", "Yolk sac", "Amniotic cavity"], correct: 1 },
+            { q: "How long does the traveling blastocyst take to stop traveling and implant?", options: ["3-5 days", "7-10 days", "2-3 weeks", "1 day"], correct: 1 },
+            { q: "What does the blastocoel become?", options: ["Yolk sac", "Primary yolk sac", "Amniotic cavity", "Notochord"], correct: 1 },
+            { q: "When does the embryonic period occur?", options: ["Weeks 1-2 only", "Begins at weeks 2 and goes until week 8", "Weeks 8 and beyond", "Weeks 3-5 only"], correct: 1 },
+            { q: "What is PATTERNING in embryology?", options: ["Cell differentiation only", "Spatial and temporal events during embryonic phase", "Neural tube formation", "Gastrulation"], correct: 1 },
+            { q: "What is AXIAL SPECIFICATION?", options: ["Germ layer formation", "Which end is head and which end is tail", "Cell migration pathways", "Notochord development"], correct: 1 },
+            { q: "When does development of DENTITION begin?", options: ["Week 1", "During patterning of embryonic phase", "Week 16", "After birth"], correct: 1 },
+            { q: "What is INDUCTION in developmental biology?", options: ["Cell division", "When one group of cells tells another group (which are competent to do something) to do it (e.g., mesenchymal cells instructing epithelial cells in tooth development)", "Neural tube closure", "Gastrulation"], correct: 1 },
+            { q: "What is PROLIFERATION in development?", options: ["Cell death", "Cell division, increase in number and accumulation of cell products (ECM etc.)", "Cell migration", "Cell differentiation"], correct: 1 },
+            { q: "What is DIFFERENTIATION in development?", options: ["Cell division", "Development of specific structures and/or functions by individual cells or groups of cells", "Cell migration", "Tissue aggregation"], correct: 1 },
+            { q: "What is MORPHOGENESIS?", options: ["Cell division only", "Cell migration, interactions and proliferations causing development of specific structures (e.g., tissues, the head etc.)", "Gastrulation", "Neural tube closure"], correct: 1 },
+            { q: "What is MATURATION in embryology?", options: ["Cell division", "Attainment of adult size and function from proliferation, differentiation and morphogenesis", "Gastrulation", "Early differentiation"], correct: 1 },
+            { q: "What is GASTRULATION?", options: ["Organ formation", "Formation of 3 germ layers AROUND WEEK 3", "Neural tube formation", "Somite formation"], correct: 1 },
+            { q: "Once the blastocyst implants, what does the embryoblast differentiate into?", options: ["3 germ layers immediately", "Bilaminar germ disc (ESTABLISHED EMBRYO AXIS)", "Trophoblast", "Neural plate"], correct: 1 },
+            { q: "What is the TOP LAYER of the bilaminar germ disc?", options: ["Hypoblast", "Epiblast layer", "Trophoblast", "Neural ectoderm"], correct: 1 },
+            { q: "What do EPIBLAST cells do?", options: ["Form yolk sac", "Dorsal cells that reorganize to form amniotic cavity and later the 3 germ layers", "Form placenta", "Form trophoblast"], correct: 1 },
+            { q: "What is the morphology (shape) of EPIBLAST CELLS?", options: ["Flat and thin", "Superior high columnar cells", "Small cuboidal", "Irregular scattered"], correct: 1 },
+            { q: "What is the HYPOBLAST LAYER?", options: ["Dorsal layer", "Ventral cells that begin to line yolk sac but doesn't make any germ layers", "Forms ectoderm", "Forms placenta"], correct: 1 },
+            { q: "What is the morphology of HYPOBLAST cells?", options: ["High columnar cells", "Inferior small cuboidal cells", "Large flat cells", "Irregular cells"], correct: 1 },
+            { q: "What is the ORIGIN of ECTODERM?", options: ["Hypoblast", "Epiblast layer", "Primitive streak", "Neural crest"], correct: 1 },
+            { q: "What is the MORPHOLOGY of ECTODERM cells?", options: ["Cuboidal", "Columnar cells", "Flat", "Irregular"], correct: 1 },
+            { q: "What does ECTODERM give rise to? (List all)", options: ["Only epidermis", "Epidermis, sensory epithelium of eyes/ears/nose, nervous system and neural crest cells; mammary and cutaneous glands", "Only nervous system", "Only glands"], correct: 1 },
+            { q: "What is the ORIGIN of MESODERM?", options: ["Hypoblast", "Migrating cells from epiblast layer", "Neural crest", "Primitive streak alone"], correct: 1 },
+            { q: "What does MESODERM give rise to? (List all)", options: ["Only skin", "Dermis, muscle, bone, lymphatics, blood cells, marrow, cartilage, and reproductive and excretory organs", "Only blood", "Only bone"], correct: 1 },
+            { q: "What is the ORIGIN of ENDODERM?", options: ["Epiblast", "From hypoblast layer", "Primitive node", "Neural crest"], correct: 1 },
+            { q: "What is the MORPHOLOGY of ENDODERM cells?", options: ["Columnar", "Cuboidal cells", "Flat", "Irregular"], correct: 1 },
+            { q: "What does ENDODERM give rise to? (List all)", options: ["Only lungs", "Respiratory and digestive system linings; pancreatic cells", "Only liver", "Only pancreas"], correct: 1 },
+            { q: "After the bilaminar disc forms, what develops NEXT?", options: ["Notochord", "Primitive streak", "Neural tube", "Somites"], correct: 1 },
+            { q: "What is the PRIMITIVE STREAK exactly?", options: ["Neural structure", "Groove formed by epiblast cells and will proliferate to bulge out to either side of the groove", "Blood vessel network", "Bone structure"], correct: 1 },
+            { q: "What structure forms at the ROSTRAL END of the primitive streak?", options: ["Anus opening", "The prochordal plate (FUTURE MOUTH)", "Heart structures", "Lung buds"], correct: 1 },
+            { q: "How does the PROCHORDAL PLATE form?", options: ["From mesoderm", "The ectoderm curves around and integrates with the endoderm", "From neural crest", "From primitive streak alone"], correct: 1 },
+            { q: "What is the IMPORTANCE of the PRIMITIVE STREAK? (What does it establish?)", options: ["Only forms blood", "Solidifies head-tail orientation AND bilateral because now we have left and right", "Creates blood vessels", "Forms muscles only"], correct: 1 },
+            { q: "What does the EPIBLAST LAYER become?", options: ["Hypoblast", "Ectoderm", "Mesoderm", "Endoderm"], correct: 1 },
+            { q: "What is the PRIMITIVE NODE?", options: ["Blood vessel", "Ectodermal cells invaginate to form the primitive pit", "Bone structure", "Muscle tissue"], correct: 1 },
+            { q: "What is the NOTOCHORD?", options: ["Primitive streak", "Vertebral precursor that breaks apart and forms part of spine (mostly just signaling cells right now)", "Neural tube", "Somite structure"], correct: 1 },
+            { q: "How is MESODERM FORMED exactly?", options: ["From hypoblast", "Epiblast (ectoderm) invaginates and proliferates and migrates to form the mesoderm", "From neural crest", "Spontaneous generation"], correct: 1 },
+            { q: "What do 'MESOBLAST CELLS' form from?", options: ["Endoderm", "The true embryonic and mesoderm", "Ectoderm", "Trophoblast"], correct: 1 },
+            { q: "What is PRIMITIVE ENDODERM?", options: ["True endoderm", "Formed from hypoblast cells", "Ectoderm layer", "Mesoderm derivatives"], correct: 1 },
+            { q: "What is TRUE ENDODERM?", options: ["Hypoblast cells", "Hypoblast cells are PUSHED OUT OF WAY by invaginating epiblast cells", "Primitive endoderm", "Neural crest"], correct: 1 },
+            { q: "What germ layer do ALL 3 GERM LAYERS originate from overall?", options: ["Hypoblast", "Epiblast", "Trophoblast", "Primitive streak"], correct: 1 },
+            { q: "Which AREAS show direct joining of ECTODERM and ENDODERM with NO MESODERM between?", options: ["Entire body", "Prochordal plate (mouth) and cecal plate (anus)", "Only head region", "Only tail region"], correct: 1 },
+            { q: "How do EPIBLAST CELLS become MESODERM CELLS?", options: ["They move passively", "Lose cell-cell attachments to change to a different type (N-Cadherin)", "They divide rapidly", "They merge with hypoblast"], correct: 1 },
+            { q: "Once we have a disc with 3 LAYERS (triploblastic embryo), what happens NEXT?", options: ["Gastrulation ends", "Ectoderm and mesoderm fold inward to form oropharyngeal membrane at prochordal plate", "Neural tube closes", "Organogenesis completes"], correct: 1 },
+            { q: "What is STOMODEUM?", options: ["Stomach lining", "Primitive mouth", "Anus opening", "Pharynx region"], correct: 1 },
+            { q: "Where does TOOTH ENAMEL develop from?", options: ["Mesoderm", "Ectodermally derived (surprisingly)", "Endoderm", "Neural crest"], correct: 1 },
+            { q: "What is NEUROECTODERM exactly?", options: ["All neural tissue", "Specialized group of cells differentiates into primordial nervous system from ectoderm", "Part of mesoderm", "Notochord region"], correct: 1 },
+            { q: "What is NEURAL FOLD FUSION?", options: ["Mesoderm fusion", "Neuroectoderm folds up and begins to seal to make neural tube from head to tail", "Gut closure", "Somite formation"], correct: 1 },
+            { q: "What is SPINA BIFIDA?", options: ["Mesoderm defect", "Neural tube doesn't close at caudal end", "Notochord issue", "Trophoblast problem"], correct: 1 },
+            { q: "What is PARAXIAL MESODERM and where is it?", options: ["Outer mesoderm", "Towards middle which forms cartilage and segmented muscle", "Forms heart only", "Forms kidneys"], correct: 1 },
+            { q: "What is INTERMEDIATE MESODERM and what does it form?", options: ["Center mesoderm", "More lateral and forms kidneys and gonads", "Forms muscles only", "Forms bones only"], correct: 1 },
+            { q: "What is LATERAL MESODERM and what does it form?", options: ["Inner mesoderm", "Outermost mesoderm that forms heart and gut", "Forms bone only", "Forms cartilage only"], correct: 1 },
+            { q: "What are SOMITES and where are they?", options: ["Blood vessels", "Differentiated mesodermal located on sides of developing CNS", "Bone cells", "Nerve cells"], correct: 1 },
+            { q: "What does the NEURAL TUBE expand to form?", options: ["Heart and lungs only", "Forebrain, midbrain, and hindbrain", "Muscles only", "Organs only"], correct: 1 },
+            { q: "What does the HINDBRAIN segment into?", options: ["Lobes", "Rhombomeres", "Somites", "Pharyngeal regions"], correct: 1 },
+            { q: "What are RHOMBOMERES? (Full definition)", options: ["Brain parts", "Segmental structures in hindbrain that give rise to specific cranial nerves and regions of brain. Express Hox genes", "Somites", "Neural crest derivatives"], correct: 1 },
+            { q: "What is NEURAL CREST?", options: ["Mesoderm part only", "Develops from neuroectoderm and breaks up and migrates to form other stuff like dental pulp, kidneys, etc", "Blood vessel network", "Primitive streak"], correct: 1 },
+            { q: "What are ECTOMESENCHYMAL CELLS?", options: ["Endoderm cells", "Neural crest cells! Started from neural tube that broke off and migrated. Makes dental pulp and dentin", "Epithelial cells only", "Muscle cells"], correct: 1 },
+            { q: "What does FAILURE OF NEURAL CREST MIGRATION lead to?", options: ["Heart defects only", "Abnormal craniofacial development", "Skeletal dysplasia", "Organ deformities only"], correct: 1 },
+            { q: "What is TREACHER COLLINS SYNDROME (mandibulofacial dystosis)? (Full definition)", options: ["Cardiac defect", "Failure of neural crest cells to migrate to facial region leads to distinct facial deformities and other craniofacial abnormalities", "Skeletal dysplasia", "Metabolic disorder"], correct: 1 },
+            { q: "What is the BUCCOPHARYNGEAL MEMBRANE? (Full definition)", options: ["Bone membrane", "A structure that forms the boundary between oral and pharyngeal cavities during embryonic development. It eventually breaks down to allow communication between the two cavities", "Muscle layer", "Neural structure"], correct: 1 },
+            { q: "What does FOREGUT give rise to?", options: ["Lower intestine only", "Gives rise to primitive pharynx → oropharynx", "Rectum only", "Colon only"], correct: 1 },
+            { q: "What is STOMODEUM also called? (Full definition)", options: ["Pharynx", "PRIMITIVE ORAL CAVITY: is the embryonic structure that develops into the mouth", "Esophagus", "Stomach"], correct: 1 },
+            { q: "What happens during the FETAL PERIOD?", options: ["Gastrulation occurs", "Basic tissues and structures are already formed, just a matter of growth and continued specialization/maturation", "Organs form from scratch", "Neural tube closes"], correct: 1 }
+        ];
+
+        let questionsOrdered = shuffleQuestions(questionsBase);
+        let questionsShuffled = shuffleQuestions(shuffleArray(questionsBase));
+        let questions = [...questionsOrdered];
+        let currentMode = 'ordered';
+
+        let currentQ = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answered = new Array(questions.length).fill(false);
+        let userAnswers = new Array(questions.length).fill(-1);
+        let originalQuestionsLength = questions.length;
+        let retryQueue = [];
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnOrdered').classList.toggle('active', mode === 'ordered');
+            document.getElementById('btnShuffled').classList.toggle('active', mode === 'shuffled');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeInfo').innerHTML = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeInfo').innerHTML = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        function displayQuestion() {
+            const q = questions[currentQ];
+            const isRetry = currentQ >= originalQuestionsLength;
+
+            document.getElementById('qNumber').textContent = `Question ${currentQ + 1}${isRetry ? ' 🔄' : ''}`;
+            document.getElementById('questionText').textContent = q.q;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span>${option}`;
+                div.onclick = () => selectAnswer(index);
+                container.appendChild(div);
+            });
+
+            document.getElementById('progressText').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+            const progress = ((currentQ + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            updateButtons();
+            updateStats();
+
+            if (answered[currentQ]) {
+                showAnswer();
+            } else {
+                document.getElementById('feedback').classList.remove('show');
+            }
+        }
+
+        function selectAnswer(index) {
+            if (answered[currentQ]) return;
+
+            userAnswers[currentQ] = index;
+            answered[currentQ] = true;
+
+            const q = questions[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            if (index === q.correct) {
+                correctCount++;
+                options[index].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                incorrectCount++;
+                options[index].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect`);
+                retryQueue.push(currentQ);
+            }
+
+            options.forEach(opt => opt.classList.add('disabled'));
+            updateButtons();
+            updateStats();
+        }
+
+        function showFeedback(isCorrect, message) {
+            const fb = document.getElementById('feedback');
+            fb.classList.add('show');
+            fb.classList.toggle('correct', isCorrect);
+            fb.classList.toggle('incorrect', !isCorrect);
+            fb.innerHTML = `<div>${message}</div>`;
+        }
+
+        function showAnswer() {
+            const q = questions[currentQ];
+            const userAns = userAnswers[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach(opt => opt.classList.add('disabled'));
+
+            if (userAns === q.correct) {
+                options[userAns].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                options[userAns].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect`);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQ < questions.length - 1) {
+                currentQ++;
+                displayQuestion();
+            } else if (retryQueue.length > 0) {
+                const nextRetryIndex = retryQueue.shift();
+                questions.push(questions[nextRetryIndex]);
+                answered.push(false);
+                userAnswers.push(-1);
+                currentQ++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQ > 0) {
+                currentQ--;
+                displayQuestion();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQ === 0;
+            document.getElementById('nextBtn').disabled = !answered[currentQ];
+            document.getElementById('nextBtn').textContent = (currentQ === questions.length - 1 && answered[currentQ]) ? 'Results →' : 'Next →';
+        }
+
+        function updateStats() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('incorrect').textContent = incorrectCount;
+            const perc = (correctCount + incorrectCount) > 0 ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) : 0;
+            document.getElementById('percentage').textContent = perc;
+        }
+
+        function showResults() {
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalIncorrect').textContent = incorrectCount;
+
+            let message = '';
+            if (percentage === 100) message = '🌟 Perfect Score!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+            else message = '📖 Review more';
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            currentQ = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = new Array(originalQuestionsLength).fill(false);
+            userAnswers = new Array(originalQuestionsLength).fill(-1);
+
+            // Reset questions array based on current mode
+            if (currentMode === 'ordered') {
+                questions = [...questionsOrdered];
+            } else {
+                questions = [...questionsShuffled];
+            }
+
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('resultScreen').classList.remove('show');
+            displayQuestion();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+
+            if (document.getElementById('resultScreen').classList.contains('show')) {
+                if (/[0-9]/.test(key)) resetQuiz();
+                return;
+            }
+
+            if (answered[currentQ]) {
+                if (/[0-9]/.test(key)) nextQuestion();
+                return;
+            }
+
+            if (key === '1' || key === '2' || key === '3' || key === '4') {
+                selectAnswer(parseInt(key) - 1);
+            }
+        });
+
+        displayQuestion();
+    </script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Anatomy Deck 1 - Questions 1-136</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .deck-label {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+        .question-section {
+            margin-bottom: 30px;
+        }
+        .question-number {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: left;
+            font-family: inherit;
+        }
+        .option:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        .option:disabled {
+            cursor: default;
+        }
+        .option-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 10px;
+        }
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback.correct {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+        }
+        .feedback.incorrect {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            color: #c62828;
+        }
+        .feedback-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .explanation {
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            grid-column: 1 / -1;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .hint {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: -10px;
+        }
+        .end-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .end-screen h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .final-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .score-item {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .score-item-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .score-item-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .review-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .review-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .review-item {
+            background: #ffebee;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #f44336;
+            font-size: 13px;
+        }
+        .review-question {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .review-answer {
+            color: #666;
+            margin-bottom: 2px;
+        }
+        .review-correct {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="quiz-content"></div>
+    </div>
+
+    <script>
+        const QUESTIONS = [
+            {q: 1, text: "What is the normal cardiac output at rest in a healthy adult?", options: ["2-3 L/min", "4-6 L/min", "10-15 L/min", "20-25 L/min"], correct: 1, explanation: "Normal cardiac output at rest is 4-6 L/min. This can increase dramatically with exercise to 25 L/min or more."},
+            {q: 2, text: "During strenuous exercise, cardiac output can increase to approximately:", options: ["10-12 L/min", "15-18 L/min", "As much as 25 L/min", "30+ L/min"], correct: 2, explanation: "During strenuous exercise, cardiac output can increase to as much as 25 L/min—a 4-6 fold increase from resting values."},
+            {q: 3, text: "Which of the following is NOT a major source of venous return to the right atrium?", options: ["Superior vena cava", "Inferior vena cava", "Coronary sinus", "Pulmonary artery"], correct: 3, explanation: "The three elements of venous return are the superior vena cava (SVC), inferior vena cava (IVC), and coronary sinus. The pulmonary artery carries blood TO the lungs, not from the body."},
+            {q: 4, text: "The coronary sinus delivers deoxygenated blood from which vascular bed directly into the right atrium?", options: ["The pulmonary circulation", "The systemic circulation of the right side of the body", "The coronary circulation of the heart wall itself", "The hepatic portal system"], correct: 2, explanation: "The coronary sinus collects deoxygenated blood from the coronary circulation (the heart's own blood supply) and returns it to the right atrium."},
+            {q: 5, text: "Which anatomical landmark in the right atrium represents the remnant of the foramen ovale, appearing as a small concavity?", options: ["Crista terminalis", "Fossa ovalis", "Right auricle", "Pectinate muscles"], correct: 1, explanation: "The fossa ovalis is the remnant of the foramen ovale (the fetal shunt). It appears as a small concavity or depression on the interatrial septum."},
+            {q: 6, text: "The crista terminalis represents an embryological junction between which two structures?", options: ["The sinus venosus and the embryonic atrium", "The right and left atria", "The atrium and ventricle", "The sinoatrial node and the atrioventricular node"], correct: 0, explanation: "The crista terminalis is the embryological junction between the sinus venosus and the embryonic atrium, visible as a ridge separating smooth from trabeculated tissue."},
+            {q: 7, text: "Which structure appears as a flap-like pouch in the right atrium that can seal to provide protection during the cardiac cycle?", options: ["Fossa ovalis", "Right auricle", "Crista terminalis", "Pectinate muscles"], correct: 1, explanation: "The right auricle is a flap-like pouch that increases atrial volume and can seal during rest. It also flaps down to protect coronary artery origins."},
+            {q: 8, text: "A key embryological function of the right auricle during atrial contraction is to:", options: ["Initiate the sinoatrial rhythm", "Prevent regurgitation into the SVC", "Provide extra volume to increase cardiac output during contraction", "Generate the heart sounds heard on auscultation"], correct: 2, explanation: "The right auricle provides extra volume capacity during atrial contraction, helping to increase cardiac output during this phase."},
+            {q: 9, text: "Pectinate muscles in the right atrium are specialized myocardium primarily arranged to:", options: ["Prevent backflow of blood into the vena cava", "Run in line with blood flow to facilitate efficient contraction", "Prevent thrombus formation within the atrial cavity", "Generate the atrial kick that fills the ventricle"], correct: 1, explanation: "Pectinate muscles run parallel to the flow of blood through the atria, facilitating efficient contraction and blood flow patterns."},
+            {q: 10, text: "Increased turbulence of blood within the right atrium can lead to:", options: ["Increased oxygen extraction by the heart", "Increased filtration of blood by the atrial wall", "Increased aggregation of cholesterol plaques and atherosclerosis", "Decreased venous return from the systemic circulation"], correct: 2, explanation: "Blood turbulence causes eddies and swirling that extract cholesterol and other particles, promoting atherosclerotic plaque formation."},
+            {q: 11, text: "During diastole, blood flows from the right atrium into the right ventricle through which valve?", options: ["Pulmonary valve", "Tricuspid valve", "Aortic valve", "Mitral valve"], correct: 1, explanation: "The tricuspid valve connects the right atrium to the right ventricle and opens during diastole to allow blood flow for ventricular filling."},
+            {q: 12, text: "A patient with pathology of the right atrium might present with signs of systemic venous congestion. Which of the following is NOT typically associated with right atrial dysfunction?", options: ["Jugular venous distension", "Hepatomegaly", "Pulmonary edema", "Peripheral edema"], correct: 2, explanation: "Right atrial pathology causes systemic venous congestion (JVD, hepatomegaly, peripheral edema), but pulmonary edema results from left-sided heart problems."},
+            {q: 13, text: "The right ventricle is primarily responsible for pumping blood to which vascular bed?", options: ["The brain", "The systemic circulation", "The pulmonary circulation", "The coronary circulation"], correct: 2, explanation: "The right ventricle pumps deoxygenated blood to the lungs via the pulmonary artery for oxygenation."},
+            {q: 14, text: "Which anatomical feature of the right ventricle helps reduce blood turbulence during contraction?", options: ["Thick myocardial wall", "Trabeculae carneae", "Papillary muscles", "Interventricular septum"], correct: 1, explanation: "Trabeculae carneae are irregular muscular ridges that reduce turbulence by creating smooth flow patterns during ventricular contraction."},
+            {q: 15, text: "Chordae tendineae in the right ventricle function anatomically as:", options: ["Conduction pathways for electrical impulses", "Parachute-like structures that anchor cusps to papillary muscles", "Muscular bands that separate the chambers", "Valvular cusps themselves"], correct: 1, explanation: "Chordae tendineae are tendinous cords that function like parachute strings, anchoring valve cusps to papillary muscles."},
+            {q: 16, text: "The tricuspid valve apparatus includes all of the following EXCEPT:", options: ["Tricuspid valve cusps (leaflets)", "Chordae tendineae", "Papillary muscles", "Semilunar cusps"], correct: 3, explanation: "The tricuspid valve apparatus consists of three cusps, chordae tendineae, and papillary muscles. Semilunar cusps are part of the aortic and pulmonary valves."},
+            {q: 17, text: "Which papillary muscle of the tricuspid valve complex is considered the most critical for valve closure?", options: ["Posterior papillary muscle", "Anterior papillary muscle", "Septal papillary muscle", "All three are equally critical"], correct: 1, explanation: "The anterior papillary muscle is the largest and most critical for tricuspid valve closure and function."},
+            {q: 18, text: "The septomarginal trabecula (moderator band) connects which two structures in the right ventricle?", options: ["The anterior and posterior walls", "The interventricular septum to the anterior papillary muscle", "The tricuspid valve to the pulmonary valve", "The right and left ventricles"], correct: 1, explanation: "The septomarginal trabecula connects the interventricular septum to the anterior papillary muscle of the tricuspid valve."},
+            {q: 19, text: "What is the primary embryological and functional significance of the septomarginal trabecula?", options: ["To prevent ventricular arrhythmias", "To initiate early closure of the tricuspid valve before complete ventricular contraction", "To maintain structural integrity between the ventricles", "To assist in conduction of electrical impulses through the ventricle"], correct: 1, explanation: "The septomarginal trabecula helps initiate early closure of the tricuspid valve before complete ventricular contraction completes."},
+            {q: 20, text: "During the opening phase of the pulmonary valve, what directly causes the valve to open?", options: ["Decreased ventricular pressure", "Ventricular contraction pushing blood against the valve", "Aortic pressure pushing the valve open", "Electrical impulse from the conduction system"], correct: 1, explanation: "Ventricular contraction during systole increases intraventricular pressure, pushing blood against and opening the pulmonary valve."},
+            {q: 21, text: "During ventricular systole (contraction), the tricuspid valve closes primarily because:", options: ["Pulmonary artery pressure increases", "The ventricle shortens and flattens, causing papillary muscles to shift from vertical to horizontal, drawing cusps closed like a drawstring bag", "The aorta expands and pulls the valve closed", "Sympathetic stimulation activates valve closure"], correct: 1, explanation: "Ventricular contraction changes the chamber geometry; papillary muscles shift orientation, syncing valve closure through geometric changes."},
+            {q: 22, text: "During ventricular diastole (relaxation and filling), which valve is OPEN, allowing blood to flow from atrium to ventricle?", options: ["Semilunar valves (aortic and pulmonary)", "Atrioventricular valves (tricuspid and mitral)", "Both semilunar and atrioventricular valves", "Neither; blood flows around closed valves during diastole"], correct: 1, explanation: "During diastole, the atrioventricular valves open for ventricular filling, while semilunar valves remain closed."},
+            {q: 23, text: "The primary mechanism preventing blood regurgitation during systole in an atrioventricular valve is:", options: ["The valve cusp becomes concave and seals against the ventricular wall", "The papillary muscle contraction parallels ventricular contraction, and the change in geometry syncs valve closure", "High pressure from the ventricle physically crushes the valve closed", "The atrial pressure exceeds ventricular pressure"], correct: 1, explanation: "Papillary muscle contraction coordinates with ventricular contraction to change chamber geometry, ensuring synchronized valve closure."},
+            {q: 24, text: "Why are valves present at every junction in the heart?", options: ["To generate the cardiac murmurs we hear on auscultation", "To prevent regurgitation and backflow of blood", "To slow blood flow and allow increased oxygen extraction", "To prevent arrhythmias from developing"], correct: 1, explanation: "Valves at every heart junction prevent blood from flowing backward (regurgitation), ensuring unidirectional flow through chambers."},
+            {q: 25, text: "The left atrium appears notably SMOOTHER than the right atrium. This smooth appearance is due to:", options: ["Embryological origin from the sinus venosus", "Developmental incorporation of the primordial pulmonary veins, giving it smooth vascular tissue characteristics", "Absence of pectinate muscles", "Different embryological origin from endoderm rather than mesoderm"], correct: 1, explanation: "The pulmonary veins grow into and are incorporated by the left atrium, giving it smooth muscle tissue characteristics more like vasculature."},
+            {q: 26, text: "On inspection, the fossa ovale appears CONVEX when viewed from the:", options: ["Right atrial side", "Left atrial side", "Ventricular side", "Coronary sinus"], correct: 1, explanation: "When viewed from the left atrial side, the fossa ovale appears as a convex bulge in the interatrial septum."},
+            {q: 27, text: "How many pulmonary veins normally open into the left atrium, bringing oxygenated blood during the cardiopulmonary circulation?", options: ["1 opening", "2 openings", "3 openings", "4 openings"], correct: 3, explanation: "Four pulmonary veins normally enter the left atrium: right superior, right inferior, left superior, and left inferior pulmonary veins."},
+            {q: 28, text: "The embryological development of pulmonary veins into the left atrium is analogous to:", options: ["Fingers of a glove being blown up and then slowly enveloped by an expanding palm", "A branching tree with roots and branches", "A network of capillaries forming a vascular bed", "Invagination of mesoderm during gastrulation"], correct: 0, explanation: "Pulmonary vein development resembles glove fingers being blown up (expanding) then enveloped by an expanding palm (growing atrium)."},
+            {q: 29, text: "The smooth muscular appearance of the left atrium compared to the trabeculated right atrium indicates:", options: ["Greater contractility of the left atrium", "Different embryological origin reflecting incorporation of vascular tissue", "Presence of more pectinate muscles in the left atrium", "Greater metabolic demand of left atrial tissue"], correct: 1, explanation: "The smooth appearance indicates the left atrium incorporates smooth pulmonary vein tissue during development."},
+            {q: 30, text: "Which ventricle is the largest and has the thickest myocardium?", options: ["Right ventricle", "Left ventricle", "Both are equal in size and wall thickness", "Neither; atria are thicker"], correct: 1, explanation: "The left ventricle is the largest cardiac chamber with the thickest myocardial wall to generate high systemic pressures."},
+            {q: 31, text: "Why is the left ventricular wall significantly thicker than the right ventricular wall?", options: ["To generate higher pressures needed to pump blood through the systemic circulation", "To prevent the formation of ventricular thrombi", "To accommodate larger volumes of blood during diastole", "To prevent regurgitation through the mitral valve"], correct: 0, explanation: "The left ventricle must generate much higher pressures to pump blood throughout the entire body (systemic circulation)."},
+            {q: 32, text: "Arteriosclerosis (atherosclerotic plaque deposition) of the left ventricle increases strain on the heart because:", options: ["Plaque narrows the coronary vessels, reducing oxygen supply", "The left ventricle is already the strongest chamber and must work harder when additional stenosis is present", "Plaque prevents valve closure", "Plaque increases turbulence that damages myocardial tissue"], correct: 1, explanation: "The left ventricle is the workhouse of the heart; any additional stenosis increases workload on an already heavily stressed chamber."},
+            {q: 33, text: "Which of the following is a major clinical consequence when valves fail to close completely (regurgitation)?", options: ["Decreased cardiac output", "The heart must work even harder to generate forward flow, potentially leading to hypertrophic cardiomyopathy", "Decreased blood pressure throughout the body", "Increased oxygen extraction by tissues"], correct: 1, explanation: "Valve regurgitation forces the heart to pump the same blood twice, increasing workload and potentially causing hypertrophic changes."},
+            {q: 34, text: "The apex of the heart points toward which direction in the body cavity?", options: ["Upper right", "Upper left", "Lower right", "Lower left"], correct: 3, explanation: "The heart's apex points inferiorly and to the left, reaching to approximately the 5th intercostal space at the midclavicular line."},
+            {q: 35, text: "Aortic valve stenosis (narrowing and hardening from plaque) is:", options: ["The rarest valve disease worldwide", "Most common valve disease globally due to rheumatic fever", "The most common site of valvular stenosis and a frequent indication for valve replacement", "Exclusively seen in patients under age 30"], correct: 2, explanation: "Aortic stenosis is the most common site of valvular stenosis due to high pressures and turbulence at this location."},
+            {q: 36, text: "Which of the following is the #1 reason for heart valve replacement in the United States?", options: ["Rheumatic heart disease from streptococcal infections", "Congenital abnormalities (such as bicuspid aortic valve)", "Infective endocarditis", "Degenerative calcification from aging alone"], correct: 1, explanation: "Congenital abnormalities, particularly bicuspid aortic valve, are the leading indication for valve replacement in the U.S."},
+            {q: 37, text: "A bicuspid aortic valve is clinically significant because:", options: ["It provides better hemodynamic function than a normal tricuspid valve", "Even minor plaque deposition causes significant regurgitation and hemodynamic compromise", "It never requires surgical intervention", "It is protective against stenosis"], correct: 1, explanation: "A bicuspid aortic valve has reduced surface area, so even minor plaque accumulation causes significant stenosis/regurgitation."},
+            {q: 38, text: "The worldwide leading cause of heart valve disease (especially in low-income countries) is:", options: ["Atherosclerotic calcification", "Congenital bicuspid valves", "Rheumatic fever following untreated streptococcal or scarlet fever infections", "Traumatic injury to the valve apparatus"], correct: 2, explanation: "Rheumatic heart disease from untreated streptococcal infections remains the #1 cause of valve disease globally."},
+            {q: 39, text: "In the United States, the #1 cause of valvular disease is now:", options: ["Rheumatic fever", "Lifestyle-based factors (hypertension, obesity, diabetes)", "Congenital heart disease", "Infective endocarditis"], correct: 1, explanation: "In developed countries like the U.S., degenerative valve disease from lifestyle factors and aging is now the leading cause."},
+            {q: 40, text: "Aortic valve insufficiency (regurgitation) is clinically characterized by:", options: ["Obstruction to blood flow out of the left ventricle", "Incomplete closure of the aortic valve, resulting in inadequate output from the left ventricle during systole", "Excessive valve closure preventing any forward flow", "Congenital absence of the valve"], correct: 1, explanation: "Aortic regurgitation means blood leaks back into the left ventricle during diastole, reducing net forward flow."},
+            {q: 41, text: "Which valve is the most anterior in position within the heart?", options: ["Tricuspid valve", "Mitral valve", "Aortic valve", "Pulmonary valve"], correct: 3, explanation: "The pulmonary valve is the most anterior (closest to the front/chest wall) of all cardiac valves."},
+            {q: 42, text: "The great vessels (aorta and pulmonary artery) remain in close anatomical association because:", options: ["They are bound together by ligaments", "They develop embryologically from a single tube that later becomes divided into separate structures", "They need to exchange blood between them", "The pericardium fuses them together"], correct: 1, explanation: "The aorta and pulmonary artery derive from the truncus arteriosus, which divides during embryologic development."},
+            {q: 43, text: "A patient is diagnosed with a ventricular septal defect (VSD). According to the embryological timing, which of the following dental anomalies would you expect to screen for?", options: ["Bruxism and temporomandibular joint disorder", "Cleft palate, midline abnormalities, hypoplasia of primary teeth, and delayed eruption of permanent teeth", "Severe dental caries and periodontal disease", "Enamel hypomineralization alone"], correct: 1, explanation: "VSD occurs around week 7 of development, coinciding with palatal and tooth bud formation. Midline defects often co-occur."},
+            {q: 44, text: "The association between ventricular septal defect and cleft palate reflects:", options: ["Shared vascular supply during fetal development", "Concurrent timing of midline structure formation during embryogenesis", "Mutation in a single gene affecting only these tissues", "Nutritional deficiency during pregnancy"], correct: 1, explanation: "Both VSD and cleft palate involve midline structures forming during similar embryologic windows (weeks 6-8)."},
+            {q: 45, text: "Delayed eruption of permanent teeth is associated with congenital cardiac defects such as VSD because:", options: ["The tooth roots cannot form without proper cardiac function", "Systemic effects of cardiac compromise on developmental patterning and mineralization processes", "Cavitation does not occur in the jaw of cardiac patients", "There is no anatomical or physiological relationship"], correct: 1, explanation: "Systemic hemodynamic and developmental disturbances from cardiac defects can affect tooth mineralization and eruption timing."},
+            {q: 46, text: "Which of the following patient populations require prophylactic antibiotics before dental treatment involving bleeding?", options: ["All patients with diabetes", "High-risk patients with valvular abnormalities to prevent S. mutans infective endocarditis", "Only patients with a history of cavities", "Patients over age 65 alone"], correct: 1, explanation: "Patients with valvular abnormalities are at risk for bacterial seeding during dental bleeding, potentially causing endocarditis."},
+            {q: 47, text: "Why are patients with valvular disease at high risk for subacute bacterial endocarditis following dental procedures?", options: ["The mouth contains pathogenic bacteria that directly travel to damaged valves", "Dental bleeding can allow oral bacteria (especially S. mutans) to enter the bloodstream and seed abnormal valves", "All patients who receive dental treatment develop endocarditis", "Valvular disease makes the immune system unable to fight any infection"], correct: 1, explanation: "Abnormal valves provide a surface where bacteremia from dental procedures can seed and establish infection."},
+            {q: 48, text: "A patient with a bicuspid aortic valve presents for a routine scaling and root planing appointment. What is the most important preventive measure?", options: ["Perform the procedure without local anesthesia", "Administer prophylactic antibiotics before the procedure and monitor for signs of infection", "Refer the patient without treatment", "Avoid any bleeding and use only non-invasive procedures"], correct: 1, explanation: "Prophylactic antibiotics are essential before any bleeding procedure in patients with structural valve abnormalities."},
+            {q: 49, text: "The left side of the heart pathology generally indicates:", options: ["Right-sided lung disease causing the left heart to work harder", "A systemic circulation issue causing the left heart to work harder to maintain perfusion", "Pulmonary hypertension", "Venous insufficiency in the lower extremities"], correct: 1, explanation: "Left-sided heart pathology reflects systemic circulation problems (hypertension, atherosclerosis) affecting left heart workload."},
+            {q: 50, text: "The right side of the heart pathology generally indicates:", options: ["A systemic circulation problem", "Lung pathology that makes the right side work harder to pump blood through the pulmonary circulation", "Liver failure", "A cerebrovascular accident"], correct: 1, explanation: "Right-sided heart pathology typically reflects pulmonary circulation problems (hypertension, lung disease) burdening the right heart."},
+            {q: 51, text: "During ventricular systole, which valves are OPEN and which are CLOSED?", options: ["Atrioventricular valves open, semilunar valves closed", "Atrioventricular valves closed, semilunar valves open", "Both open simultaneously", "Both closed simultaneously"], correct: 1, explanation: "During systole, ventricles contract; AV valves close to prevent backflow, while semilunar valves open for blood ejection."},
+            {q: 52, text: "During ventricular diastole, which of the following occurs?", options: ["Ventricular muscle is stimulated by action potential and contracting", "Atrioventricular valves are closed to prevent backflow", "Ventricular muscle is reestablishing Na+/K+/Ca2+ gradients and relaxing; atrioventricular valves are open for ventricular filling", "Semilunar valves open to allow blood to enter the aorta"], correct: 2, explanation: "During diastole, ventricles relax and refill; AV valves open for filling, and ion gradients are reestablished."},
+            {q: 53, text: "The first heart sound (S1 - 'lub') is produced by:", options: ["Opening of the semilunar valves", "Closure of the atrioventricular valves during systole", "Opening of the atrioventricular valves", "Closure of the semilunar valves"], correct: 1, explanation: "S1 ('lub') is produced by nearly simultaneous closure of the mitral and tricuspid valves at the start of systole."},
+            {q: 54, text: "The S1 heart sound is characterized as:", options: ["High-pitched and brief", "Low-pitched and prolonged", "High-pitched and prolonged", "Variable, depending on heart rate"], correct: 1, explanation: "S1 is lower-pitched and longer-lasting than S2 because it represents closure of two large AV valves."},
+            {q: 55, text: "The heart functions electrically as how many isolated syncytiums?", options: ["1 continuous syncytium", "2 isolated syncytiums (atria and ventricles)", "4 separate syncytiums (one per chamber)", "Hundreds of individual myocytes working independently"], correct: 1, explanation: "The heart functions as 2 syncytiums: atrial syncytium and ventricular syncytium, separated by fibrous tissue."},
+            {q: 56, text: "A syncytium in cardiac muscle is best defined as:", options: ["A single multinucleated cell formed by fusion of many uninuclear cells", "A functional unit where many cells contract as one due to intercellular connections", "A group of pacemaker cells", "Embryologically derived connective tissue"], correct: 1, explanation: "A syncytium is a functional unit where cells contract coordinately through gap junction connections."},
+            {q: 57, text: "The structural basis for coordinated contraction within a cardiac syncytium is the presence of:", options: ["Tight junctions between myocytes", "Desmosomes linking cytoskeletons", "Intercalated discs containing gap junctions", "A shared blood supply"], correct: 2, explanation: "Intercalated discs contain gap junctions that allow rapid electrical coupling between myocytes for coordinated contraction."},
+            {q: 58, text: "Intercalated discs are located at which anatomical position within the sarcomere?", options: ["At the A-I junction", "At the Z line", "In the center of the H zone", "Between the thick and thin filaments"], correct: 1, explanation: "Intercalated discs are located at the Z lines where they connect adjacent sarcomeres end-to-end."},
+            {q: 59, text: "Gap junctions within intercalated discs function to:", options: ["Mechanically anchor adjacent myocytes", "Prevent electrical conduction between cells", "Allow rapid electrical depolarization and Na+ ion spread throughout the syncytium", "Create physical separation between atrial and ventricular muscle"], correct: 2, explanation: "Gap junctions are channels that allow rapid electrical and metabolic coupling between adjacent myocytes."},
+            {q: 60, text: "The normal conduction pathway through the heart begins with:", options: ["Atrioventricular node", "Sinoatrial node (pacemaker cells)", "Purkinje fibers", "Ventricular myocardium"], correct: 1, explanation: "The SA node is the heart's primary pacemaker, initiating the electrical impulse."},
+            {q: 61, text: "After the sinoatrial node initiates the action potential, the electrical impulse is conducted through:", options: ["Directly into ventricular myocardium", "The atrioventricular node", "The bundle branches immediately", "Purkinje fibers first"], correct: 1, explanation: "From the SA node, impulses spread through atrial myocardium to reach the AV node."},
+            {q: 62, text: "The atrioventricular node serves which primary function in the conduction system?", options: ["Initiate the heartbeat at a specific rate", "Delay impulse conduction to allow atrial contraction to complete before ventricular contraction begins", "Directly stimulate ventricular myocardium", "Coordinate right and left ventricular contraction"], correct: 1, explanation: "The AV node delays conduction to allow atrial systole to complete before ventricular systole begins."},
+            {q: 63, text: "The AV bundle of His is embryologically and functionally significant because:", options: ["It is the only pathway conducting impulses from atria to ventricles", "It is the site where the atrioventricular electrical separation (fibrous tissue barrier) thins out to allow timed conduction", "It generates the heart's pacemaker activity", "It coordinates sympathetic nervous system input"], correct: 1, explanation: "The AV bundle is where the fibrous AV barrier thins, allowing the sole electrical connection between atrial and ventricular syncytiums."},
+            {q: 64, text: "After passing through the AV bundle of His, the electrical impulse is conducted into:", options: ["Purkinje fibers directly", "Right and left atrioventricular bundle branches", "Sinoatrial node", "Atrial myocardium"], correct: 1, explanation: "The AV bundle divides into right and left bundle branches that conduct impulses to the ventricular walls."},
+            {q: 65, text: "Purkinje fibers conduct the electrical impulse to:", options: ["The atrioventricular node", "The septomarginal trabeculae and anterior papillary muscle, and then throughout ventricular myocardium", "The sinoatrial node", "The atrial myocardium only"], correct: 1, explanation: "Purkinje fibers distribute impulses rapidly throughout ventricular myocardium, starting with the septum and papillary muscles."},
+            {q: 66, text: "The complete normal conduction pathway through the heart is:", options: ["SA node → AV node → Purkinje fibers → bundle branches → ventricular myocardium", "SA node → AV node → AV bundle of His → bundle branches → Purkinje fibers → ventricular myocardium", "SA node → bundle branches → AV node → Purkinje fibers → ventricular myocardium", "SA node → ventricular myocardium → AV node → bundle branches"], correct: 1, explanation: "The correct sequence is SA node → AV node → AV bundle → bundle branches → Purkinje fibers → ventricular myocardium."},
+            {q: 67, text: "Under normal conditions, why is ventricular contraction NOT conducted from the atrial syncytium directly to the ventricular syncytium?", options: ["Ventricular tissue is refractory during atrial contraction", "Fibrous tissue on the horizontal plane of the atrioventricular valves normally blocks direct electrical conduction", "Ventricular myocytes have different action potential properties", "The atrial syncytium has lower electrical resistance"], correct: 1, explanation: "The fibrous AV junction acts as an electrical barrier, forcing impulses through the AV node to ensure proper timing."},
+            {q: 68, text: "The only normal electrical connection between the atrial and ventricular syncytiums is:", options: ["Gap junctions spanning the valve apparatus", "The atrioventricular bundle (allowing only atrial impulses to reach ventricles via this route)", "Direct myocardial contact at the annulus fibrosus", "Sympathetic and parasympathetic nerve fibers"], correct: 1, explanation: "The AV bundle is the sole electrical pathway connecting the two syncytiums, providing crucial timing control."},
+            {q: 69, text: "The sympathetic nervous system increases heart rate via which anatomical pathway?", options: ["Cardiopulmonary splanchnic nerves from the sympathetic trunk", "The vagus nerve", "Direct innervation from the parasympathetic ganglia", "Circulating catecholamines alone, without neural input"], correct: 0, explanation: "Sympathetic preganglionic fibers from the spinal cord travel via cardiopulmonary splanchnic nerves to innervate the heart."},
+            {q: 70, text: "Parasympathetic stimulation decreases heart rate through which neural pathway?", options: ["Cardiopulmonary splanchnic nerves", "Vagus nerve, with branches originating from the superior mediastinum", "Sympathetic trunk fibers", "Somatic motor neurons"], correct: 1, explanation: "The vagus nerve (CN X) provides parasympathetic fibers that slow heart rate and AV conduction."},
+            {q: 71, text: "A patient with vagal stimulation (parasympathetic activation) would be expected to exhibit:", options: ["Increased heart rate and increased contractility", "Decreased heart rate and decreased contractility", "Increased heart rate with decreased contractility", "No change in either heart rate or contractility"], correct: 1, explanation: "Parasympathetic stimulation (vagal) decreases both heart rate (negative chronotropic) and contractility (negative inotropic)."},
+            {q: 72, text: "The cardiopulmonary splanchnic nerves are part of which division of the autonomic nervous system?", options: ["Parasympathetic", "Enteric", "Sympathetic", "Somatic"], correct: 2, explanation: "Cardiopulmonary splanchnic nerves are sympathetic preganglionic fibers from the thoracic spinal cord."},
+            {q: 73, text: "Myocardial ischemia is defined as:", options: ["Death of heart muscle tissue", "Low oxygen supply to the heart muscle", "Blockage of the aorta", "Inflammation of the myocardium"], correct: 1, explanation: "Ischemia means insufficient oxygen delivery; if severe and prolonged, it leads to infarction (tissue death)."},
+            {q: 74, text: "If ischemia to cardiac tissue is prolonged and severe, it results in:", options: ["Temporary dysfunction that fully resolves", "Myocardial infarction (tissue death) and potentially arrhythmias", "Increased heart rate to compensate", "Fibrosis without loss of function"], correct: 1, explanation: "Prolonged ischemia causes myocardial necrosis (infarction) and can damage the conduction system, causing arrhythmias."},
+            {q: 75, text: "Approximately how many heart attacks (myocardial infarctions) occur per year in the United States?", options: ["150,000", "500,000", "1.5 million", "5 million"], correct: 2, explanation: "Approximately 1.5 million MIs occur annually in the U.S., making it a leading cause of morbidity and mortality."},
+            {q: 76, text: "The 'widowmaker' artery is another name for which coronary vessel?", options: ["Right coronary artery", "Circumflex artery", "Anterior interventricular artery (LAD)", "Posterior interventricular artery"], correct: 2, explanation: "The LAD is called the 'widowmaker' because occlusion causes massive anterior wall MI with high mortality."},
+            {q: 77, text: "Why is occlusion of the anterior interventricular artery (LAD / 'widowmaker') particularly dangerous?", options: ["It supplies primarily the right ventricle", "It supplies the left ventricle and interventricular septum, plus the conduction system", "It is the only coronary artery in some patients", "It directly supplies the atria"], correct: 1, explanation: "LAD occlusion damages the largest ventricular territory and the AV conduction system, causing massive infarction."},
+            {q: 78, text: "Occlusion of the LAD causing infarction of the interventricular septum leads to damage of which conduction system structure?", options: ["Sinoatrial node", "Atrioventricular node", "Atrioventricular bundle (bundle of His)", "Sinoatrial nodal artery"], correct: 2, explanation: "The AV bundle runs through the interventricular septum and is vulnerable to LAD occlusion."},
+            {q: 79, text: "When the AV bundle is damaged from LAD occlusion, what happens to ventricular electrical conduction?", options: ["Ventricles stop beating entirely", "Ventricles lose conduction through apex but continue at reduced rate and with timing loss", "Atria stop conducting", "Conduction system immediately regenerates"], correct: 1, explanation: "With AV bundle damage, ventricular escape rhythms continue beating but at slower, irregular rates without coordination."},
+            {q: 80, text: "What is the primary treatment for loss of conduction in the ventricles following LAD occlusion?", options: ["Increased sympathetic stimulation", "Administration of inotropic medications alone", "Placement of a pacemaker with leads in the ventricular chamber", "Immediate surgical repair of the AV bundle"], correct: 2, explanation: "A pacemaker is essential to restore proper ventricular activation and cardiac output when the AV bundle is damaged."},
+            {q: 81, text: "Under normal conditions, why does the AV node delay impulse conduction?", options: ["Prevent atrial and ventricular contraction simultaneously", "Allow atrial contraction to complete before ventricular contraction begins", "Allow semilunar valves to open fully", "Synchronize with sympathetic input"], correct: 1, explanation: "AV nodal delay (~120 ms) ensures atrial systole completes before ventricular systole, maximizing ventricular filling."},
+            {q: 82, text: "First-degree atrioventricular block is characterized by:", options: ["Complete lack of impulse conduction to ventricles", "Intermittent failure of some impulses to reach ventricles", "Abnormal prolongation of the PR interval on ECG due to pathological delay in AV node", "Rapid ventricular rate independent of atrial rate"], correct: 2, explanation: "First-degree block shows PR interval >200ms but all impulses eventually conduct (1:1 conduction)."},
+            {q: 83, text: "Second-degree atrioventricular block is characterized by:", options: ["Prolonged PR interval on all conducted beats", "Intermittent failure of some atrial impulses to conduct to ventricles", "Complete absence of atrioventricular conduction", "Normal AV nodal conduction with bundle branch delay"], correct: 1, explanation: "Second-degree block has intermittent conduction failure where some P waves fail to conduct (dropped QRS)."},
+            {q: 84, text: "Third-degree atrioventricular block (complete heart block) is defined as:", options: ["Single prolonged PR interval", "Intermittent blocked impulses", "No impulses from SA node reaching ventricles; complete atrioventricular dissociation", "Conduction block only in right bundle branch"], correct: 2, explanation: "Third-degree block has complete dissociation between atrial and ventricular rhythms (no P-QRS relationship)."},
+            {q: 85, text: "In complete heart block (third-degree AV block), what happens to the SA node?", options: ["Stops functioning entirely", "Continues activity at normal set rhythm", "Increases firing rate to compensate", "Takes over ventricular pacing"], correct: 1, explanation: "The SA node continues firing normally, but its impulses don't reach the ventricles due to complete AV block."},
+            {q: 86, text: "In complete heart block, the ventricles are activated by an 'escape rhythm.' Which of the following is NOT a potential source of ventricular escape rhythm?", options: ["AV node (junctional escape)", "Bundle branches/fascicles (fascicular escape)", "Ventricular myocytes (ventricular escape rhythm)", "Sinoatrial node"], correct: 3, explanation: "SA node impulses don't reach the ventricles in complete block, so SA node cannot be the escape source."},
+            {q: 87, text: "The escape rhythm in complete heart block typically occurs at which rate?", options: ["60-100 bpm (normal SA rate)", "40-60 bpm (slower backup pacemaker rate)", "100-150 bpm", "Irregular and unpredictable"], correct: 1, explanation: "Ventricular escape rhythms are slower (40-60 bpm) than normal SA rates due to slower cellular automaticity."},
+            {q: 88, text: "A patient with complete heart block presents with atrial rate 72 bpm and ventricular rate 30 bpm, completely independent. This finding is called:", options: ["AV dissociation", "Complete atrioventricular dissociation", "Ventricular tachycardia", "Atrial flutter"], correct: 1, explanation: "Complete atrioventricular dissociation is the classic finding in third-degree heart block with independent rhythms."},
+            {q: 89, text: "During which phase of the cardiac cycle does blood flow into the coronary arteries?", options: ["Early systole", "Ventricular diastole when aortic valves are closed", "Atrial systole", "Throughout the cycle equally"], correct: 1, explanation: "Coronary arteries fill during diastole when the aortic valve closes and backflow occurs into coronary ostia."},
+            {q: 90, text: "Why do coronary arteries fill during diastole rather than systole?", options: ["Aortic valves are open during systole", "During diastole, aortic valves are closed; blood trickles back into coronary ostia", "Ventricular contraction obliterates coronary vessels", "Atrial pressure exceeds ventricular pressure"], correct: 1, explanation: "With aortic valve closure in diastole, diastolic pressure in the aorta drives blood retrograde into coronary ostia."},
+            {q: 91, text: "A major consequence of coronary circulation filling during diastole is:", options: ["Increased coronary blood flow efficiency", "Increased turbulence in aortic arch, increasing aortic valve stenosis risk", "Decreased myocardial oxygen extraction", "Preferential flow to right coronary artery only"], correct: 1, explanation: "The turbulence and backflow mechanism at the aortic valve area promotes plaque deposition and stenosis."},
+            {q: 92, text: "Why is the aortic valve the most common site of valvular stenosis?", options: ["It is the largest valve", "Highest pressure gradients", "Turbulent coronary filling flow increases plaque aggregation at this site", "Only valve subjected to systemic pressure"], correct: 2, explanation: "The diastolic backflow/turbulence mechanism specific to the aortic valve region promotes plaque formation there."},
+            {q: 93, text: "The left coronary artery is characterized as:", options: ["Long and tortuous", "Very short and immediately branches into two main vessels", "Single vessel with no branches", "Extremely narrow and prone to occlusion"], correct: 1, explanation: "The left main coronary artery is short (10-15mm) before dividing into LAD and circumflex branches."},
+            {q: 94, text: "The left coronary artery branches into which two major vessels?", options: ["Circumflex and right marginal", "Anterior interventricular (LAD) and circumflex", "Anterior and posterior interventricular", "Sinoatrial and right marginal"], correct: 1, explanation: "The left main divides into the LAD (anterior interventricular) and circumflex (left circumflex) arteries."},
+            {q: 95, text: "The anterior interventricular artery (LAD) especially supplies:", options: ["Right atrium", "Posterior wall of left ventricle", "Left ventricle and interventricular septum", "Sinoatrial node"], correct: 2, explanation: "The LAD supplies the anterior left ventricle, septum, and apical region (largest coronary territory)."},
+            {q: 96, text: "The circumflex artery primarily supplies:", options: ["Anterior left ventricle", "Posterior and lateral walls of left ventricle", "Right ventricle", "Interventricular septum"], correct: 1, explanation: "The circumflex artery supplies the posterolateral left ventricular wall and may supply the AV node/SA node."},
+            {q: 97, text: "The right coronary artery is characterized as:", options: ["Very short, divides immediately", "Longer than left coronary artery", "Single unbranched vessel", "Narrower than left coronary"], correct: 1, explanation: "The right coronary artery is typically longer than the left main coronary artery."},
+            {q: 98, text: "Which of the following is NOT a typical branch of the right coronary artery?", options: ["Sinoatrial artery", "Right marginal artery", "Posterior interventricular artery", "Anterior interventricular artery"], correct: 3, explanation: "The LAD (anterior interventricular) comes from the left coronary system, not the right."},
+            {q: 99, text: "The sinoatrial (SA) nodal artery occlusion leads to:", options: ["Loss of blood supply to SA node (pacemaker), potentially eliminating heart rate generation", "Loss of right ventricle supply", "Temporary arrhythmia that self-resolves", "No significant consequence"], correct: 0, explanation: "SA nodal artery occlusion causes SA node ischemia/necrosis, potentially eliminating all heart rhythms."},
+            {q: 100, text: "The right marginal artery runs along which border:", options: ["Superior border of right atrium", "Inferior border of right ventricle parallel to diaphragm", "Interventricular septum", "Left border of left ventricle"], correct: 1, explanation: "The right marginal artery runs along the acute margin of the right ventricle paralleling the diaphragm."},
+            {q: 101, text: "The posterior interventricular artery arises from which coronary artery in most people:", options: ["Left coronary", "Right coronary", "Equally from both", "Aortic arch directly"], correct: 1, explanation: "In 70-80% of people, the right coronary is dominant and gives rise to the posterior interventricular artery."},
+            {q: 102, text: "Coronary dominance is determined by:", options: ["Size of aortic root", "Which artery gives rise to posterior interventricular artery", "Diameter of coronary ostia", "Blood flow rate through arteries"], correct: 1, explanation: "Coronary dominance classification is based on which coronary system supplies the posterior descending artery."},
+            {q: 103, text: "In most of the population, which coronary artery is 'dominant':", options: ["Left coronary (60%)", "Right coronary (70-80%)", "Both equally (50-50)", "Neither truly dominant"], correct: 1, explanation: "The right coronary artery is dominant in 70-80% of people, left-dominant in 10%, and co-dominant in 10-20%."},
+            {q: 104, text: "The coronary sinus is best described as:", options: ["Branch of left coronary", "Part of right coronary system", "Venous drainage of coronary circulation returning blood to right atrium", "Fetal remnant that closes at birth"], correct: 2, explanation: "The coronary sinus is the major venous drainage channel of the coronary circulation, opening into the right atrium."},
+            {q: 105, text: "Deoxygenated blood from myocardium returns to circulation via:", options: ["Right atrium through SVC", "Left atrium through pulmonary veins", "Right atrium through coronary sinus", "Aorta through collateral vessels"], correct: 2, explanation: "The coronary sinus collects venous drainage from the coronary circulation and empties into the right atrium."},
+            {q: 106, text: "'Clinically dead' means:", options: ["Permanent cessation of brain function", "Cessation of heartbeat/breathing but heart may be viable for resuscitation", "Death >1 hour ago", "Death confirmed by autopsy"], correct: 1, explanation: "Clinically dead refers to cardiopulmonary arrest; biological death requires irreversible brain damage (~4 minutes)."},
+            {q: 107, text: "After cardiac arrest, the brain remains viable for approximately:", options: ["1-2 minutes", "4 minutes", "10-15 minutes", "20+ minutes"], correct: 1, explanation: "Permanent brain damage (biological death) typically occurs after 4-6 minutes without perfusion."},
+            {q: 108, text: "An AED (Automated External Defibrillator) functions by:", options: ["Restarting heart with medication", "Performing chest compressions automatically", "Delivering electrical shock to stop VF and restart rhythm", "Providing oxygen only"], correct: 2, explanation: "AED delivers an electrical shock to defibrillate the heart and restore normal rhythm."},
+            {q: 109, text: "Chest compressions during CPR function to:", options: ["Restart heart's electrical activity", "Manually pump blood and restart circulation", "Provide lung oxygenation", "Prevent rigor mortis"], correct: 1, explanation: "Chest compressions provide artificial circulation by manually compressing the heart and displacing blood."},
+            {q: 110, text: "Why continue rescue breaths 10-15 min after pulse returns:", options: ["Increase blood oxygenation", "Respiratory brainstem centers take 10-15 min to recover; continued ventilation needed", "Prevent coronary artery spasm", "Maintain aortic pressure"], correct: 1, explanation: "The medullary respiratory centers require time to recover; spontaneous breathing may not resume immediately after resuscitation."},
+            {q: 111, text: "How many fetal shunts bypass the lungs during fetal life:", options: ["1", "2", "3", "4"], correct: 2, explanation: "Three fetal shunts bypass the non-functional lungs: foramen ovale, ductus arteriosus, and ductus venosus."},
+            {q: 112, text: "Which is NOT one of the three fetal shunts:", options: ["Foramen ovale", "Ductus arteriosus", "Ductus venosus", "Patent foramen ovale"], correct: 3, explanation: "Patent foramen ovale is a condition (incomplete closure), not a normal fetal shunt like the three listed."},
+            {q: 113, text: "Why does the fetus bypass the lungs:", options: ["Fetal lungs filled with amniotic fluid, non-functional", "Oxygenation via placenta, not lungs", "Lungs too immature to expand", "Bypassing reduces fetal energy expenditure"], correct: 1, explanation: "Fetal oxygenation occurs via the placenta; lungs are fluid-filled and non-functional until birth."},
+            {q: 114, text: "All three fetal shunts change at:", options: ["Mid-fetal development", "Birth (first breath)", "During delivery", "Weeks after birth"], correct: 1, explanation: "At birth, the first breath and loss of placental circulation trigger closure of all three fetal shunts."},
+            {q: 115, text: "The foramen ovale is located between:", options: ["Right atrium and right ventricle", "Right atrium and left atrium", "Left atrium and left ventricle", "Left and right ventricles"], correct: 1, explanation: "The foramen ovale is an atrial septal opening allowing right-to-left shunting during fetal life."},
+            {q: 116, text: "The foramen ovale functions prenatally to:", options: ["Return blood to umbilical vein", "Send oxygenated blood from RA to LA, bypassing lungs", "Prevent mixing of oxygenated/deoxygenated blood", "Maintain equal atrial pressures"], correct: 1, explanation: "The foramen ovale allows oxygenated IVC blood to bypass the non-functional lungs by going directly to the left atrium."},
+            {q: 117, text: "Blood preferentially flows through foramen ovale during fetal life because:", options: ["Left atrial pressure exceeds right", "IVC angle and maternal circulation pressure push blood through opening", "Muscular contraction pulls blood through", "One-way valve directs leftward flow"], correct: 1, explanation: "The angle of IVC entry and higher right atrial pressure in the fetus preferentially direct blood through the foramen ovale."},
+            {q: 118, text: "After first breath, foramen ovale closure occurs because:", options: ["Right atrial pressure increases", "Left atrial pressure exceeds RA pressure, pushing septum primum closed", "Both pressures equalize", "Sympathetic stimulation closes it"], correct: 1, explanation: "Pulmonary vascular expansion with the first breath increases pulmonary venous return, raising left atrial pressure above right."},
+            {q: 119, text: "After foramen ovale closure, a transitional stage allows:", options: ["Permanent patency", "Some blood flow while cellular proliferation scars the opening", "Immediate fibrin sealing", "Flow reversal through foramen"], correct: 1, explanation: "A probe patent foramen ovale can exist transiently while the septum primum and secundum seal over weeks."},
+            {q: 120, text: "A small probe-patent foramen ovale in an adult represents:", options: ["Medical emergency requiring surgery", "Small opening from incomplete closure; clinically insignificant", "Atrial septal defect", "Neonatal finding only"], correct: 1, explanation: "Probe-patent PFO is a common, usually benign finding in 25-30% of adults."},
+            {q: 121, text: "Incomplete PFO closure increases risk of:", options: ["Systemic hypertension", "Paradoxical embolism (clots bypass lungs)", "Pulmonary hypertension", "Ventricular septal defect"], correct: 1, explanation: "An incompletely closed PFO allows right-to-left shunting, potentially allowing venous clots to bypass pulmonary filtration."},
+            {q: 122, text: "Which syndrome has increased risk of incomplete PFO closure:", options: ["Turner syndrome", "Marfan syndrome", "Down syndrome", "Klinefelter syndrome"], correct: 2, explanation: "Down syndrome (Trisomy 21) is associated with increased risk of PFO and other cardiac septal defects."},
+            {q: 123, text: "The ductus arteriosus is located between:", options: ["Aorta and SVC", "Pulmonary artery and aorta", "Pulmonary artery and IVC", "Aorta and coronary sinus"], correct: 1, explanation: "The ductus arteriosus is a vessel connecting the pulmonary artery to the aorta, bypassing the lungs."},
+            {q: 124, text: "Percentage of fetal blood shunted through ductus arteriosus:", options: ["10%", "50%", "90%", "Variable with fetal activity"], correct: 2, explanation: "Approximately 90% of right ventricular output bypasses the lungs via the ductus arteriosus in the fetus."},
+            {q: 125, text: "The ductus arteriosus allows bypass because:", options: ["Blood needs placental, not lung oxygenation", "Only 10% needs to reach lungs for fetal nutrition", "Fetal lungs completely non-functional", "High O2 blood cannot enter lungs"], correct: 1, explanation: "Oxygenated blood comes from the placenta; fetal lungs don't participate in gas exchange, so most flow bypasses them."},
+            {q: 126, text: "At birth, ductus arteriosus closes due to:", options: ["Decreased placental O2", "Increased blood O2 acting as cytokine signal for closure", "Mechanical compression", "Passive collapse from flow loss"], correct: 1, explanation: "Increased oxygen tension in the blood and decreased prostaglandins trigger ductus arteriosus constriction."},
+            {q: 127, text: "After ductus arteriosus closure, it becomes the:", options: ["Fossa ovalis", "Ligamentum arteriosum", "Remnant ductus venosus", "Brachiocephalic artery"], correct: 1, explanation: "The closed ductus arteriosus becomes a fibrous cord called the ligamentum arteriosum."},
+            {q: 128, text: "Ductus arteriosus closure is mediated by:", options: ["Maternal hormones", "Systemic blood pressure alone", "Cytokine signaling related to O2 increase", "Direct vagal stimulation"], correct: 2, explanation: "Increased oxygen and decreased prostaglandins trigger smooth muscle constriction and closure of the ductus."},
+            {q: 129, text: "The ductus venosus is located between:", options: ["Umbilical vein and IVC", "Ductus arteriosus and aorta", "Umbilical artery and descending aorta", "Portal vein and hepatic artery"], correct: 0, explanation: "The ductus venosus connects the umbilical vein to the IVC, allowing blood to bypass the liver."},
+            {q: 130, text: "Primary function of ductus venosus during fetal life:", options: ["Return blood to placenta", "Bypass liver; send oxygenated blood to fetus (heart/brain) instead of hepatic circulation", "Deliver blood to lungs", "Equalize vena cava and atrial pressure"], correct: 1, explanation: "The ductus venosus shunts nutrient-rich umbilical blood directly to the fetus, bypassing the liver."},
+            {q: 131, text: "After ductus venosus closure, it becomes the:", options: ["Ligamentum venosum", "Ligamentum arteriosum", "Fossa ovalis", "Patent foramen ovale"], correct: 0, explanation: "The closed ductus venosus becomes a fibrous remnant called the ligamentum venosum."},
+            {q: 132, text: "During fetal life, oxygenated blood from placenta enters via:", options: ["Umbilical artery", "Umbilical vein", "IVC only", "Pulmonary artery"], correct: 1, explanation: "The umbilical vein (one of two umbilical vessels) carries oxygenated blood from the placenta to the fetus."},
+            {q: 133, text: "The three fetal shunts allow the fetus to:", options: ["Increase lung oxygen extraction", "Distribute placental O2 while bypassing lungs and minimizing liver waste", "Decrease heart/brain blood flow", "Maintain lower BP than mother"], correct: 1, explanation: "The shunts distribute oxygenated placental blood efficiently to vital organs while bypassing non-functional lungs/liver."},
+            {q: 134, text: "Trigger for ductus arteriosus closure immediately after birth:", options: ["Mechanical collapse", "Loss of placental blood", "Increased blood O2 as cytokine signal", "Sympathetic stimulation"], correct: 2, explanation: "The first breath and associated increased blood oxygen tension trigger constriction and closure."},
+            {q: 135, text: "Patent ductus arteriosus (PDA) results in:", options: ["Mixing of O2/deO2 blood in left heart", "Left-to-right aorta-to-PA shunt with increased pulmonary blood flow", "Right-to-left shunt with cyanosis", "Decreased systemic O2 saturation"], correct: 1, explanation: "PDA allows aortic blood to shunt left-to-right into the pulmonary artery, increasing pulmonary blood flow."},
+            {q: 136, text: "Clinical signs of patent ductus arteriosus include:", options: ["Cyanosis (blue baby)", "'Machinery' murmur on auscultation", "Severe hypoxia requiring intervention", "No audible abnormalities"], correct: 1, explanation: "A continuous 'machinery' or 'train' murmur is characteristic of PDA due to continuous left-to-right shunting."}
+        ];
+
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let selectedAnswer = null;
+        let answered = false;
+        let missedQuestions = [];
+        let questionsShuffled = [];
+
+        function initializeQuestions() {
+            questionsShuffled = QUESTIONS.map(q => {
+                return {
+                    ...q,
+                    optionsShuffled: q.options,
+                    correctIndex: q.correct
+                };
+            });
+        }
+
+        function renderQuestion() {
+            const q = questionsShuffled[currentQuestionIndex];
+            const progress = ((currentQuestionIndex) / questionsShuffled.length) * 100;
+            const accuracy = correctCount + incorrectCount > 0 ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) : 0;
+
+            let html = `
+                <div class="header">
+                    <h1>❤️ Heart Anatomy - Deck 1</h1>
+                    <div class="deck-label">Questions 1-136 (Chunks 1 & 2)</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-label">Progress</div>
+                            <div class="stat-value">${currentQuestionIndex + 1}/${questionsShuffled.length}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Correct</div>
+                            <div class="stat-value" style="color: #4caf50">${correctCount}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Accuracy</div>
+                            <div class="stat-value">${accuracy}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question-number">Question ${q.q}</div>
+                    <div class="question-text">${q.text}</div>
+
+                    <div class="options">
+            `;
+
+            q.optionsShuffled.forEach((option, index) => {
+                let optionClass = 'option';
+                if (answered) {
+                    if (index === q.correctIndex) optionClass += ' correct';
+                    else if (selectedAnswer === index && index !== q.correctIndex) optionClass += ' incorrect';
+                } else if (selectedAnswer === index) {
+                    optionClass += ' selected';
+                }
+
+                html += `
+                    <button class="${optionClass}"
+                            onclick="selectAnswer(${index})"
+                            ${answered ? 'disabled' : ''}>
+                        <span class="option-label">${String.fromCharCode(65 + index)})</span>
+                        ${option}
+                    </button>
+                `;
+            });
+
+            html += `</div>`;
+
+            if (answered) {
+                const feedbackClass = selectedAnswer === q.correctIndex ? 'correct' : 'incorrect';
+                const feedbackText = selectedAnswer === q.correctIndex ? '✓ Correct!' : '✗ Incorrect';
+                html += `
+                    <div class="feedback show ${feedbackClass}">
+                        <div class="feedback-title">${feedbackText}</div>
+                        <div class="explanation">${q.explanation}</div>
+                    </div>
+                `;
+            }
+
+            html += `
+                </div>
+
+                <div class="controls">
+            `;
+
+            if (!answered) {
+                html += `<div class="hint">Press 1-4 to answer or click an option</div>`;
+            } else {
+                const buttonText = currentQuestionIndex === questionsShuffled.length - 1 ? 'Finish Quiz' : 'Next Question (↓)';
+                html += `<button class="btn btn-primary" onclick="nextQuestion()">${buttonText}</button>`;
+            }
+
+            html += `</div>`;
+
+            document.getElementById('quiz-content').innerHTML = html;
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+
+            selectedAnswer = index;
+            answered = true;
+            const q = questionsShuffled[currentQuestionIndex];
+
+            if (index === q.correctIndex) {
+                correctCount++;
+            } else {
+                incorrectCount++;
+                missedQuestions.push({
+                    ...q,
+                    userAnswerIndex: index,
+                    userAnswer: q.optionsShuffled[index]
+                });
+            }
+
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questionsShuffled.length - 1) {
+                currentQuestionIndex++;
+                selectedAnswer = null;
+                answered = false;
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const accuracy = Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            let html = `
+                <div class="end-screen">
+                    <h2>Deck 1 Complete! 🎉</h2>
+                    <div class="final-score">${accuracy}%</div>
+
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <div class="score-item-value">${correctCount}</div>
+                            <div class="score-item-label">Correct</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-item-value">${incorrectCount}</div>
+                            <div class="score-item-label">Incorrect</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-item-value">${correctCount + incorrectCount}</div>
+                            <div class="score-item-label">Total</div>
+                        </div>
+                    </div>
+            `;
+
+            if (missedQuestions.length > 0) {
+                html += `<div class="review-section">
+                    <div class="review-title">📋 Review Missed Questions (${missedQuestions.length}):</div>
+                `;
+
+                missedQuestions.forEach((q, idx) => {
+                    html += `
+                        <div class="review-item">
+                            <div class="review-question">Q${q.q}: ${q.text}</div>
+                            <div class="review-answer">Your: ${q.userAnswer}</div>
+                            <div class="review-correct">Correct: ${q.optionsShuffled[q.correctIndex]}</div>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+            }
+
+            html += `
+                    <div class="controls" style="margin-top: 40px">
+                        <button class="btn btn-primary" onclick="restartQuiz()">Restart Deck 1</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('quiz-content').innerHTML = html;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            selectedAnswer = null;
+            answered = false;
+            missedQuestions = [];
+            initializeQuestions();
+            renderQuestion();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (answered) {
+                if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    nextQuestion();
+                }
+            } else {
+                if (['1', '2', '3', '4'].includes(e.key)) {
+                    selectAnswer(parseInt(e.key) - 1);
+                }
+            }
+        });
+
+        initializeQuestions();
+        renderQuestion();
+    </script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 1-2 Review Deck</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #0066cc;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .keyboard-hint {
+            text-align: center;
+            background: #e6f0ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #0066cc;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #cce5ff;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0066cc;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        #startScreen, #quizScreen, #summaryScreen {
+            display: none;
+        }
+
+        #startScreen.active, #quizScreen.active, #summaryScreen.active {
+            display: block;
+        }
+
+        .question-card {
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .lo-badge {
+            background: #e6f0ff;
+            color: #0066cc;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            border-color: #0066cc;
+            background: #f0f7ff;
+        }
+
+        .option input[type="radio"] {
+            margin-top: 3px;
+            cursor: pointer;
+        }
+
+        .option.selected {
+            border-color: #0066cc;
+            background: #f0f7ff;
+        }
+
+        .option-text {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+
+        .feedback.incorrect {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #7f1d1d;
+        }
+
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feedback-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .summary-content {
+            text-align: center;
+        }
+
+        .final-score {
+            font-size: 60px;
+            font-weight: bold;
+            color: #0066cc;
+            margin: 20px 0;
+        }
+
+        .summary-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .missed-list {
+            margin-top: 20px;
+        }
+
+        .missed-item {
+            background: #fef2f2;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ef4444;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .missed-question {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .missed-answer {
+            margin-bottom: 5px;
+        }
+
+        .missed-explanation {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Lecture 1-2 Review Deck</h1>
+        <p class="subtitle">Master 102 Questions • Thoracic Wall, Lungs, Pleura & Circulation</p>
+
+        <!-- START SCREEN -->
+        <div id="startScreen" class="active">
+            <div class="question-card">
+                <h2 style="color: #333; margin-bottom: 15px;">Ready to Review?</h2>
+                <p style="color: #666; margin-bottom: 15px;">This deck contains all 102 questions from Lecture 1-2, organized by Learning Objective:</p>
+                <ul style="color: #666; margin-left: 20px; margin-bottom: 20px;">
+                    <li><strong>LO1:</strong> Pleural Anatomy & Pathology (42 questions)</li>
+                    <li><strong>LO2:</strong> Lung Asymmetry (19 questions)</li>
+                    <li><strong>LO3:</strong> Bronchiole Tree & Recovery Positions (13 questions)</li>
+                    <li><strong>LO4:</strong> Collateral Circulation (28 questions)</li>
+                </ul>
+                <p style="color: #666; font-size: 13px; margin-bottom: 20px;"><strong>🎮 Remote Control Mode Enabled:</strong></p>
+                <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Press <strong>1</strong>=A, <strong>2</strong>=B, <strong>3</strong>=C, <strong>4</strong>=D to answer<br>Press <strong>↓ DOWN ARROW</strong> to continue</p>
+                <button class="btn-primary" onclick="startQuiz()">Start Review Deck</button>
+            </div>
+        </div>
+
+        <!-- QUIZ SCREEN -->
+        <div id="quizScreen">
+            <div class="keyboard-hint">🎮 Press 1/2/3/4 to select • Press ↓ DOWN ARROW to continue</div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="currentQ">1</div>
+                    <div class="stat-label">Current</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="correctStat">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="accuracyStat">--</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-header">
+                    <span class="lo-badge" id="loBadge">LO1</span>
+                    <span id="questionNum">Q 1 of 102</span>
+                </div>
+
+                <div class="question-text" id="questionText"></div>
+
+                <div class="options" id="optionsContainer"></div>
+
+                <div class="feedback" id="feedback"></div>
+
+                <div class="buttons">
+                    <button class="btn-primary" id="submitBtn" onclick="submitAnswer()">Submit Answer</button>
+                    <button class="btn-primary" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next Question →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUMMARY SCREEN -->
+        <div id="summaryScreen">
+            <div class="summary-content">
+                <h2 style="color: #333; margin-bottom: 20px;">🎉 Quiz Complete!</h2>
+                <div class="final-score" id="finalScore">--</div>
+                <div class="summary-message" id="summaryMsg"></div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalQCount"></div>
+                        <div class="stat-label">Total Questions</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="finalCorrect"></div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="finalMissed"></div>
+                        <div class="stat-label">Missed</div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn-primary" onclick="startQuiz()">Review Again</button>
+                    <button class="btn-secondary" onclick="showMissedReview()">See Missed</button>
+                </div>
+
+                <div class="missed-list" id="missedList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            {lo:"LO1", q:"What is the pleural cavity?", opts:["The space inside the lung where gas exchange occurs","A potential space between two layers of pleura, normally collapsed","The area where the heart sits in the thorax","A channel that drains fluid from the lungs"], ans:1, exp:"The pleural cavity is normally just a thin film of fluid between two pleural layers—essentially a potential space. It's 'potential' because normally it's collapsed; it only becomes obvious when fluid, blood, or air accumulates under pathology."},
+            {lo:"LO1", q:"Why is the pleural cavity called a 'potential' space rather than an 'actual' space?", opts:["Because it sometimes exists and sometimes doesn't","Because it can hold large volumes of fluid if needed","Because it's normally collapsed with only a thin film of fluid between layers, not a true cavity","Because the lungs have the potential to collapse into it"], ans:2, exp:"'Potential' means it has the capacity to become a space if something fills it (fluid, blood, pus, air), but under normal conditions it's just two pleural layers touching with a sliver of fluid between them. It's not an empty cavity like a balloon—it's a collapsed space."},
+            {lo:"LO1", q:"Under pathological conditions, what can accumulate in the pleural cavity?", opts:["Only blood","Fluid, blood, or pus","Only air","Only infected fluid"], ans:1, exp:"The pleural cavity is a sealed space, so various materials can accumulate depending on the pathology: hemothorax (blood), pleural effusion (fluid), empyema (pus from infection), pneumothorax (air). This is why understanding the cavity's capacity is clinically important."},
+            {lo:"LO1", q:"The pleura consists of two layers. Which layer adheres directly to the lung tissue?", opts:["Parietal pleura (adheres to lung)","Visceral pleura (adheres to lung)","Serous pleura (adheres to lung)","Mediastinal pleura (adheres to lung)"], ans:1, exp:"Visceral pleura = the layer stuck TO the organ (lung). Parietal pleura = the layer stuck to the body wall. Think: 'Visceral' sounds like 'viscera' (organs)—it's on the organ side."},
+            {lo:"LO1", q:"Which pleural layer adheres to the inner chest wall (ribs, sternum, diaphragm)?", opts:["Visceral pleura","Parietal pleura","Fibrous pleura","Serous pleura only"], ans:1, exp:"Parietal pleura lines the inner surface of the thoracic cage (ribs, sternum, diaphragm, mediastinum). It's the outermost layer of the pleural system and directly touches the thoracic wall."},
+            {lo:"LO1", q:"What type of tissue is pleura classified as?", opts:["Fibrous connective tissue","Serous membrane","Cartilaginous tissue","Muscle tissue"], ans:1, exp:"Pleura is a serous membrane—thin epithelium with a lubricating fluid (like the peritoneum in the abdomen or pericardium around the heart). This allows smooth sliding of lungs during breathing."},
+            {lo:"LO1", q:"At what anatomical location do the visceral and parietal pleura become continuous with each other?", opts:["At the apex of the lung","At the base of the lung","At the hilum of the lung","At the costal surface of the lung"], ans:2, exp:"The hilum is where the pleura makes a 'hairpin turn'—visceral pleura (on lung) becomes continuous with parietal pleura (on chest wall). This is where vessels and bronchi enter the lung."},
+            {lo:"LO1", q:"The pulmonary ligament is best described as:", opts:["A ligament made of bone and cartilage","A reflection of visceral pleura at the hilum where visceral and parietal layers meet","A muscular structure that supports the lung","The boundary between the right and left pleural cavities"], ans:1, exp:"The pulmonary ligament is specifically the pleural reflection at the hilum—the continuation point where one layer becomes the other. It's not a traditional ligament (bone-to-bone), but a pleural fold."},
+            {lo:"LO1", q:"In which embryological week do lung buds first develop?", opts:["Week 2","Week 4","Week 8","Week 12"], ans:1, exp:"Lung buds develop from the laryngotracheal diverticulum in the 4th week. This is the beginning of the respiratory system. It's an early developmental event, which is why lung abnormalities can arise from early embryological errors."},
+            {lo:"LO1", q:"The lung buds grow into which embryological space to form the primitive pleural cavity?", opts:["The peritoneal cavity","The pericardial cavity","The pericardioperitoneal canal","The mediastinal space"], ans:2, exp:"Lung buds grow laterally into the pericardioperitoneal canal (the primordial pleural cavity). Think of it like 'a hand jamming into a balloon'—the growing lung pushes into this canal, and the canal wall becomes the pleura."},
+            {lo:"LO1", q:"By which embryological week are the major lung structures (bronchi, bronchioles, alveolar tissue) substantially developed?", opts:["Week 8","Week 12","Week 17","Week 24"], ans:2, exp:"Major lung elements are developed by week 17 (pseudoglandular stage ends). However, alveoli continue forming into infancy. Early development is critical; abnormalities at this stage cause structural defects."},
+            {lo:"LO1", q:"A fetus born at 25 weeks gestation is at high risk for respiratory distress syndrome (RDS) primarily because:", opts:["The lungs haven't developed any alveoli yet","The pleural cavities haven't formed","Surfactant production is insufficient for alveolar inflation at birth","The trachea is still forming"], ans:2, exp:"At 25 weeks, lung STRUCTURE is present but surfactant (the lipid that reduces surface tension and keeps alveoli open) is minimal. Antenatal corticosteroids accelerate surfactant production; postnatal surfactant replacement therapy provides immediate relief."},
+            {lo:"LO1", q:"Which statement best defines emphysema?", opts:["Infection of the pleural cavity causing fluid accumulation","Destruction of alveolar walls leading to permanent air space enlargement","Inflammation of the pleural layers without tissue damage","Temporary swelling of the lungs during infection"], ans:1, exp:"Emphysema = structural destruction of alveolar walls, creating larger air spaces that can't exchange gas efficiently. This is a permanent change, not reversible. Unlike bronchitis (airway inflammation), emphysema is irreversible tissue loss."},
+            {lo:"LO1", q:"Which is the PRIMARY cause of emphysema?", opts:["Smoking (cigarette exposure)","Pollution, especially in areas with geographic inversion layers (mountains trapping pollution in valleys)","Occupational dust exposure","Alpha-1 antitrypsin deficiency"], ans:1, exp:"While smoking contributes, pollution is the most common cause of emphysema, especially in cities near mountains where inversion layers trap pollutants. This is counterintuitive but highly tested. Genetic deficiency (alpha-1) is less common."},
+            {lo:"LO1", q:"What causes the darkening of the visceral pleura seen in many emphysema cases?", opts:["Inflammation from infection","Blood accumulation in the pleural space","Carbon particle deposition in terminal bronchioles","Thickening of the pleural membrane"], ans:2, exp:"Chronic pollution exposure → carbon particles deposit in terminal bronchioles → darkening of visceral pleura (which covers the lung). This carbon discoloration can be extreme in severe emphysema and is visible during gross dissection."},
+            {lo:"LO1", q:"In emphysema, carbon deposition occurs primarily in which anatomical structures?", opts:["The alveoli only","The terminal bronchioles","The main bronchi","The pleural layers only"], ans:1, exp:"Carbon settles in the terminal bronchioles (the smallest bronchial branches before alveoli). From there, it can migrate into alveoli, but terminal bronchioles are the primary site. This is clinically significant because it indicates where the disease process begins."},
+            {lo:"LO1", q:"What is 'tiger striping' in emphysema?", opts:["Alternating stripes of normal and diseased lung tissue visible on X-ray","A pattern following bronchopulmonary segments with carbon deposition","Stripes created by rib shadows on imaging","Scarring tissue alternating with healthy tissue"], ans:1, exp:"Tiger striping is a visible pattern on imaging (CT/gross specimens) that follows the bronchopulmonary segments and their associated lymphatic routes. It shows disease localization along segmental anatomy, not random throughout the lung."},
+            {lo:"LO1", q:"The tiger striping pattern in emphysema follows which anatomical course?", opts:["Only the arterial blood supply","Only the venous drainage","The bronchopulmonary segments AND their associated lymphatics","The pleural folds only"], ans:2, exp:"Tiger striping follows bronchopulmonary segments (which include their bronchi, arteries, and veins) AND the associated lymphatic drainage. This is crucial: disease follows these segmental pathways, which has implications for predicting metastatic spread and understanding disease progression."},
+            {lo:"LO1", q:"A patient has emphysema with pleural involvement. The pain is dull and diffuse across the chest. Which type of pain is this patient experiencing?", opts:["Somatic pain from the chest wall","Visceral pain from the pleural surface","Neuropathic pain from nerve compression","Referred pain from the abdomen"], ans:1, exp:"Visceral pain (from pleura, lungs) = dull, diffuse, poorly localized. Somatic pain (from chest wall) = sharp, well-localized. Visceral pain is harder for patients to pinpoint because it's not dermatomal (specific nerve distribution)."},
+            {lo:"LO1", q:"Which neural pathway transmits visceral pain from the pleura?", opts:["Intercostal nerves (spinal nerves)","Pulmonary plexus (autonomic system)","Phrenic nerve only","Sympathetic trunk directly"], ans:1, exp:"Visceral pain from the pleura is transmitted via the pulmonary plexus (autonomic). This is different from somatic pain from parietal pleura/chest wall, which uses intercostal nerves. Understanding this pathway explains why the pain quality differs."},
+            {lo:"LO1", q:"How does somatic (parietal pleural) pain differ clinically from visceral (pulmonary) pain?", opts:["Somatic pain is dull; visceral pain is sharp","Somatic pain is sharp and well-localized; visceral pain is dull and diffuse","They are identical in presentation","Somatic pain only occurs with infection"], ans:1, exp:"Somatic pain = sharp, localized to specific area (follows dermatomal distribution). Visceral pain = dull, diffuse, hard to localize. This distinction is clinically important: a patient with sharp, well-localized chest pain is likely having parietal/wall pain, not visceral."},
+            {lo:"LO1", q:"Pleurisy (pleuritis) is best defined as:", opts:["Air accumulation in the pleural cavity","Inflammation of the pleura, usually from infection","Excess fluid draining from the lungs","Thickening of the visceral pleura"], ans:1, exp:"Pleurisy = inflammation of pleura (usually infectious origin: viral, bacterial, TB, fungal). It's an inflammatory condition, not fluid accumulation per se (though inflammation can cause effusion)."},
+            {lo:"LO1", q:"What is the typical etiology of pleurisy?", opts:["Trauma to the chest wall","Infection (viral, bacterial, TB, fungal)","Smoking exposure","Allergic reactions only"], ans:1, exp:"Pleurisy is primarily infectious in origin—viral upper respiratory infections, bacterial pneumonia, tuberculosis, or fungal infections can all cause pleural inflammation. Non-infectious causes exist but are less common."},
+            {lo:"LO1", q:"A patient with pleurisy presents with sharp, localized chest pain that worsens with breathing. This pain quality is different from visceral lung pain because:", opts:["The pleurisy involves the parietal pleura (somatic), which has different innervation than visceral structures","The pleural infection is more severe than in other conditions","Pleurisy only affects one side of the chest","Breathing makes all chest pain worse"], ans:0, exp:"Pleurisy = inflammation of pleura (often the parietal layer) → somatic pain (sharp, localized, worsens with breathing/movement). This is different from visceral pleural pain (dull, diffuse). The anatomical layer involved determines pain quality."},
+            {lo:"LO1", q:"What is hemothorax?", opts:["Air accumulation in the pleural cavity","Blood accumulation in the pleural cavity","Pus accumulation from infection","Excess serous fluid in the pleural cavity"], ans:1, exp:"Hemothorax = blood in the pleural cavity. Usually from trauma (rib fracture, penetrating injury). Must be removed via pleural tap (thoracentesis) or chest tube. Distinguish from pneumothorax (air) and pleural effusion (non-blood fluid)."},
+            {lo:"LO1", q:"What is pleural effusion (or pulmonary effusion)?", opts:["Any fluid other than blood in the pleural cavity","Only infectious fluid in the pleural cavity","Only serous fluid from the lungs","Air mixed with fluid in the pleural cavity"], ans:0, exp:"Pleural effusion = any NON-BLOOD fluid in the pleural cavity. Can be serous (heart failure, cirrhosis), purulent (empyema from infection), or chylous (lymphatic leak). Broad category that requires identifying the underlying cause."},
+            {lo:"LO1", q:"Which statement correctly distinguishes the three types of pleural pathology?", opts:["Hemothorax = air; effusion = fluid; pneumothorax = blood","Hemothorax = blood; pneumothorax = air; effusion = non-blood fluid","They are all the same condition with different names","Pneumothorax is the only one that requires intervention"], ans:1, exp:"Three distinct pathologies: hemothorax (blood) → from trauma; pneumothorax (air) → from lung rupture or trauma; pleural effusion (non-blood fluid) → from various causes (infection, cardiac, renal, hepatic). Each requires different management."},
+            {lo:"LO1", q:"In the pleural cavity, fluid (blood or effusion) gravitationally accumulates in which region?", opts:["The apex (superior tip) of the lung","The hilum where vessels enter","The costal diaphragmatic recess (lowest point between rib cage and diaphragm)","The mediastinal surface"], ans:2, exp:"The costal diaphragmatic recess is the lowest point in the pleural cavity (anatomically between ribs and diaphragm). Gravity pulls fluid here first, making it the primary landmark for detecting effusion/hemothorax on imaging (CXR, ultrasound, CT)."},
+            {lo:"LO1", q:"In pneumothorax, where does air preferentially accumulate?", opts:["In the costal diaphragmatic recess","Near the cervical (superior) part of the pleural cavity","Along the mediastinal surface","Uniformly throughout the pleural space"], ans:1, exp:"Air is less dense than fluid, so it rises. In pneumothorax, air accumulates in the superior (cervical) pleural cavity. This is why pneumothorax air must be accessed from a SUPERIOR location (unlike fluid, which is accessed inferiorly)."},
+            {lo:"LO1", q:"Why do fluid and air accumulate in opposite locations within the pleural cavity?", opts:["They follow different anatomical pathways","Fluid is heavier and sinks to the lowest point; air is lighter and rises to the highest point","The pleural membrane directs them to different locations","They both accumulate at the hilum"], ans:1, exp:"Basic physics: fluid (blood, effusion) → gravitates inferiorly to costal diaphragmatic recess. Air (pneumothorax) → rises superiorly. This anatomical principle determines where to insert chest tubes or needles for removal."},
+            {lo:"LO1", q:"For pneumothorax removal, the chest tube is placed in which intercostal space and why?", opts:["2nd intercostal space (ICS 2), superior location where air accumulates","5th-7th intercostal space, where the lung sits","8th-9th intercostal space, for easier access","1st intercostal space, near the apex"], ans:0, exp:"Pneumothorax → air rises to the superior pleural cavity → chest tube placed at ICS 2 (superior location). This is called the 'pneumothorax drainage site.' Region: second intercostal space at midclavicular line."},
+            {lo:"LO1", q:"For hemothorax or pleural effusion removal, the chest tube is typically placed in which intercostal spaces and why?", opts:["2nd intercostal space, same as pneumothorax","5th-7th intercostal spaces, inferior location where fluid accumulates","8th-9th intercostal space, the lowest point","Only at the 4th intercostal space"], ans:1, exp:"Hemothorax/effusion → fluid sinks to the costal diaphragmatic recess (inferiorly) → chest tube placed at ICS 5-7 (middle to lower thorax). Region: midaxillary line. This accesses where fluid actually collects."},
+            {lo:"LO1", q:"Which anatomical line is used as the entry point (vertical landmark) for pleural tap (thoracentesis)?", opts:["Midclavicular line","Anterior axillary line","Midaxillary line","Posterior axillary line"], ans:2, exp:"Midaxillary line = the imaginary vertical line running through the middle of the axilla (armpit). This is where V6 and V10 ECG electrodes are placed—clinically consistent landmark. It's the standard entry site for pleural tap."},
+            {lo:"LO1", q:"After entering at the midaxillary line, between which ribs does the needle enter the pleural space for fluid access?", opts:["Between ribs 5-6","Between ribs 6-7","Between ribs 8-9","Between ribs 10-11"], ans:2, exp:"Ribs 8-9 at the midaxillary line = standard pleural tap location for accessing fluid in the costal diaphragmatic recess. This is where effusion/hemothorax collects. Ribs higher than this risk hitting the lung; ribs lower risk abdominal organ injury."},
+            {lo:"LO1", q:"Why is the pleural tap performed between ribs 8-9 rather than higher up (like ribs 5-6)?", opts:["Higher ribs are too close to the great vessels","Lower ribs are easier to access surgically","Fluid gravitationally accumulates inferiorly in the costal diaphragmatic recess near ribs 8-9","The pleural membrane is thicker at ribs 8-9"], ans:2, exp:"Gravity + anatomy: fluid sinks to the lowest point of the pleural cavity = the costal diaphragmatic recess = near ribs 8-9. Tapping higher would miss most of the fluid. This location follows the pathophysiology of fluid accumulation."},
+            {lo:"LO1", q:"During pleural tap needle insertion, why must you keep the needle toward the TOP of the intercostal space (toward the superior rib)?", opts:["To avoid the spinal cord","To avoid the VAN (vein/artery/nerve), which runs along the INFERIOR rib border","To make the procedure easier","To prevent pneumothorax"], ans:1, exp:"The VAN (intercostal vein, artery, nerve) runs along the inferior groove of each rib. By directing the needle toward the superior (top) of the rib, you avoid these structures. Hitting them = hemorrhage or nerve injury."},
+            {lo:"LO1", q:"The intercostal vein, artery, and nerve (VAN) run in which anatomical location on a rib?", opts:["Along the superior (top) border of the rib","In the center of the rib","In the inferior groove (beneath the rib)","On the pleural surface only"], ans:2, exp:"The VAN travels in the intercostal groove on the inferior surface of each rib. This is a critical anatomical fact: keep your needle HIGH (toward the superior rib) to AVOID this groove and its structures."},
+            {lo:"LO1", q:"What is the first tissue layer the needle pierces when performing pleural tap at the midaxillary line?", opts:["Muscle tissue","Skin (epidermis/dermis)","Pleura directly","Subcutaneous fat"], ans:1, exp:"Layering from outside-in: (1) Skin → (2) Subcutaneous tissue → (3) Muscles → (4) Fascia → (5) Pleura. The skin is the most superficial and is pierced first. Know this order cold for clinical practice and exams."},
+            {lo:"LO1", q:"After penetrating skin and subcutaneous tissue during pleural tap, in what order are the intercostal muscles encountered?", opts:["Internal → external → innermost","Innermost → internal → external","External → internal → innermost","All three simultaneously in a single layer"], ans:2, exp:"From outside-in: (1) External intercostal → (2) Internal intercostal → (3) Innermost intercostal. Each muscle layer is progressively deeper. The external is most superficial; the innermost is closest to the pleura."},
+            {lo:"LO1", q:"What is the endothoracic fascia and what is its clinical significance in pleural tap?", opts:["A muscle layer that must be cut to access the pleura","The final fibrous barrier lining the inner chest wall, acting as a 'glue' before the pleural space","The outermost layer of the skin","A layer of the parietal pleura"], ans:1, exp:"The endothoracic fascia = the final tissue barrier between the innermost intercostal muscle and the pleural space. It acts like 'glue,' adhering to the inner thoracic wall. Penetrating this fascia = entering the pleural cavity. It's THE critical anatomical gateway."},
+            {lo:"LO1", q:"A needle performing pleural tap must traverse tissue layers in which sequence to reach the pleural space?", opts:["Skin → muscle → pleura (3 layers)","Skin → fat → muscle → endothoracic fascia → pleura (5 layers)","Skin → subcutaneous tissue → external intercostal → internal intercostal → innermost intercostal → endothoracic fascia → pleura (7 layers)","Skin → pleura directly (2 layers)"], ans:2, exp:"Complete layering (all 7 in order): (1) Skin, (2) Tela subcutanea (subcutaneous), (3) External intercostal, (4) Internal intercostal, (5) Innermost intercostal, (6) Endothoracic fascia, (7) Pleural space. This is EXAM KNOWLEDGE—know this exact sequence."},
+            {lo:"LO1", q:"Which statement accurately describes the complete procedure for pleural tap from entry to successful fluid access?", opts:["Enter skin anywhere on chest, push needle straight down until fluid drains","Enter at midaxillary line, between ribs 8-9, keep needle toward top of rib (avoid VAN), pierce all 7 tissue layers in order, breach endothoracic fascia to enter pleural space, aspirate fluid","Enter at midclavicular line between ribs 2-3, push deeply, and aspirate","Enter at any intercostal space, ignore rib landmarks"], ans:1, exp:"High-yield complete sequence: (1) Location: midaxillary line, ribs 8-9; (2) Angle: toward superior rib (avoid VAN); (3) Layers: traverse all 7 systematically; (4) Final barrier: pierce endothoracic fascia; (5) Access: enter pleural space, aspirate. This entire procedure is clinically critical and highly tested."},
+            {lo:"LO2", q:"How many lobes does the right lung have?", opts:["2 lobes","3 lobes","4 lobes","Variable number"], ans:1, exp:"The right lung has 3 lobes: superior, middle, and inferior. This is one more lobe than the left lung, a key anatomical asymmetry. The extra lobe is a consequence of how the bronchial tree divides differently on the right vs left."},
+            {lo:"LO2", q:"The lobes of the right lung are separated by which structures?", opts:["Ligaments only","Pleural folds called fissures","Connective tissue without pleural involvement","Muscular septa"], ans:1, exp:"Fissures = pleural reflections that separate lung lobes. The right lung has two: the horizontal fissure (between superior and middle lobes) and the oblique fissure (between middle and inferior lobes). These are visible on imaging and are anatomical boundaries."},
+            {lo:"LO2", q:"In the right hilum, which structure is positioned most POSTERIORLY?", opts:["Pulmonary arteries","Pulmonary veins","Primary bronchi","Lymph nodes"], ans:2, exp:"The primary bronchi are the MOST POSTERIOR structures in the hilum because the trachea (from which they branch) is posterior to the heart and great vessels. This posterior position is anatomically consistent with the trachea's location in the mediastinum."},
+            {lo:"LO2", q:"In the right hilum, where are the pulmonary arteries located relative to other structures?", opts:["Most anterior (in front)","Most posterior (in back)","Superior, sandwiched between veins and bronchi","Most inferior (below)"], ans:2, exp:"In the right hilum, pulmonary arteries occupy a middle position: SUPERIOR to the veins but anterior to the bronchi. This 'sandwiched' location is a key organizational principle of hilum anatomy and helps identify structures on imaging (CT/MRI)."},
+            {lo:"LO2", q:"In the right hilum, where are the pulmonary veins located?", opts:["Superior and posterior","Inferior and anterior","Sandwiched between arteries and bronchi","Exclusively posterior"], ans:1, exp:"In the right hilum, pulmonary veins are MOST INFERIOR and ANTERIOR. Note: there are MORE venous lumens than arterial lumens, making veins more prominent on cross-section. This inferior/anterior location is clinically important for surgical approaches."},
+            {lo:"LO2", q:"What is the general anatomical principle regarding pulmonary veins and arteries in BOTH lung hila?", opts:["Veins are always anterior to arteries","Arteries are always above veins","Veins are always superior to arteries","They are randomly arranged"], ans:2, exp:"This is a KEY organizing principle: Pulmonary veins are ALWAYS superior to pulmonary arteries in the hilum of BOTH lungs. This spatial relationship is consistent and helps identify structures reliably during imaging and surgery."},
+            {lo:"LO2", q:"How does the right main bronchus differ anatomically from the left main bronchus?", opts:["It is narrower and more horizontal","It is wider and more vertical","It branches into 2 divisions instead of 3","It is more tortuous (curved)"], ans:1, exp:"The right main bronchus is MORE VERTICAL and has a WIDER DIAMETER than the left. This is clinically critical because the more vertical alignment with the trachea means aspirated objects preferentially lodge in the RIGHT bronchus (higher aspiration risk)."},
+            {lo:"LO2", q:"Why is the more vertical orientation of the right main bronchus clinically significant?", opts:["It allows better blood flow to the right lung","It is easier to intubate during anesthesia","Aspirated foreign objects preferentially enter the right bronchus due to its more direct alignment with the trachea","It provides better drainage of secretions"], ans:2, exp:"Vertical alignment + wider diameter → preferential aspiration path into the RIGHT bronchus. This is why emergency personnel are trained in specific recovery positions (left lateral recovery position) to minimize aspiration risk and protect the airway."},
+            {lo:"LO2", q:"What are eparterial bronchi?", opts:["Bronchi that supply the middle lobe","Tertiary bronchi supplying the superior lobe of the right lung, originating ABOVE the pulmonary artery","Abnormal bronchi seen only in disease","Bronchi in the left lung only"], ans:1, exp:"Eparterial = 'epi-' (above) + 'arterial' (relative to artery). Eparterial bronchi are the bronchi to the RIGHT superior lobe, which originate ABOVE the pulmonary artery. This is unique to the right side; the left side has no eparterial bronchi."},
+            {lo:"LO2", q:"How many lobes does the left lung have?", opts:["2 lobes","3 lobes","4 lobes","5 lobes"], ans:0, exp:"The left lung has 2 lobes: superior and inferior, separated by a single oblique fissure. This is one fewer lobe than the right (which has 3), a key asymmetry. The difference is due to the developmental split of the bronchial tree."},
+            {lo:"LO2", q:"Why is the left lung smaller than the right lung?", opts:["The left pulmonary artery is smaller","The heart occupies significant space on the left side, constraining lung size","The left bronchus is narrower","The left pleural cavity is smaller"], ans:1, exp:"The heart is positioned preferentially to the left side of the thorax. This space constraint forces the left lung to be smaller and more compact to accommodate the cardiac silhouette. This is a direct consequence of cardiac anatomy and organ positioning."},
+            {lo:"LO2", q:"What is the lingula and what makes it unique to the left lung?", opts:["A small bronchus found only on the left","The cardiac notch where the heart indents the lung surface","A tongue-like projection of the superior lobe, unique to the left lung, extending to approximately rib 6","A lymph node group in the hilum"], ans:2, exp:"The lingula = 'small tongue.' It's a tongue-like projection of the left superior lobe that extends inferiorly. It's unique to the left lung (the right has a middle lobe instead). The lingula is clinically important: tumors here are sometimes biopsied separately due to its distinctive anatomy."},
+            {lo:"LO2", q:"In the left hilum, how are pulmonary veins positioned (in contrast to the right hilum)?", opts:["Anterior and inferior, same as the right","Superior and posterior, unique to the left","Posterior, unlike the right where veins are anterior/inferior","They are randomly distributed"], ans:2, exp:"This is a KEY ASYMMETRY: Left hilum has pulmonary veins POSTERIOR, whereas right hilum has pulmonary veins ANTERIOR/INFERIOR. This asymmetry reflects the developmental differences and the fact that the left lung must accommodate the heart."},
+            {lo:"LO2", q:"Which statement correctly summarizes the anatomical arrangement asymmetry between right and left hila?", opts:["Right and left hila have identical vessel arrangements","RIGHT hilum: veins anterior/inferior, arteries superior-middle, bronchi posterior | LEFT hilum: veins posterior (unique difference)","Arteries are always in the same position regardless of side","Venous arrangement is the same; only bronchi differ"], ans:1, exp:"Critical asymmetry to memorize:\n- RIGHT hilum: bronchi posterior → arteries middle/superior → veins anterior/inferior\n- LEFT hilum: veins posterior (UNIQUE)\nUnderstanding this asymmetry is essential for imaging interpretation and surgical planning."},
+            {lo:"LO2", q:"Why does the left hilum have a different vessel arrangement than the right hilum?", opts:["The left pulmonary artery is smaller","The embryological development differs, and the left lung must accommodate the cardiac silhouette","The left pleural cavity developed differently","Random variation in anatomy"], ans:1, exp:"The asymmetry in hilum anatomy reflects developmental constraints: the heart preferentially sits on the left, forcing the left lung to reshape around the cardiac impression. This forced the pulmonary veins to shift to a more posterior position on the left compared to the right. Anatomy follows function and space constraints."},
+            {lo:"LO2", q:"How many bronchopulmonary segments are present in the right and left lungs, respectively?", opts:["Right 8, Left 8 (equal)","Right 10, Left 8","Right 10, Left 10 (equal)","Right 12, Left 12 (equal)"], ans:1, exp:"Right lung: 10 bronchopulmonary segments | Left lung: 8 bronchopulmonary segments. The difference correlates with the different number of lobes (right has 3 lobes, left has 2 lobes). This segment count matters surgically: each segment can be individually resected."},
+            {lo:"LO2", q:"What is the surgical significance of bronchopulmonary segments being in separate connective tissue compartments?", opts:["Segments cannot be surgically accessed","Each segment can be individually resected without affecting adjacent segments","All segments must be removed together","Segmental boundaries prevent bleeding"], ans:1, exp:"Each bronchopulmonary segment is in its own connective tissue compartment (like anatomical 'packages'). This allows segmental resection for lung cancer: instead of removing an entire lobe, surgeons can remove only the affected segment(s), preserving more lung function."},
+            {lo:"LO2", q:"What structures accompany each bronchopulmonary segment and influence disease spread?", opts:["Only blood vessels","Only bronchi","Bronchi, blood vessels, AND their own lymphatic drainage system","Only connective tissue"], ans:2, exp:"Each bronchopulmonary segment has its own bronchus, arteries, veins, AND lymphatics. This is critical: disease (including metastases) follows lymphatic pathways, and these pathways are organized by segment. Understanding segment anatomy = predicting cancer spread."},
+            {lo:"LO2", q:"Why is understanding bronchopulmonary segment anatomy important for predicting lung cancer metastatic patterns?", opts:["Tumors always grow in a random pattern","Metastases follow lymphatic drainage routes, which follow bronchopulmonary segment boundaries; understanding segments predicts where cancer will spread","Segment anatomy has no clinical relevance","Metastases only travel through blood vessels, not lymphatics"], ans:1, exp:"Metastatic spread follows lymphatic anatomy, which is organized by bronchopulmonary segments. This is clinically high-yield: a tumor in one segment can predict lymph node involvement in adjacent segments following the tiger stripe lymphatic pattern. Example: cadaver 2727 had multiple lung tumors all associated with lymphatic courses—demonstrating this principle directly."},
+            {lo:"LO3", q:"In what sequence do bronchi develop and branch?", opts:["Alveoli → Tertiary → Secondary → Primary","Primary → Secondary → Tertiary → Alveoli","Primary → Alveoli directly","Secondary → Primary → Tertiary"], ans:1, exp:"Sequential branching: Primary (1) → Secondary (2) → Tertiary (3) → Alveoli. This hierarchical organization is critical: each level branches further until reaching the alveoli where gas exchange occurs. Understanding this progression is essential for understanding disease spread and surgical anatomy."},
+            {lo:"LO3", q:"What vascular structures accompany each tertiary bronchus?", opts:["Only pulmonary arteries","Only bronchial arteries","One pulmonary arterial branch AND one bronchial arterial branch","Veins only"], ans:2, exp:"Each tertiary bronchus is paired with: (1) a pulmonary arterial branch (brings deoxygenated blood from heart to be oxygenated) and (2) a bronchial arterial branch (supplies the bronchial tissue itself). This consistent vascular relationship defines the boundaries of bronchopulmonary segments."},
+            {lo:"LO3", q:"Where do primary bronchi originate and what is their key anatomical feature?", opts:["Branch from the lungs; they have thin walls","Branch directly from the trachea; they have thick walls and are the most posterior structures in the hilum","Branch from secondary bronchi; they are anterior","Branch from the heart; they carry oxygenated blood"], ans:1, exp:"Primary bronchi branch directly from the trachea at the carina. They have thick walls and are positioned MOST POSTERIOR in the hilum because the trachea itself is posterior to the heart and great vessels. This posterior position is consistent with mediastinal anatomy."},
+            {lo:"LO3", q:"What is the carina and what is its anatomical significance?", opts:["The narrowest point of the trachea","The point where the trachea bifurcates into right and left main bronchi","The opening of the epiglottis","A valve that prevents aspiration"], ans:1, exp:"The carina = the tracheal bifurcation point where the trachea splits into the right and left main bronchi. It's a critical anatomical landmark and a common site where aspirated objects lodge because it's a natural anatomical bottleneck."},
+            {lo:"LO3", q:"Why do accidentally inhaled objects frequently lodge at the carina?", opts:["The carina has a one-way valve","Objects get stuck due to the narrowing of the trachea at bifurcation (anatomical bottleneck)","The carina produces sticky secretions","Objects are redirected backward by airflow"], ans:1, exp:"The carina is an anatomical narrowing where the trachea splits into two bronchi. Foreign objects traveling down the trachea mechanically lodge here because it's the smallest diameter point (the bottleneck). This is clinically critical for emergency management."},
+            {lo:"LO3", q:"How does the anatomical orientation of the right main bronchus differ from the left?", opts:["Left is more vertical; right is more horizontal","Right is more VERTICAL and has a WIDER DIAMETER than the left","They are identical","Right is narrower than the left"], ans:1, exp:"The right main bronchus is MORE VERTICAL (more aligned with the tracheal axis) and has a WIDER DIAMETER than the left. This is clinically critical because it creates a preferential pathway for aspirated objects."},
+            {lo:"LO3", q:"Why is aspiration risk HIGHER for the right main bronchus compared to the left?", opts:["The left bronchus is protected by the heart","The right is more vertical and wider, creating a more direct path aligned with the tracheal axis","The left bronchus has stronger muscles","Right bronchus aspirations are safer"], ans:1, exp:"Vertical alignment + wider diameter = the right bronchus is the preferential path for aspirated objects. When something travels down the trachea, gravity and geometry favor the right side. This is why emergency responders position patients in SPECIFIC recovery positions."},
+            {lo:"LO3", q:"What does 'more aligned with the tracheal axis' mean for right bronchus aspiration mechanics?", opts:["Objects travel slower on the right","The right bronchus continues in approximately the same direction as the trachea, requiring less deflection for foreign objects to enter","Objects cannot reach the right bronchus","The alignment prevents aspiration"], ans:1, exp:"The trachea is relatively vertical. The right main bronchus continues more vertically (doesn't deflect much), so an aspirated object traveling downward continues its path straight into the right bronchus. The left bronchus is more horizontal, requiring greater deflection, so objects are less likely to enter it."},
+            {lo:"LO3", q:"In general emergency medicine, why is the LEFT lateral recovery position used?", opts:["Because the left lung is smaller","Because patients naturally prefer it","Left side down protects the airway (keeps right airway elevated); if aspiration/vomiting occurs, the right bronchus (the wider, more vertical one) drains downward instead of toward the trachea","The right side is more vulnerable to injury"], ans:2, exp:"Left lateral recovery position strategy: place patient on LEFT side → RIGHT airway up (protected) → IF aspiration occurs, objects go down the right bronchus (away from trachea/larynx). This buys time and prevents complete airway obstruction. This is standard emergency medicine positioning."},
+            {lo:"LO3", q:"In OMFS (Oral and Maxillofacial Surgery), why do they use RIGHT lateral recovery position instead of left?", opts:["It's easier for the patient","To protect the left bronchus","RIGHT lateral position allows easier retrieval of aspirated objects (crown, tooth, etc.) from the right bronchus due to its wider diameter and more direct access","OMFS doesn't actually use a different position"], ans:2, exp:"In OMFS, aspirated objects (crowns, dental equipment, teeth) are often EXPECTED during surgery. RIGHT lateral recovery position puts the wider right bronchus in an accessible position for instrument retrieval. This is a tactical choice: prioritize retrieval of object over preventing deeper lodging. Different clinical scenario = different positioning strategy."},
+            {lo:"LO3", q:"How do tertiary bronchi and their vascular relationships define bronchopulmonary segments?", opts:["Segments are defined by pleural folds only","Each tertiary bronchus with its accompanying pulmonary artery, bronchial artery, and segmental lymphatics defines the boundary of a bronchopulmonary segment in its connective tissue compartment","Segments have no anatomical basis","Only veins define segments"], ans:1, exp:"Bronchopulmonary segments are anatomically defined by the tertiary bronchus PLUS its associated pulmonary and bronchial arteries AND lymphatics, all enclosed in a connective tissue compartment. This 'package' is the surgical unit—each segment can be resected independently."},
+            {lo:"LO3", q:"Why is the compartmentalization of bronchopulmonary segments surgically important?", opts:["Segments cannot be accessed during surgery","All segments must be removed together","Each segment can be individually resected without affecting adjacent segments, allowing targeted cancer removal while preserving lung function","Segments have no surgical relevance"], ans:2, exp:"Because each bronchopulmonary segment is in its own connective tissue compartment, surgeons can perform segmental resection rather than lobectomy (removing entire lobes). For lung cancer: remove only the affected segment(s) → preserve more lung → better post-op function. This is high-yield surgical anatomy."},
+            {lo:"LO3", q:"Why does the 'tiger striping' pattern in emphysema follow the bronchiole tree and bronchopulmonary segments?", opts:["It's random distribution with no anatomical basis","Disease (carbon, inflammation, lymphatic involvement) propagates along the anatomical pathways defined by bronchopulmonary segments and their lymphatic drainage; this creates a striped pattern visible on imaging","Tiger striping only appears on X-ray, not on pathology","The pleura creates stripes"], ans:1, exp:"Tiger striping = disease following segmental anatomy. Because lymphatics follow bronchopulmonary segments, and bronchioles follow segmental pathways, disease spreads along these routes creating a striped pattern that mirrors the segmental organization. This pattern is visible on imaging and on gross specimens."},
+            {lo:"LO4", q:"Why does the thoracic cage specifically require extensive collateral circulation?", opts:["It doesn't need collateral circulation","The thoracic cage has HIGH MOBILITY (ribs move with breathing) and HIGH IMPORTANCE (protects vital organs) → requires redundant blood supply from multiple sources to prevent ischemia if one vessel is compromised","Only the lungs need blood supply","Collateral circulation is only in the abdomen"], ans:1, exp:"The thoracic cage moves constantly (every breath). If blood supply from one route is blocked, collateral pathways ensure tissues don't become ischemic. At each intercostal space, there's a 360-degree network where anterior and posterior pathways anastomose (connect). This redundancy = safety."},
+            {lo:"LO4", q:"What is a '360-degree vascular network' at an intercostal space?", opts:["Blood flows in only one direction","Blood can approach tissues from multiple directions (anterior via internal thoracic, posterior via aorta, laterally via intercostal branches) creating circular redundancy","Only veins form circles","There are 360 blood vessels"], ans:1, exp:"A 360-degree network means: if posterior supply is blocked, anterior/lateral supplies compensate. If anterior supply is blocked, posterior supplies compensate. This circular arrangement of anastomoses = protection against single-vessel occlusion. Each intercostal space has this built-in redundancy."},
+            {lo:"LO4", q:"What are posterior intercostal arteries and where do they originate?", opts:["Branches from the internal thoracic artery","Paired arteries that branch segmentally off the descending aorta, running posteriorly along intercostal spaces with spinal nerves","Veins that drain the posterior wall","Branches of the pulmonary arteries"], ans:1, exp:"Posterior intercostal arteries = segmental branches directly from the thoracic aorta. 'Segmental' means each intercostal space gets its own paired artery. They run posteriorly with the spinal nerves and supply the posterior thoracic wall and rib tissue."},
+            {lo:"LO4", q:"What is the origin of the internal thoracic arteries?", opts:["Direct branches from the aorta","Branches of the subclavian arteries (one on each side)","Branches of the pulmonary arteries","Branches of the internal carotid"], ans:1, exp:"Internal thoracic arteries originate from the subclavian arteries (one on each side). The subclavian arteries themselves come from the aortic arch, so internal thoracic arteries are 'grandchildren' of the aorta, running on the internal (deep) side of the breastplate."},
+            {lo:"LO4", q:"What is the anatomical course of internal thoracic arteries?", opts:["They run superficially on the skin surface","They run on the posterior/internal (deep) side of the sternum and ribs, descending inferiorly along the thoracic wall","They travel within the lungs","They only branch once then stop"], ans:1, exp:"Internal thoracic arteries run on the internal (posterior) side of the breastplate (sternum and rib cartilages), descending vertically from the subclavian origin. This internal position is clinically important: they're accessible for coronary artery bypass grafting (CABG) and provide key collateral supply to anterior thoracic wall."},
+            {lo:"LO4", q:"What is the clinical significance of pericardiacophrenic arteries?", opts:["They supply only the pericardium","They are branches of internal thoracic arteries that provide CRITICAL vascularization of the superior diaphragm","They supply the ribs","They have no clinical importance"], ans:1, exp:"Pericardiacophrenic arteries = branches of internal thoracic arteries that descend alongside the phrenic nerve to supply the superior (upper) diaphragm. 'Pericard-' (pericardium) + '-ophren-' (diaphragm) = they supply both structures. Clinically critical because diaphragmatic blood supply is essential for breathing."},
+            {lo:"LO4", q:"How is the SUPERIOR diaphragm vascularized?", opts:["Only by aortic branches","Only by subclavian branches","By pericardiacophrenic arteries (branches of internal thoracic arteries)","By renal arteries"], ans:2, exp:"Superior diaphragm = supplied by pericardiacophrenic arteries (from internal thoracic). These arteries descend on the superior/lateral surfaces of the diaphragm alongside the phrenic nerve."},
+            {lo:"LO4", q:"How is the INFERIOR diaphragm vascularized and why is dual supply important?", opts:["Only by pericardiacophrenic arteries","By inferior phrenic arteries (branches of aorta at L1 level) + redundant supply from pericardiacophrenic = dual blood supply provides redundancy for safety","Only by intercostal vessels","The diaphragm has no inferior blood supply"], ans:1, exp:"Inferior diaphragm = supplied by inferior phrenic arteries (branches from aorta at L1). Combined with superior supply from pericardiacophrenic = dual vascularization. Redundancy ensures diaphragmatic function isn't compromised if one source is damaged. Critical organ → critical redundancy."},
+            {lo:"LO4", q:"What are the SUPERIOR connections of internal thoracic arteries?", opts:["They originate from the subclavian arteries (which originate from the aortic arch)","They connect to the internal carotid","They originate from the brachiocephalic vein","They originate from the lungs"], ans:0, exp:"Superior connections: Internal thoracic ← Subclavian artery ← Aortic arch. Blood flows downward from the arch through subclavian to internal thoracic. This proximal connection is the arterial source for the entire internal thoracic system."},
+            {lo:"LO4", q:"What are the INFERIOR connections of internal thoracic arteries?", opts:["Direct connection to the aorta","Musculophrenic artery/vein and superior epigastric artery/vein provide inferior continuation toward the abdomen","Connection to the iliac arteries","Dead end with no continuation"], ans:1, exp:"Inferior connections: Internal thoracic → Musculophrenic vessels (run along diaphragm's edge) and Superior epigastric vessels (continue into anterior abdomen). This inferior continuation creates continuity from thorax to abdomen."},
+            {lo:"LO4", q:"At each intercostal space, how do posterior and anterior intercostal arteries create collateral circulation?", opts:["They run in separate systems with no connection","They anastomose (connect) to form interconnected loops, allowing blood to flow between anterior and posterior pathways","Only one system functions at a time","They are veins, not arteries"], ans:1, exp:"Anastomoses = connections between vessels. At each intercostal space: Posterior intercostal arteries (from aorta) anastomose with Anterior intercostal arteries (from internal thoracic). These connections form a 360-degree loop allowing blood to flow from any direction. This is collateral circulation at its finest."},
+            {lo:"LO4", q:"What is the complete ARTERIAL collateral pathway at an intercostal space?", opts:["Aorta → Posterior intercostal → Anterior intercostal → Internal thoracic arteries (and backward through the same pathway)","Heart → Intercostal → Lungs (only one direction)","Aorta directly to every tissue (no intermediate vessels)","No collateral pathway exists"], ans:0, exp:"Complete pathway: Aorta ↓ Posterior intercostal arteries ↔ Anterior intercostal arteries ↓ Internal thoracic arteries. The '↔' shows anastomoses allow bidirectional flow. If posterior is blocked, anterior/internal thoracic routes compensate. If anterior is blocked, posterior routes compensate. This multi-level redundancy = surgical safety."},
+            {lo:"LO4", q:"Is the venous drainage of the thoracic cage organized the same way as arterial supply?", opts:["Yes, they are identical","No—venous drainage is VERY DIFFERENT and VERY ASYMMETRICAL compared to the relatively symmetrical arterial supply","Veins only drain the lungs","Venous and arterial systems are separate with no relationship"], ans:1, exp:"KEY CONCEPT: Arterial supply is roughly symmetrical (both sides get posterior intercostal arteries from aorta), but venous drainage is highly ASYMMETRICAL. This difference has major clinical implications for collateral flow and pathology."},
+            {lo:"LO4", q:"Why is venous drainage asymmetrical while arterial supply is more symmetrical?", opts:["Veins are weaker than arteries","Embryological development and the heart's preferential left-sided position forced asymmetrical venous organization, with azygos vein dominance on the right","The lungs require asymmetrical drainage","There is no reason for the difference"], ans:1, exp:"The heart sits preferentially on the left, influencing venous routing. The azygos vein (right side) became the dominant drainage pathway, while the hemiazygos vein (left side) is smaller. This reflects embryological constraints and asymmetrical development."},
+            {lo:"LO4", q:"What is the PRIMARY role of the azygos vein in thoracic circulation?", opts:["It supplies blood to the lungs","It collects blood from posterior intercostal veins and routes it to the IVC (inferior vena cava)","It drains only the right lung","It has no significant role"], ans:1, exp:"The azygos vein = the PRIMARY collecting vein for thoracic wall drainage. It gathers blood from posterior intercostal veins and delivers it to the IVC, which returns to the right atrium. This is the major venous return pathway for the thoracic cage."},
+            {lo:"LO4", q:"What specific vessels drain INTO the azygos vein system?", opts:["Anterior intercostal veins only","Posterior intercostal veins from both sides, with right-sided veins draining directly and left-sided (hemiazygos) eventually routing to azygos","Pulmonary veins","Only brachiocephalic veins"], ans:1, exp:"Posterior intercostal veins are the source: RIGHT side → azygos vein (directly). LEFT side → hemiazygos vein → connects to azygos → continues to IVC. The azygos is the 'trunk' collecting from all these tributaries."},
+            {lo:"LO4", q:"Where do posterior intercostal veins drain, and what is the asymmetry?", opts:["All drain to the heart directly","Right-sided drain to azygos vein; left-sided drain to hemiazygos vein (smaller, eventually connects to azygos); both ultimately route to IVC via azygos","They all drain to the pulmonary circulation","Anterior and posterior veins have identical drainage"], ans:1, exp:"ASYMMETRY ILLUSTRATED:\n- Right posterior intercostal veins → azygos vein (direct, large pathway)\n- Left posterior intercostal veins → hemiazygos vein (smaller) → connects to azygos → IVC\nThis explains why azygos is so large and dominant."},
+            {lo:"LO4", q:"Where do internal thoracic veins drain superiorly?", opts:["Directly to the heart","To the brachiocephalic vein, which drains to the SVC (superior vena cava)","To the azygos vein","To the pulmonary veins"], ans:1, exp:"Internal thoracic veins (running on internal side of breastplate) drain SUPERIORLY → brachiocephalic vein → SVC → right atrium. This is the ANTERIOR venous pathway (contrast to azygos posterior pathway)."},
+            {lo:"LO4", q:"What is the relationship between internal thoracic veins and internal thoracic arteries?", opts:["They are separate systems with no spatial relationship","They form paired vein-artery systems on the internal breastplate, with veins as the venous counterparts to the arteries","Arteries run inside veins","Veins only drain the lungs"], ans:1, exp:"Pairing principle: Each internal thoracic artery has a corresponding internal thoracic vein running alongside it (often doubled). This paired arrangement is clinically relevant for surgical dissection: they travel together."},
+            {lo:"LO4", q:"What is the complete VENOUS collateral pathway at the thoracic wall?", opts:["Heart → arteries → tissues (only arterial direction)","Tissues ← Posterior intercostal veins (azygos/hemiazygos) → Anterior intercostal veins → Internal thoracic veins → Brachiocephalic vein → SVC (and alternatively azygos → IVC)","Veins only drain downward","No venous collateral exists"], ans:1, exp:"Complete venous collateral pathway: Posterior intercostal veins (azygos/hemiazygos) AND anterior intercostal veins both feed into internal thoracic veins → brachiocephalic → SVC. Plus azygos → IVC. This creates DUAL venous return routes (upper and lower body)."},
+            {lo:"LO4", q:"Which factor BEST explains why venous drainage is asymmetrical while arterial supply is relatively symmetrical?", opts:["Veins are genetically different from arteries","Embryological development: the heart preferentially positioned on the left side necessitated the development of a dominant RIGHT-sided azygos vein for posterior thoracic drainage","Random anatomical variation","Arterial and venous asymmetry are both equal"], ans:1, exp:"Embryological explanation: The heart shifted left during development. The left side had space constraints, forcing the hemiazygos vein (left) to remain small and connect to the dominant azygos vein (right). This developmental asymmetry is reflected in adult anatomy."},
+            {lo:"LO4", q:"What is the hemodynamic consequence of azygos vein dominance?", opts:["No consequence","The azygos vein carries most posterior thoracic wall venous return, making it clinically significant; if obstructed, causes major hemodynamic consequences because there is no equal-sized alternative pathway","The left side drains faster","Blood flow reverses"], ans:1, exp:"Clinical significance: The azygos is the 'trunk' carrying massive venous volume from the posterior thorax. If azygos is occluded (by tumor, thrombus, or trauma), venous return backs up and causes increased venous pressure, edema, and hemodynamic compromise. The hemiazygos cannot compensate because it's too small."},
+            {lo:"LO4", q:"At an intercostal space, what comprises the complete '360-degree collateral circulation'?", opts:["Only arteries","Only veins","Arterial supply from multiple sources (posterior intercostal, anterior intercostal, internal thoracic) AND venous return through multiple pathways (posterior intercostal → azygos/hemiazygos → IVC, AND anterior intercostal → internal thoracic → brachiocephalic → SVC)","Random vascular arrangement"], ans:2, exp:"360-degree = full circle: Arteries arrive from posterior (aorta) and anterior (internal thoracic) with anastomoses between them. Veins leave via BOTH pathways (posterior to azygos-IVC and anterior to brachiocephalic-SVC). If any single route is blocked, the circle remains intact via alternative pathways."},
+            {lo:"LO4", q:"Why is understanding collateral circulation critical in thoracic surgery and trauma management?", opts:["It has no clinical relevance","If a single vessel is occluded (by dissection, retraction, or trauma), collateral pathways can maintain tissue perfusion and prevent ischemia; surgeons use this knowledge to predict safe dissection planes and bleeding risks","Only for academic purposes","Collateral circulation only exists in the lungs"], ans:1, exp:"Surgical principle: Understanding the 360-degree network allows surgeons to: (1) predict which tissues remain perfused if one vessel is injured, (2) plan dissection to avoid critical vessels, (3) anticipate bleeding patterns, (4) repair strategically. Collateral knowledge = surgical safety."},
+            {lo:"LO4", q:"Why is the internal thoracic artery specifically used for coronary artery bypass grafting (CABG)?", opts:["It's the largest artery","It's paired (one on each side, so one can be spared), it's easily accessible, and it has excellent long-term patency as a bypass conduit","It's the only artery that can be used","It's used only in emergency situations"], ans:1, exp:"CABG surgical choice: Internal thoracic artery is ideal because: (1) Paired = can sacrifice one for bypass; (2) Accessible = runs on internal breastplate (easy to harvest); (3) Patency = excellent long-term graft function (better than saphenous vein grafts). This is high-yield surgical knowledge."},
+            {lo:"LO4", q:"What surgical risks are associated with posterior intercostal vessels during thoracic procedures?", opts:["They are never injured","During rib retraction or posterolateral dissection, posterior intercostal arteries and veins can be torn → hemorrhage; knowing their segmental origin from aorta helps predict bleeding severity and repair strategy","Only veins are at risk","They regenerate if injured"], ans:1, exp:"Surgical risk: Posterior intercostal vessels branch segmentally off the aorta and IVC. Injury → bleeding from major vessels. Surgeons must know: where they originate (so they can ligate at source if needed), which side they're on (asymmetry in drainage matters), and how to control hemorrhage."},
+            {lo:"LO4", q:"What is the hierarchy of priorities in adult systemic circulation?", opts:["All organs receive equal blood flow","Right atrium receives all venous return; the aortic arch prioritizes blood to the BRAIN and HEART first (via brachiocephalic and coronary arteries) to ensure vital organ perfusion","The lungs are the highest priority","The abdomen is the sole priority"], ans:1, exp:"Circulation hierarchy (embryologically ancient, functionally critical): (1) Brain (via brachiocephalic → carotid), (2) Heart (via coronary arteries from aortic root), (3) Other organs. This reflects survival priorities: brain and heart are essential first. Understanding this + collateral networks = complete hemodynamic picture."}
+        ];
+
+        let questions = [...allQuestions];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let missedIndices = [];
+        let submitted = false;
+
+        // Keyboard controls
+        document.addEventListener('keydown', function(e) {
+            if (!document.getElementById('quizScreen').classList.contains('active')) return;
+
+            const key = e.key;
+
+            // 1-4 for answers
+            if (key === '1') { selectOption(0); return; }
+            if (key === '2') { selectOption(1); return; }
+            if (key === '3') { selectOption(2); return; }
+            if (key === '4') { selectOption(3); return; }
+
+            // Down arrow to continue
+            if (key === 'ArrowDown') {
+                if (!submitted) {
+                    submitAnswer();
+                } else {
+                    nextQuestion();
+                }
+            }
+        });
+
+        function startQuiz() {
+            currentIndex = 0;
+            correctCount = 0;
+            missedIndices = [];
+            submitted = false;
+            document.getElementById('startScreen').classList.remove('active');
+            document.getElementById('quizScreen').classList.add('active');
+            document.getElementById('summaryScreen').classList.remove('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            submitted = false;
+            const q = questions[currentIndex];
+
+            document.getElementById('questionText').textContent = q.q;
+            document.getElementById('loBadge').textContent = q.lo;
+            document.getElementById('questionNum').textContent = `Q ${currentIndex + 1} of ${questions.length}`;
+            document.getElementById('currentQ').textContent = currentIndex + 1;
+
+            const acc = currentIndex > 0 ? Math.round((correctCount / (currentIndex + 1)) * 100) : '--';
+            document.getElementById('accuracyStat').textContent = acc + '%';
+            document.getElementById('correctStat').textContent = correctCount;
+
+            const pct = (currentIndex / questions.length) * 100;
+            document.getElementById('progressBar').style.width = pct + '%';
+
+            let html = '';
+            q.opts.forEach((opt, i) => {
+                html += `
+                    <label class="option" onclick="selectOption(${i})">
+                        <input type="radio" name="answer" value="${i}">
+                        <div class="option-text"><strong>${i+1})</strong> ${opt}</div>
+                    </label>
+                `;
+            });
+            document.getElementById('optionsContainer').innerHTML = html;
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function selectOption(idx) {
+            document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+            document.querySelectorAll('.option')[idx].classList.add('selected');
+            document.querySelectorAll('input[name="answer"]')[idx].checked = true;
+        }
+
+        function submitAnswer() {
+            if (submitted) return;
+            submitted = true;
+
+            const selected = document.querySelector('input[name="answer"]:checked');
+            if (!selected) {
+                alert('Please select an answer (press 1, 2, 3, or 4)');
+                submitted = false;
+                return;
+            }
+
+            const userAns = parseInt(selected.value);
+            const q = questions[currentIndex];
+            const isCorrect = userAns === q.ans;
+
+            if (isCorrect) {
+                correctCount++;
+                document.getElementById('feedback').className = 'feedback show correct';
+                document.getElementById('feedback').innerHTML = `
+                    <div class="feedback-title">✓ Correct!</div>
+                    <div class="feedback-text"><strong>Explanation:</strong> ${q.exp}</div>
+                `;
+            } else {
+                missedIndices.push(currentIndex);
+                document.getElementById('feedback').className = 'feedback show incorrect';
+                document.getElementById('feedback').innerHTML = `
+                    <div class="feedback-title">✗ Incorrect</div>
+                    <div class="feedback-text"><strong>Your answer:</strong> ${userAns + 1}) ${q.opts[userAns]}</div>
+                    <div class="feedback-text"><strong>Correct answer:</strong> ${q.ans + 1}) ${q.opts[q.ans]}</div>
+                    <div class="feedback-text" style="margin-top: 10px;"><strong>Explanation:</strong> ${q.exp}</div>
+                `;
+            }
+
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'block';
+            document.getElementById('correctStat').textContent = correctCount;
+            const acc = Math.round((correctCount / (currentIndex + 1)) * 100);
+            document.getElementById('accuracyStat').textContent = acc + '%';
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                showQuestion();
+            } else {
+                showSummary();
+            }
+        }
+
+        function showSummary() {
+            const total = questions.length;
+            const pct = Math.round((correctCount / total) * 100);
+
+            document.getElementById('quizScreen').classList.remove('active');
+            document.getElementById('summaryScreen').classList.add('active');
+            document.getElementById('finalScore').textContent = pct + '%';
+            document.getElementById('totalQCount').textContent = total;
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalMissed').textContent = total - correctCount;
+
+            let msg = '';
+            if (pct >= 90) msg = 'Outstanding! You\'ve mastered this material! 🏆';
+            else if (pct >= 75) msg = 'Great work! You have solid understanding. 👏';
+            else if (pct >= 60) msg = 'Good progress! Review missed questions to improve. 📖';
+            else msg = 'Keep studying! Focus on the missed questions. 💪';
+
+            document.getElementById('summaryMsg').textContent = msg;
+        }
+
+        function showMissedReview() {
+            let html = '<h3 style="color: #333; margin-bottom: 15px;">Missed Questions Review (' + missedIndices.length + ')</h3>';
+            missedIndices.forEach(idx => {
+                const q = questions[idx];
+                html += `
+                    <div class="missed-item">
+                        <div class="missed-question">Q${idx + 1}: ${q.q}</div>
+                        <div class="missed-answer"><strong>Correct answer:</strong> ${q.ans + 1}) ${q.opts[q.ans]}</div>
+                        <div class="missed-explanation"><strong>Why:</strong> ${q.exp}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('missedList').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dent 7111 - Section 4: Clefts & Pouches</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.9em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .mode-info {
+            background: rgba(255,255,255,0.15);
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.95);
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .controls-top {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-mode {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 9px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-mode:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-mode.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .progress-section {
+            color: white;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.3s;
+            border-radius: 3px;
+        }
+
+        .question-box {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.25em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .option {
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.98em;
+            background: white;
+            line-height: 1.4;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+            font-weight: 600;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+            font-weight: 600;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            margin-right: 10px;
+            font-weight: 600;
+            font-size: 0.85em;
+            flex-shrink: 0;
+        }
+
+        .option.correct .option-letter {
+            background: #28a745;
+        }
+
+        .option.incorrect .option-letter {
+            background: #dc3545;
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.9em;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 9px 18px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-next, .btn-prev {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-next:hover, .btn-prev:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-next:disabled, .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-screen {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 18px 0;
+        }
+
+        .result-message {
+            font-size: 1.15em;
+            color: #333;
+            margin-bottom: 18px;
+        }
+
+        .score-details {
+            background: #f5f7ff;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 18px 0;
+            font-size: 0.95em;
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            margin-top: 12px;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Section 4: Pharyngeal Clefts & Pouches</h1>
+            <p>Clefts, Pouches, Tongue & Thyroid Development</p>
+        </div>
+
+        <div class="mode-info" id="modeInfo">
+            📖 LEARNING MODE: Questions in original order (content builds logically)
+        </div>
+
+        <div class="controls-top">
+            <button class="btn-mode active" id="btnOrdered" onclick="setMode('ordered')">📖 Ordered</button>
+            <button class="btn-mode" id="btnShuffled" onclick="setMode('shuffled')">🔀 Shuffled</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">✓ <span id="correct">0</span></div>
+            <div class="stat-box">✗ <span id="incorrect">0</span></div>
+            <div class="stat-box"><span id="percentage">0</span>%</div>
+        </div>
+
+        <div class="progress-section">
+            <div id="progressText">Question 1 of 110</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer">
+            <div class="question-box">
+                <div class="question-number" id="qNumber">Question 1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-prev" id="prevBtn" onclick="previousQuestion()" disabled>← Prev</button>
+                <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+            </div>
+        </div>
+
+        <div class="result-screen" id="resultScreen">
+            <h2>Quiz Complete!</h2>
+            <div class="final-score" id="finalScore">0%</div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="score-details">
+                <div>✓ Correct: <strong id="finalCorrect">0</strong> / 110</div>
+                <div>✗ Incorrect: <strong id="finalIncorrect">0</strong> / 110</div>
+            </div>
+            <button class="btn-reset" onclick="resetQuiz()">🔄 Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        function shuffleQuestions(questionsArray) {
+            return questionsArray.map(q => {
+                const options = [...q.options];
+                const correctAnswer = options[q.correct];
+
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+
+                const newCorrect = options.indexOf(correctAnswer);
+
+                return {
+                    q: q.q,
+                    options: options,
+                    correct: newCorrect
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        let questionsBase = [
+            { q: "What are pharyngeal clefts and where are they located?", options: ["Internal pouches formed within the pharynx", "Indentations or pits between arches, as seen from the exterior", "Mesodermal ridges on the surface of the embryo", "Endodermal outgrowths from the pharyngeal lining"], correct: 1 },
+            { q: "What tissue type lines the pharyngeal clefts?", options: ["Endoderm and mesoderm", "Ectoderm", "Primarily neural crest", "Cartilaginous tissue"], correct: 1 },
+            { q: "Which pharyngeal cleft is the only one that persists in normal development, and what does it become?", options: ["Cleft 2, which forms the stapes", "Cleft 1, which develops into the external acoustic meatus", "Cleft 3, which forms the glossopharyngeal nerve pathway", "Cleft 4, which becomes part of the larynx"], correct: 1 },
+            { q: "What structure does the first pharyngeal cleft develop into?", options: ["The tympanic cavity", "The external acoustic meatus", "The auditory (Eustachian) tube", "The middle ear ossicles"], correct: 1 },
+            { q: "What structures does the first pharyngeal pouch develop into?", options: ["The external acoustic meatus and external ear", "Tympanic membrane, middle/inner ear", "Palatine tonsils and pharyngeal lymphoid tissue", "Parathyroid glands"], correct: 1 },
+            { q: "In what circumstances do pharyngeal clefts 2-4 persist in development?", options: ["They always persist partially", "They normally obliterate but persist in developmental abnormalities", "They persist only in males", "They persist if mesoderm forms unusually thick"], correct: 1 },
+            { q: "Describe the fusion process that involves 'expansion' in pharyngeal development.", options: ["Epithelial breakdown and tissue merger", "Mesenchyme expands to eliminate a furrow", "Programmed cell death in the cleft region", "Neural crest invasion of cleft tissue"], correct: 1 },
+            { q: "Describe the fusion process that involves 'breakdown' in pharyngeal development.", options: ["Mesenchymal expansion to close clefts", "Deterioration of actual epithelium and merging of connective tissue (ex: palate)", "Apoptosis of mesenchymal cells", "Migration of neural crest cells"], correct: 1 },
+            { q: "What abnormal structures can form when pharyngeal clefts fail to obliterate?", options: ["Only cysts form", "Cysts, sinuses, and fistulas", "Excess bone development", "Cartilaginous remnants only"], correct: 1 },
+            { q: "Define what a cyst is in the context of pharyngeal anomalies.", options: ["An open channel to external surface", "Sealed cavity filled with air, pus, or fluid", "An outgrowth of epithelial tissue", "A channel that connects to the pharynx"], correct: 1 },
+            { q: "Define what a sinus is in the context of pharyngeal anomalies.", options: ["A sealed cavity with no external opening", "Cavity within a tissue, can open externally", "A fistula connecting two structures", "A cyst that drains periodically"], correct: 1 },
+            { q: "Define what a fistula is in the context of pharyngeal anomalies.", options: ["A cyst filled with fluid or pus", "Abnormal connection between 2 structures", "A sinus with internal opening only", "A temporary embryological structure"], correct: 1 },
+            { q: "What happens developmentally if certain pharyngeal pouches fail to develop properly?", options: ["The arches compensate by hyperplasia", "Missing glands or organs develop → at least abnormal", "The clefts overdevelop to compensate", "No systemic effects occur"], correct: 1 },
+            { q: "What two tissue layers form the tympanic membrane?", options: ["Mesoderm and neural crest", "Ectoderm and endoderm layers of the first pharyngeal pouch", "Epithelium from cleft 1 only", "Connective tissue and cartilage"], correct: 1 },
+            { q: "What pharyngeal anomalies arise from first pharyngeal cleft abnormalities?", options: ["Branchial cysts", "Congenital Auricular Sinuses and Cysts", "Laryngeal webs", "Thyroid hypoplasia"], correct: 1 },
+            { q: "Describe Congenital Auricular Sinuses and Cysts and their location.", options: ["Deep neck masses that extend to the pharynx", "Small sinuses (pits) and cysts commonly found in triangular area of skin anterior to the ear (preauricular sinus from cleft 1 anomaly)", "Cysts in the postauricular region", "Fistulas connecting the ear canal to the scalp"], correct: 1 },
+            { q: "What pharyngeal anomalies arise from second pharyngeal cleft abnormalities?", options: ["Thymic hypoplasia", "Branchial Sinuses, Cysts, and Fistulas", "Parathyroid aplasia", "Palatine tonsil aplasia"], correct: 1 },
+            { q: "Describe lateral cervical cyst/fistula in detail.", options: ["Internal opening in pharynx, external in neck", "Uncommon, open externally (neck), failure of second groove or cervical sinus to obliterate", "Common abnormality affecting the first pouch", "Always presents as a fistula, never as a cyst"], correct: 1 },
+            { q: "Describe internal branchial cyst/fistula in detail.", options: ["Always opens externally on the neck", "Rare, persistent second pouch, open into intra-tonsillar cleft (into pharynx)", "Common presentation of cleft 1 anomaly", "Forms in the external acoustic meatus"], correct: 1 },
+            { q: "What is the key difference between a cyst and a fistula in pharyngeal anomalies?", options: ["A cyst has multiple openings while a fistula has one", "Cyst is sealed and closed; fistula is open to outside and can drain out", "Cysts are always internal; fistulas are external", "Fistulas are infected; cysts are sterile"], correct: 1 },
+            { q: "What tissue type lines the pharyngeal pouches and what structures do they contribute to?", options: ["Ectoderm, forming external structures", "Endoderm and contribute to structures in the head and neck", "Mesoderm only", "Neural crest, forming skeletal structures"], correct: 1 },
+            { q: "What does the DISTAL portion of the first pharyngeal pouch form?", options: ["The auditory tube", "Together with lining of 1st cleft, forms tympanic membrane → widens and forms tympanic cavity (middle ear)", "The superior parathyroid gland", "The thymus gland"], correct: 1 },
+            { q: "What does the PROXIMAL portion of the first pharyngeal pouch form?", options: ["The middle ear cavity", "Stays narrow, forms auditory (Eustachian) tube", "The tympanic membrane", "The mastoid air cells"], correct: 1 },
+            { q: "What is the embryological origin of the ossicles (malleus, incus, stapes)?", options: ["All develop directly from endodermal pouches", "Come from 1st and 2nd arch cartilage (derived from neural crest)", "Develop from caudal pharyngeal arches 3 and 4", "Form from lateral pharyngeal mesoderm"], correct: 1 },
+            { q: "What comprises the tympanic membrane developmentally?", options: ["Single layer from endoderm", "1st cleft/pouch membranes, later neural crest", "Multiple layers from all three germ layers", "Primarily mesodermal with neural crest support"], correct: 1 },
+            { q: "What structures develop from the first pharyngeal pouch?", options: ["Palatine tonsils and pharyngeal lymphoid tissue", "Tympanic cavity and internal auditory meatus", "Parathyroid glands", "The thymus gland"], correct: 1 },
+            { q: "What does the second pharyngeal pouch give rise to and what is its lining composition?", options: ["The middle ear cavity from mesodermal expansion", "Gives rise to the lining of the crypts in the palatine tonsils, which is epithelium continuous with lining of mouth", "Forms the inferior parathyroid glands", "Creates the adenoid tissue"], correct: 1 },
+            { q: "What tissues compose the tonsils and what is their embryological origin?", options: ["Primarily ectoderm with some endoderm", "Mostly mesoderm and some neural crest", "Entirely from endoderm", "From second pharyngeal arch cartilage"], correct: 1 },
+            { q: "What does the DORSAL WING of the third pharyngeal pouch develop into?", options: ["The thymus gland", "Inferior parathyroid glands", "The ultimobranchial body", "The superior parathyroid glands"], correct: 1 },
+            { q: "What is the function of the inferior parathyroid glands?", options: ["Produce T-cells for immunity", "Regulates body calcium and phosphate levels", "Produces calcitonin for calcium regulation", "Produces thyroid hormone"], correct: 1 },
+            { q: "What does the VENTRAL WING of the third pharyngeal pouch develop into?", options: ["The inferior parathyroid glands", "Forms the thymus gland", "The ultimobranchial body", "The superior parathyroid glands"], correct: 1 },
+            { q: "What is the primary function of the thymus and when does it appear?", options: ["Produces thyroid hormone to regulate metabolism", "Produces T-cells, part of immune system", "Regulates calcium homeostasis", "Produces calcitonin"], correct: 1 },
+            { q: "What does the DORSAL portion of the fourth pharyngeal pouch develop into?", options: ["The thymus gland", "Superior parathyroid glands", "The ultimobranchial body", "The inferior parathyroid glands"], correct: 1 },
+            { q: "What does the VENTRAL portion of the fourth pharyngeal pouch develop into?", options: ["The superior parathyroid gland", "Ultimobranchial body", "The thymus gland", "The inferior parathyroid gland"], correct: 1 },
+            { q: "What is the ultimobranchial body and what does it contain?", options: ["A parathyroid remnant", "Embryonic structure containing C-cells of thyroid (regulate calcium levels via calcitonin)", "A lymphoid organ", "A component of the thymus"], correct: 1 },
+            { q: "What do the C-cells of the thyroid do and where do they come from?", options: ["Produce thyroid hormone", "Regulate calcium levels via calcitonin (from ultimobranchial body)", "Produce parathyroid hormone", "Migrate to the parathyroids"], correct: 1 },
+            { q: "What thymic abnormalities can result from incomplete thymus migration?", options: ["Thymic atrophy or involution", "Cervical thymus and accessory thymus", "Thymic hypoplasia only", "Ectopic thymic tissue in the lungs"], correct: 1 },
+            { q: "What is a cervical thymus and how does it form?", options: ["Thymic tissue that fails to develop", "Cord of thymus persists in neck on path of descent", "Extra thymic tissue in the supraclavicular region", "Underdeveloped thymic portion"], correct: 1 },
+            { q: "What is an accessory thymus and how does it form?", options: ["A duplicate thymic gland in the mediastinum", "Piece of thymus remaining in path of descent", "Thymic tissue in the thyroid gland", "An enlarged thymic remnant"], correct: 1 },
+            { q: "What is DiGeorge Syndrome and what embryological abnormality causes it?", options: ["Failure of thyroid development", "Failure of 3rd and 4th pouches to differentiate into thymus and parathyroid", "Failure of 1st pouch development", "Incomplete thymic migration"], correct: 1 },
+            { q: "What cardiac abnormality is associated with DiGeorge Syndrome?", options: ["Atrial septal defect", "Tetralogy of Fallot", "Patent foramen ovale", "Mitral stenosis"], correct: 1 },
+            { q: "What is a common oral pathology associated with DiGeorge Syndrome?", options: ["Missing teeth", "Cleft palate", "Macroglossia", "Oral candidiasis"], correct: 1 },
+            { q: "Describe tetralogy of Fallot in terms of its four cardiac defects.", options: ["PDA with ASD", "Overriding aorta, Pulmonic stenosis, Ventricular septum defect, Right ventricular hypertrophy", "VSD with mitral stenosis", "ASD with PDA"], correct: 1 },
+            { q: "What are pharyngeal membranes and where do they form?", options: ["Epithelial folds within the pharynx", "Form where the epithelia of grooves and pouches approach each other", "Cartilaginous structures separating arches", "Muscular partitions of the pharynx"], correct: 1 },
+            { q: "How many pharyngeal membranes exist and which are they?", options: ["One - the oropharyngeal membrane", "Two pharyngeal membranes: oropharyngeal and tympanic", "Three membranes in arches 1-3", "Four membranes corresponding to four arches"], correct: 1 },
+            { q: "When does the oropharyngeal membrane break down and what is its significance?", options: ["Week 2, separating arch tissues", "Week 4, to connect mouth (stomodeum) with gut/pharynx", "Week 6, forming the soft palate", "Week 8, creating the oropharynx"], correct: 1 },
+            { q: "What anatomical landmark marks the location of the oropharyngeal membrane?", options: ["The root of the tongue", "Glossopalatine arch", "The anterior tonsillar pillar", "The circumvallate papillae"], correct: 1 },
+            { q: "Which pharyngeal arches contribute to tongue formation?", options: ["Only arches 1 and 2", "Arch 1-4", "Only arch 3", "Only the first two arches"], correct: 1 },
+            { q: "What is the embryological origin of tongue MUSCLES?", options: ["Pharyngeal arch mesoderm", "Occipital somites give rise to these muscles, so they are NOT pharyngeal in origin, mesoderm derived", "Neural crest cells", "Endodermal pouches"], correct: 1 },
+            { q: "Which muscle of the tongue is the ONLY one derived from pharyngeal arches?", options: ["The genioglossus", "Palatoglossus muscle - arch IV", "The hyoglossus", "The styloglossus"], correct: 1 },
+            { q: "What does arch 1 form for the tongue regarding EPITHELIUM?", options: ["The entire tongue epithelium", "Forms anterior 2/3 of tongue epithelium", "Only the fungiform papillae", "Only the circumvallate papillae"], correct: 1 },
+            { q: "What happens to arch 2 contributions to the tongue during development?", options: ["They expand significantly", "Is covered up as arch 3 portion grows", "They remain on the surface permanently", "They form the posterior third"], correct: 1 },
+            { q: "What does arch 3 form for the tongue?", options: ["The anterior two-thirds", "Forms most of the remaining 1/3 of tongue epithelium", "The entire dorsal surface", "Only gustatory epithelium"], correct: 1 },
+            { q: "What does arch 4 form for the tongue?", options: ["A significant portion of the tongue", "Forms just a bit of tongue at the very back of the throat", "The entire posterior third", "All pharyngeal portions"], correct: 1 },
+            { q: "What is the sensory innervation of the ANTERIOR 2/3 of the tongue and what nerve provides it?", options: ["Glossopharyngeal nerve", "Sensory, anterior 2/3 of tongue innervation, specifically by the trigeminal nerve (CN V)", "Vagus nerve", "Facial nerve"], correct: 1 },
+            { q: "What nerve provides TASTE sensation to the anterior 2/3 of the tongue?", options: ["Trigeminal nerve", "Provides taste sensation to anterior 2/3 of tongue (CN VII)", "Glossopharyngeal nerve", "Vagus nerve"], correct: 1 },
+            { q: "What nerve provides SENSORY and TASTE innervation to the posterior 1/3 of the tongue?", options: ["Trigeminal nerve (CN V)", "Sensory and taste, posterior 1/3 (CN IX)", "Vagus nerve", "Facial nerve"], correct: 1 },
+            { q: "What nerve provides SENSORY innervation to the very back of the tongue?", options: ["Glossopharyngeal nerve", "Sensory, just a bit by throat (CN X)", "Trigeminal nerve", "Facial nerve"], correct: 1 },
+            { q: "What nerve innervates the MUSCLES of the tongue?", options: ["CN V (trigeminal)", "CN XII (hypoglossal)", "CN VII (facial)", "CN IX (glossopharyngeal)"], correct: 1 },
+            { q: "What is the terminal sulcus and where is it located on the tongue?", options: ["A minor groove separating fungiform papillae", "V-shaped groove that marks boundary between anterior 2/3 and posterior 1/3 of tongue, points to site of Foramen cecum", "A transverse groove on the dorsal surface", "A groove on the ventral surface"], correct: 1 },
+            { q: "What is the foramen cecum and what is its embryological significance?", options: ["An opening at the base of the brain", "The embryonic origin of the thyroid gland, located at midline of tongue, behind terminal sulcus; site where thyroglossal duct connects with tongue", "A foramen in the hyoid bone", "An opening in the soft palate"], correct: 1 },
+            { q: "What is the embryological origin of the thyroid gland?", options: ["From the second pharyngeal pouch", "An endodermal diverticulum (pouch) just posterior to floor of 1st arch – This is NOT a pharyngeal pouch", "From the ultimobranchial body", "From the fourth pharyngeal pouch"], correct: 1 },
+            { q: "What is interesting about the thyroid gland's origin in terms of laterality?", options: ["It develops as bilateral structures that fuse", "Not bilateral; originates on midline", "It develops sequentially, left then right", "It develops only on the right side"], correct: 1 },
+            { q: "What is an endodermal diverticulum in thyroid development and what does it form?", options: ["A pit on the tongue surface", "Elongates into the thyroglossal duct that connects to thyroid gland's location", "A thyroid follicle precursor", "A neural crest derivative"], correct: 1 },
+            { q: "What is the function of the thyroid gland?", options: ["Produces parathyroid hormone", "Regulates metabolism, sensitivity to hormones, wide range of body functions", "Produces calcitonin only", "Controls calcium and phosphate"], correct: 1 },
+            { q: "What developmental abnormality occurs if the thyroid doesn't migrate properly from the tongue?", options: ["Thyroid agenesis only", "Thyroglossal Duct Cysts and Sinuses", "Thyroid hypoplasia", "Ectopic parathyroid glands"], correct: 1 },
+            { q: "Describe thyroglossal duct cysts and sinuses in detail.", options: ["Normal remnants of thyroid development", "Failure of thyroglossal duct to completely pinch off and degenerate, formed somewhere along migration path; PERSISTENT", "Benign cysts that always regress", "Dysplastic remnants of thyroid follicles"], correct: 1 },
+            { q: "What is ectopic thyroid and what is its clinical significance?", options: ["Thyroid tissue in the wrong location but functioning normally", "No migration at all so thyroid stays mostly lingual; associated with hypothyroidism and more common in women", "Thyroid tissue in the mediastinum", "Thyroid tissue in the neck nodes"], correct: 1 },
+            { q: "Where along the migration path can thyroglossal duct remnants be found?", options: ["Only in the neck", "Anywhere from the foramen cecum to the final thyroid position in the lower neck", "Only at the hyoid bone level", "Only in the upper neck"], correct: 1 },
+            { q: "What is the relationship between lingual thyroid and hypothyroidism?", options: ["No relationship exists", "Ectopic thyroid (lingual) may be the only thyroid tissue present, leading to hypothyroidism", "Lingual thyroid always functions normally", "Hypothyroidism precedes lingual thyroid formation"], correct: 1 },
+            { q: "How does the foramen cecum relate to clinical presentation of thyroid abnormalities?", options: ["It has no clinical significance", "It marks the midline location where thyroglossal duct cysts commonly appear", "It indicates thyroid position in adults", "It divides the tongue into sensory regions"], correct: 1 },
+            { q: "What screening is recommended for individuals with thyroglossal duct cysts?", options: ["No imaging needed", "Ultrasound to confirm thyroid tissue is present and functioning in the neck", "CT scanning always", "Thyroid biopsy"], correct: 1 }
+        ];
+
+        let questionsOrdered = shuffleQuestions(questionsBase);
+        let questionsShuffled = shuffleQuestions(shuffleArray(questionsBase));
+        let questions = [...questionsOrdered];
+        let currentMode = 'ordered';
+
+        let currentQ = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answered = new Array(questions.length).fill(false);
+        let userAnswers = new Array(questions.length).fill(-1);
+        let originalQuestionsLength = questions.length;
+        let retryQueue = [];
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnOrdered').classList.toggle('active', mode === 'ordered');
+            document.getElementById('btnShuffled').classList.toggle('active', mode === 'shuffled');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeInfo').innerHTML = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeInfo').innerHTML = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        function displayQuestion() {
+            const q = questions[currentQ];
+            const isRetry = currentQ >= originalQuestionsLength;
+
+            document.getElementById('qNumber').textContent = `Question ${currentQ + 1}${isRetry ? ' 🔄' : ''}`;
+            document.getElementById('questionText').textContent = q.q;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span><span>${option}</span>`;
+                div.onclick = () => selectAnswer(index);
+                container.appendChild(div);
+            });
+
+            document.getElementById('progressText').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+            const progress = ((currentQ + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            updateButtons();
+            updateStats();
+
+            if (answered[currentQ]) {
+                showAnswer();
+            } else {
+                document.getElementById('feedback').classList.remove('show');
+            }
+        }
+
+        function selectAnswer(index) {
+            if (answered[currentQ]) return;
+
+            userAnswers[currentQ] = index;
+            answered[currentQ] = true;
+
+            const q = questions[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            if (index === q.correct) {
+                correctCount++;
+                options[index].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                incorrectCount++;
+                options[index].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect`);
+                retryQueue.push(currentQ);
+            }
+
+            options.forEach(opt => opt.classList.add('disabled'));
+            updateButtons();
+            updateStats();
+        }
+
+        function showFeedback(isCorrect, message) {
+            const fb = document.getElementById('feedback');
+            fb.classList.add('show');
+            fb.classList.toggle('correct', isCorrect);
+            fb.classList.toggle('incorrect', !isCorrect);
+            fb.innerHTML = `<div>${message}</div>`;
+        }
+
+        function showAnswer() {
+            const q = questions[currentQ];
+            const userAns = userAnswers[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach(opt => opt.classList.add('disabled'));
+
+            if (userAns === q.correct) {
+                options[userAns].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                options[userAns].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect`);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQ < questions.length - 1) {
+                currentQ++;
+                displayQuestion();
+            } else if (retryQueue.length > 0) {
+                const nextRetryIndex = retryQueue.shift();
+                questions.push(questions[nextRetryIndex]);
+                answered.push(false);
+                userAnswers.push(-1);
+                currentQ++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQ > 0) {
+                currentQ--;
+                displayQuestion();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQ === 0;
+            document.getElementById('nextBtn').disabled = !answered[currentQ];
+            document.getElementById('nextBtn').textContent = (currentQ === questions.length - 1 && answered[currentQ]) ? 'Results →' : 'Next →';
+        }
+
+        function updateStats() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('incorrect').textContent = incorrectCount;
+            const perc = (correctCount + incorrectCount) > 0 ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) : 0;
+            document.getElementById('percentage').textContent = perc;
+        }
+
+        function showResults() {
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalIncorrect').textContent = incorrectCount;
+
+            let message = '';
+            if (percentage === 100) message = '🌟 Perfect!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+            else message = '📖 Review more';
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            currentQ = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = new Array(originalQuestionsLength).fill(false);
+            userAnswers = new Array(originalQuestionsLength).fill(-1);
+
+            // Reset questions array based on current mode
+            if (currentMode === 'ordered') {
+                questions = [...questionsOrdered];
+            } else {
+                questions = [...questionsShuffled];
+            }
+
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('resultScreen').classList.remove('show');
+            displayQuestion();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+
+            if (document.getElementById('resultScreen').classList.contains('show')) {
+                if (/[0-9]/.test(key)) resetQuiz();
+                return;
+            }
+
+            if (answered[currentQ]) {
+                if (/[0-9]/.test(key)) nextQuestion();
+                return;
+            }
+
+            if (key === '1' || key === '2' || key === '3' || key === '4') {
+                selectAnswer(parseInt(key) - 1);
+            }
+        });
+
+        displayQuestion();
+    </script>
+</body>
+</html>

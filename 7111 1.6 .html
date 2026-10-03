@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dent 7111 - Section 6: Facial Development</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.9em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .mode-info {
+            background: rgba(255,255,255,0.15);
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: rgba(255,255,255,0.95);
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .controls-top {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-mode {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 9px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-mode:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-mode.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .progress-section {
+            color: white;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 6px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.3s;
+            border-radius: 3px;
+        }
+
+        .question-box {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 1.25em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .option {
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.98em;
+            background: white;
+            line-height: 1.4;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+            font-weight: 600;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+            font-weight: 600;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+            margin-right: 10px;
+            font-weight: 600;
+            font-size: 0.85em;
+            flex-shrink: 0;
+        }
+
+        .option.correct .option-letter {
+            background: #28a745;
+        }
+
+        .option.incorrect .option-letter {
+            background: #dc3545;
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.9em;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 9px 18px;
+            font-size: 0.9em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-next, .btn-prev {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-next:hover, .btn-prev:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-next:disabled, .btn-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-screen {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #667eea;
+            margin: 18px 0;
+        }
+
+        .result-message {
+            font-size: 1.15em;
+            color: #333;
+            margin-bottom: 18px;
+        }
+
+        .score-details {
+            background: #f5f7ff;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 18px 0;
+            font-size: 0.95em;
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            margin-top: 12px;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Section 6: Facial Development & Skull</h1>
+            <p>Face Formation, Palate Development, and Cranial Skeleton</p>
+        </div>
+
+        <div class="mode-info" id="modeInfo">
+            📖 LEARNING MODE: Questions in original order (content builds logically)
+        </div>
+
+        <div class="controls-top">
+            <button class="btn-mode active" id="btnOrdered" onclick="setMode('ordered')">📖 Ordered</button>
+            <button class="btn-mode" id="btnShuffled" onclick="setMode('shuffled')">🔀 Shuffled</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">✓ <span id="correct">0</span></div>
+            <div class="stat-box">✗ <span id="incorrect">0</span></div>
+            <div class="stat-box"><span id="percentage">0</span>%</div>
+        </div>
+
+        <div class="progress-section">
+            <div id="progressText">Question 1 of 138</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer">
+            <div class="question-box">
+                <div class="question-number" id="qNumber">Question 1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-prev" id="prevBtn" onclick="previousQuestion()" disabled>← Prev</button>
+                <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+            </div>
+        </div>
+
+        <div class="result-screen" id="resultScreen">
+            <h2>Quiz Complete!</h2>
+            <div class="final-score" id="finalScore">0%</div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="score-details">
+                <div>✓ Correct: <strong id="finalCorrect">0</strong> / 138</div>
+                <div>✗ Incorrect: <strong id="finalIncorrect">0</strong> / 138</div>
+            </div>
+            <button class="btn-reset" onclick="resetQuiz()">🔄 Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        function shuffleQuestions(questionsArray) {
+            return questionsArray.map(q => {
+                const options = [...q.options];
+                const correctAnswer = options[q.correct];
+
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+
+                const newCorrect = options.indexOf(correctAnswer);
+
+                return {
+                    q: q.q,
+                    options: options,
+                    correct: newCorrect
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        let questionsBase = [
+            { q: "In bone remodeling, what do osteoclasts do and what follows their action?", options: ["Add new bone matrix", "Resorb bone, leaving a space filled by trailing osteoblasts", "Maintain equilibrium without resorption", "Activate osteocytes only"], correct: 1 },
+            { q: "What do osteoblasts create and deposit during bone remodeling?", options: ["Resorption pits", "A cement line (non-collagenous proteins) and lay new bone onto it", "Osteoid only without mineralization", "Lacunae for osteocytes"], correct: 1 },
+            { q: "What is the functional significance of gradual bone replacement?", options: ["Bone becomes weaker during remodeling", "Allows bone to be structurally functional and grow at the same time", "Speeds up bone turnover", "Prevents new bone formation"], correct: 1 },
+            { q: "Describe cutting cone versus filling cone in bone remodeling.", options: ["Both involve osteoblasts", "Cutting cone = osteoclast activity to resorb old bone; filling cone = osteoblast activity to deposit new bone", "Both refer to osteoclast activity", "Cutting cone forms new bone"], correct: 1 },
+            { q: "From what structure does facial development begin?", options: ["Pharyngeal arches alone", "Outgrowth of the frontonasal prominence", "Mandibular prominence", "Nasal placodes"], correct: 1 },
+            { q: "Which pharyngeal arches are primarily involved in facial development?", options: ["Only the first arch", "First, second, and third arches", "Only the second arch", "All four arches equally"], correct: 1 },
+            { q: "What happens during palatine fusion?", options: ["Bone forms directly", "Epithelial layers fuse and break up the basement membrane so mesenchymal tissues grow together", "Only mesenchyme participates", "Epithelium permanently remains separate"], correct: 1 },
+            { q: "What is a rare embryological event that occurs during facial fusion?", options: ["Mesenchyme differentiating into epithelium", "Epithelial cells trapped inside growing mesenchyme turning into fibroblast-like cells (epithelial to mesenchymal transition)", "Apoptosis of epithelial cells", "Reverse fusion of tissues"], correct: 1 },
+            { q: "When does facial development begin?", options: ["Week 2-3", "Week 4-5 (after pharyngeal arches appear)", "Week 8-9", "Week 10-12"], correct: 1 },
+            { q: "What are nasal (olfactory) placodes and how do they form?", options: ["Remnants of neural tissue", "Develop through thickening of ectoderm at front of frontonasal process, turning into nasal pits and cavities", "Derived from endoderm", "Mesodermal outgrowths"], correct: 1 },
+            { q: "What results from proliferation of ectomesenchyme on both sides of each nasal placode?", options: ["Loss of facial structure", "Development of both medial nasal process and lateral nasal process which swell outwards", "Only dorsal growth", "Apoptosis of nasal tissue"], correct: 1 },
+            { q: "How does the maxillary process grow during facial development?", options: ["Grows laterally only", "Grows medially to approach both nasal processes", "Remains stationary", "Grows posteriorly"], correct: 1 },
+            { q: "What two grooves separate the maxillary process from the nasal processes?", options: ["Nasolacrimal groove and palatal groove", "Naso-optic groove (lateral) and bucconasal groove (medial)", "Oral groove and pharyngeal groove", "Only one groove exists"], correct: 1 },
+            { q: "Describe the naso-optic groove and its location.", options: ["Separates maxillary from medial nasal process", "A depression separating maxillary process from lateral nasal process during facial development", "Connects the nose to the eye completely", "Forms after palatal fusion"], correct: 1 },
+            { q: "Describe the bucconasal groove and its location.", options: ["Separates maxillary from lateral nasal process", "A depression separating maxillary process from medial nasal process during facial development", "Forms anterior to the maxilla", "Unrelated to facial development"], correct: 1 },
+            { q: "What happens to the naso-optic and bucconasal grooves as development continues?", options: ["They remain as permanent furrows", "They fuse as they merge with the maxillary process", "They deepen and become distinct features", "They disappear without fusion"], correct: 1 },
+            { q: "How does the lower lip form during facial development?", options: ["From epithelial fusion only", "Through mesenchymal expansion", "From the first pharyngeal arch exclusively", "Does not involve mesenchyme"], correct: 1 },
+            { q: "What is the intermaxillary process?", options: ["A skeletal bone of the face", "The lower part of the medial nasal process", "The upper part of the maxilla", "The central facial skeleton"], correct: 1 },
+            { q: "What is the philtrum?", options: ["A bone in the skull", "The groove on the upper lip formed by merging of both halves of median nasal process", "A muscle of facial expression", "Part of the nasal structure"], correct: 1 },
+            { q: "What forms the primary (incisive) palate?", options: ["The entire hard palate", "Merging of arch 1 and median nasal process", "Only the soft palate", "The palatine shelves"], correct: 1 },
+            { q: "What is the nasolacrimal duct and how does it form?", options: ["A bone duct in the maxilla", "Epithelium along floor of naso-optic groove detaches and forms a cord surrounded by mesenchyme as groove is obliterated", "A muscular structure", "Forms from the bucconasal groove"], correct: 1 },
+            { q: "Which groove contributes epithelium to the nasolacrimal duct?", options: ["Bucconasal groove", "Naso-optic groove", "Palatal groove", "Both grooves equally"], correct: 1 },
+            { q: "Which groove failure is commonly responsible for cleft lip?", options: ["Naso-optic groove", "Bucconasal groove", "Palatal groove", "All grooves equally"], correct: 1 },
+            { q: "During early facial development, what structures will eventually give rise to the teeth?", options: ["Pharyngeal arch cartilage", "Two primary epithelial bands (odontogenic)", "Nasal epithelium", "Maxillary bone"], correct: 1 },
+            { q: "What is the pre-maxilla also called?", options: ["Intermaxilla", "Primary palate", "Secondary palate", "Maxillary bone"], correct: 1 },
+            { q: "What does the superior epithelium of the primary palate form?", options: ["Oral epithelium", "Nasal epithelium", "Vomeronasal epithelium", "Pharyngeal epithelium"], correct: 1 },
+            { q: "What does the inferior epithelium of the primary palate form?", options: ["Nasal epithelium", "Oral epithelium", "Paranasal sinus epithelium", "Enamel layer"], correct: 1 },
+            { q: "What is the fully fused palate called?", options: ["Primary palate", "Secondary palate", "Definitive palate", "Hard palate"], correct: 1 },
+            { q: "Where does the secondary palate form relative to the primary palate?", options: ["Anterior to the primary palate", "Behind the primary palate", "At the same level as the primary", "Below the mandible"], correct: 1 },
+            { q: "What percentage of the definitive palate is formed from the secondary palate?", options: ["10%", "50%", "90%", "100%"], correct: 2 },
+            { q: "When does formation of the secondary palate occur?", options: ["Week 4-5", "Week 7-8 to approximately 12 weeks", "Week 14-16", "After birth"], correct: 1 },
+            { q: "What are the two main contributors to secondary palate formation?", options: ["Lateral nasal processes and maxilla", "Nasal septum and both palatine shelves", "Maxilla and mandible", "Primary palate and maxilla"], correct: 1 },
+            { q: "How does separation of the oral and nasal cavities occur?", options: ["Epithelial breakdown only", "Nasal septum fuses with palatine shelves at midline and continues posteriorly", "Maxilla grows downward to separate them", "Palatine shelves fuse without septum involvement"], correct: 1 },
+            { q: "What is the approximate incidence of cleft lip?", options: ["1-2 per 10,000 births", "7-10 per 10,000 births", "20-30 per 10,000 births", "50+ per 10,000 births"], correct: 1 },
+            { q: "What developmental failure causes cleft lip?", options: ["Failure of palatal shelves to fuse", "Defective fusion of medial nasal process with maxillary process", "Incomplete pharyngeal arch development", "Failure of secondary palate to form"], correct: 1 },
+            { q: "What percentage of cleft lip cases are unilateral?", options: ["30%", "50%", "80%", "95%"], correct: 2 },
+            { q: "What is the rule of 10 for cleft lip repair timing?", options: ["10 days, 10 pounds, 10% body weight in blood", "10 weeks, 10 pounds, 10 grams per kilogram hemoglobin", "10 months, 15 pounds, 15% hemoglobin", "10 years, age-specific dosing"], correct: 1 },
+            { q: "In which gender is cleft lip more common?", options: ["Females equally", "Males", "No gender difference", "Depends on ethnicity only"], correct: 1 },
+            { q: "What is the approximate incidence of cleft palate?", options: ["2-3 per 10,000 births", "5-6 per 10,000 births", "15-20 per 10,000 births", "40 per 10,000 births"], correct: 1 },
+            { q: "What developmental failure causes cleft palate?", options: ["Medial nasal and maxillary process fusion", "Failure of palatal shelves to fuse", "Pharyngeal arch misdirection", "Primary palate defect"], correct: 1 },
+            { q: "What is the minimal manifestation of cleft palate?", options: ["Cleft of the hard palate", "Bifid uvula", "Small cleft in soft palate", "Missing teeth"], correct: 1 },
+            { q: "Is cleft palate alone more common in males or females?", options: ["Males", "Females", "Equal prevalence", "Depends on ethnicity"], correct: 1 },
+            { q: "When is cleft palate repair typically performed?", options: ["Within first weeks of life", "Around 1.5 years (because it is extremely invasive)", "After age 5", "Before primary dentition erupts"], correct: 1 },
+            { q: "What percentage of clefting cases involve both lip and palate?", options: ["10%", "25%", "45% (more common in males)", "70%"], correct: 2 },
+            { q: "What are syndromic cleft cases?", options: ["Clefts that self-resolve", "Associated with additional congenital abnormalities", "Only affecting the palate", "Most common type of clefting"], correct: 1 },
+            { q: "What are environmental causes of non-syndromic clefting?", options: ["Genetic mutations only", "Maternal alcohol/cigarettes, folic acid deficiency, corticosteroid use, anticonvulsant therapy", "Mechanical trauma only", "Unknown causes"], correct: 1 },
+            { q: "What percentage of patients with cleft lip and palate have an associated syndrome?", options: ["10%", "20%", "30%", "60%"], correct: 2 },
+            { q: "What percentage of patients with cleft palate only have an associated syndrome?", options: ["20%", "30%", "50%", "70%"], correct: 2 },
+            { q: "Describe lateral facial cleft.", options: ["Cleft through the lip only", "Lack of fusion of maxillary and mandibular processes resulting in cleft from mouth into cheek region", "Cleft through the nasal bridge", "Failure of palatal shelf fusion"], correct: 1 },
+            { q: "What is the most common facial cleft type?", options: ["Median cleft of upper lip", "Oblique facial cleft", "Lateral facial cleft", "Horizontal cleft"], correct: 2 },
+            { q: "Describe oblique facial cleft.", options: ["Medial nasal process fusion failure", "Failure of lateral nasal process fusion with maxillary process resulting in cleft from upper lip through nose to eye", "Cleft between maxilla and mandible", "Midline nasal defect"], correct: 1 },
+            { q: "What is oblique facial cleft almost always associated with?", options: ["Normal palate", "Cleft lip only", "Cleft palate", "Only affects the nose"], correct: 2 },
+            { q: "Describe median cleft of the upper lip.", options: ["Bilateral cleft lip", "Rare cleft resulting from failure of medial nasal process fusion, extending through middle of upper lip", "Results from maxillary deficiency", "Common type of clefting"], correct: 1 },
+            { q: "What is the rarest facial cleft type?", options: ["Lateral facial cleft", "Oblique facial cleft", "Median cleft of upper lip", "Palatal cleft"], correct: 2 },
+            { q: "Is clefting considered a common major congenital defect?", options: ["No, very rare", "Yes, one of the most common", "Only in certain populations", "Frequency is declining"], correct: 1 },
+            { q: "In which populations is clefting prevalence higher?", options: ["Caucasians and African Americans", "Native Americans and Asians", "Equally in all populations", "Caucasians only"], correct: 1 },
+            { q: "Is combined cleft lip and palate more common in males or females?", options: ["Females", "Males", "Equal distribution", "Depends on cleft type"], correct: 1 },
+            { q: "Describe submucous palatal cleft.", options: ["Complete cleft through hard palate", "Surface is intact but defect exists in underlying musculature of soft palate", "Cleft involving only the soft palate", "Rare cleft type"], correct: 1 },
+            { q: "What is the neurocranium?", options: ["The facial skeleton", "The brain case (bones encasing the brain)", "The mandible and maxilla", "The paranasal sinuses"], correct: 1 },
+            { q: "What is the calvaria?", options: ["The cranial base", "The 'top' or 'skull cap' of the skull", "The facial skeleton", "The mandible"], correct: 1 },
+            { q: "What is the embryological origin of the calvaria?", options: ["Endochondral bone formation", "Paraxial mesoderm and neural crest", "Pharyngeal arches", "All from neural crest"], correct: 1 },
+            { q: "What is another name for the calvaria?", options: ["Viscerocranium", "Neurocranium", "Desmocranium", "Chondrocranium"], correct: 2 },
+            { q: "What is the cranial base and what are its functions?", options: ["The outer skull", "The base of the skull supporting the brain", "The facial skeleton", "Only the temporal bone"], correct: 1 },
+            { q: "From what tissues is the cranial base derived?", options: ["Pharyngeal arch mesoderm", "Special sense organ capsular tissues", "Facial mesenchyme", "Paraxial mesoderm only"], correct: 1 },
+            { q: "What is the embryological tissue type for cranial base formation?", options: ["Intramembranous only", "Endochondral bone, primarily neural crest", "Cartilage without ossification", "Membranous without chondral phase"], correct: 1 },
+            { q: "What is the early form of the cranial base called?", options: ["Neurocranium", "Calvaria", "Chondrocranium", "Desmocranium"], correct: 2 },
+            { q: "What is the facial skeleton also called?", options: ["Neurocranium", "Calvaria", "Viscerocranium", "Desmocranium"], correct: 2 },
+            { q: "What defines the viscerocranium and what does it form?", options: ["Brain case", "Pharyngeal arch derived skeleton consisting of the face (anterior, lower skull)", "Cartilaginous cranial base", "Only the mandible"], correct: 1 },
+            { q: "What is intramembranous ossification in maxillary development?", options: ["Cartilage model formation first", "A process by which bone develops directly from mesenchymal tissue without a cartilage model", "Endochondral bone replacement", "Post-natal bone formation"], correct: 1 },
+            { q: "From what does the maxilla proper develop?", options: ["Mandibular arch", "Intramembranous ossification of mesenchyme from maxillary prominence/process", "Frontonasal process", "Secondary palate"], correct: 1 },
+            { q: "What is the premaxilla and its embryological origin?", options: ["Part of maxilla proper", "Intramembranous ossification from frontonasal process; forms primary palate and fuses early with maxilla", "Forms from Meckel's cartilage", "Develops after maxilla"], correct: 1 },
+            { q: "Since the maxilla lacks Meckel's cartilage like the mandible does, what structure provides condensation signals for maxillary development?", options: ["Pharyngeal arch cartilage", "Cartilage of the nasal capsule provides much of the signal for mesenchymal condensation and bone development", "Mandibular cartilage", "Neural crest cells only"], correct: 1 },
+            { q: "Describe primary displacement of the maxilla.", options: ["Zygomatic growth pushing maxilla", "The maxilla itself growing and pushing outward", "Palatal process growth", "Nasal septum growth"], correct: 1 },
+            { q: "Describe secondary displacement of the maxilla.", options: ["Maxilla's own growth", "Zygomatic and nasal septum cartilage growth pushing the maxilla outward", "Palatal shelf fusion", "Bone remodeling only"], correct: 1 },
+            { q: "Along what anatomical pathway does maxillary formation occur?", options: ["Random distribution in mesenchyme", "The path of the anterosuperior dental nerve as it branches from the inferior orbital nerve, forming the canal the nerve sits in", "Along the hard palate", "Through the zygomatic process"], correct: 1 },
+            { q: "What is the anterosuperior dental nerve and its origin?", options: ["Branch of trigeminal nerve (CN V)", "A branch from inferior orbital nerve that supplies sensation to upper teeth and maxilla", "Part of the facial nerve", "Autonomic nerve"], correct: 1 },
+            { q: "What do alveolar plates form from?", options: ["Separate ossification centers", "The maxilla and junction of palatal process to house tooth germs", "Neural crest migration", "Secondary palate"], correct: 1 },
+            { q: "How is most of the hard palate formed?", options: ["From the primary palate only", "Ossification from developing maxilla spreads to the palatine process", "From palatine bone only", "From the secondary palate entirely"], correct: 1 },
+            { q: "Does maxillary growth terminate after birth?", options: ["Yes, all growth is prenatal", "No, significant post-natal development occurs", "Growth stops at age 1", "Only growth of teeth continues"], correct: 1 },
+            { q: "Describe how the mandible forms.", options: ["From cartilage models entirely", "By intramembranous ossification lateral to Meckel's cartilage", "Endochondral formation in body and ramus", "From the maxilla"], correct: 1 },
+            { q: "How does ossification of the mandible proceed during development?", options: ["Slowly from anterior only", "Posteriorly to form body and ramus", "Anteriorly to posteriorly", "Throughout at equal rate"], correct: 1 },
+            { q: "What happens to Meckel's cartilage during mandibular development?", options: ["It persists throughout life", "It largely disappears anteriorly", "It remains completely intact", "It transforms into bone directly"], correct: 1 },
+            { q: "What are secondary/accessory cartilages and where do they form?", options: ["Separate cartilage elements", "Condylar, coronoid, and symphyseal cartilages forming from Meckel's cartilage", "Cartilage in the maxilla", "Additional cartilage models"], correct: 1 },
+            { q: "When do secondary/accessory cartilages form?", options: ["Week 2-3", "During weeks 10-14 of development", "After birth", "Week 6-7"], correct: 1 },
+            { q: "What is the functional importance of condylar cartilage?", options: ["Only provides articulation at TMJ", "Expands into a cone along ramus and ossifies via endochondral ossification; critical growth center", "Disappears without function", "Remains permanent cartilage"], correct: 1 },
+            { q: "Where does condylar cartilage remain in the mature mandible?", options: ["Throughout the ramus", "At the articular ends on the head of the mandible", "In the body of the mandible", "Completely disappears"], correct: 1 },
+            { q: "Is the mandible formed entirely by one ossification mechanism?", options: ["Yes, only intramembranous", "No, it is both membranous and endochondral in nature", "Only endochondral", "Only from cartilage models"], correct: 1 },
+            { q: "Does the mandible undergo endochondral development directly from Meckel's cartilage?", options: ["Yes, directly", "No, it endochondrally develops through condylar cartilage which is a derivative of Meckel's cartilage", "Meckel's cartilage does not contribute", "Only the ramus is endochondral"], correct: 1 },
+            { q: "Describe the fate of coronoid cartilage.", options: ["Persists throughout life", "Disappears pre-birth", "Transforms into bone at birth", "Remains as cartilage at coronoid process"], correct: 1 },
+            { q: "Describe the fate of symphyseal cartilages.", options: ["Persist indefinitely", "Disappear in the first year of birth", "Disappear pre-birth", "Fuse but remain as cartilage"], correct: 1 },
+            { q: "What role does condyle cartilage play in mandibular growth?", options: ["Provides articulation only", "Is an important growth center for ramus, driving intramembranous ossification, then ossifies itself via endochondral ossification", "Has no growth function", "Only provides structural support"], correct: 1 },
+            { q: "Condyle cartilage serves dual functions in the mandible - what are they?", options: ["Only growth and ossification", "Articulation at TMJ and growth of the mandible", "Only sensory and motor", "Growth alone without articulation"], correct: 1 }
+        ];
+
+        let questionsOrdered = shuffleQuestions(questionsBase);
+        let questionsShuffled = shuffleQuestions(shuffleArray(questionsBase));
+        let questions = [...questionsOrdered];
+        let currentMode = 'ordered';
+
+        let currentQ = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answered = new Array(questions.length).fill(false);
+        let userAnswers = new Array(questions.length).fill(-1);
+        let originalQuestionsLength = questions.length;
+        let retryQueue = [];
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnOrdered').classList.toggle('active', mode === 'ordered');
+            document.getElementById('btnShuffled').classList.toggle('active', mode === 'shuffled');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeInfo').innerHTML = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeInfo').innerHTML = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        function displayQuestion() {
+            const q = questions[currentQ];
+            const isRetry = currentQ >= originalQuestionsLength;
+
+            document.getElementById('qNumber').textContent = `Question ${currentQ + 1}${isRetry ? ' 🔄' : ''}`;
+            document.getElementById('questionText').textContent = q.q;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<span class="option-letter">${String.fromCharCode(65 + index)}</span><span>${option}</span>`;
+                div.onclick = () => selectAnswer(index);
+                container.appendChild(div);
+            });
+
+            document.getElementById('progressText').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+            const progress = ((currentQ + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            updateButtons();
+            updateStats();
+
+            if (answered[currentQ]) {
+                showAnswer();
+            } else {
+                document.getElementById('feedback').classList.remove('show');
+            }
+        }
+
+        function selectAnswer(index) {
+            if (answered[currentQ]) return;
+
+            userAnswers[currentQ] = index;
+            answered[currentQ] = true;
+
+            const q = questions[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            if (index === q.correct) {
+                correctCount++;
+                options[index].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                incorrectCount++;
+                options[index].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect`);
+                retryQueue.push(currentQ);
+            }
+
+            options.forEach(opt => opt.classList.add('disabled'));
+            updateButtons();
+            updateStats();
+        }
+
+        function showFeedback(isCorrect, message) {
+            const fb = document.getElementById('feedback');
+            fb.classList.add('show');
+            fb.classList.toggle('correct', isCorrect);
+            fb.classList.toggle('incorrect', !isCorrect);
+            fb.innerHTML = `<div>${message}</div>`;
+        }
+
+        function showAnswer() {
+            const q = questions[currentQ];
+            const userAns = userAnswers[currentQ];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach(opt => opt.classList.add('disabled'));
+
+            if (userAns === q.correct) {
+                options[userAns].classList.add('correct');
+                showFeedback(true, "✓ Correct!");
+            } else {
+                options[userAns].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, `✗ Incorrect`);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQ < questions.length - 1) {
+                currentQ++;
+                displayQuestion();
+            } else if (retryQueue.length > 0) {
+                const nextRetryIndex = retryQueue.shift();
+                questions.push(questions[nextRetryIndex]);
+                answered.push(false);
+                userAnswers.push(-1);
+                currentQ++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQ > 0) {
+                currentQ--;
+                displayQuestion();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQ === 0;
+            document.getElementById('nextBtn').disabled = !answered[currentQ];
+            document.getElementById('nextBtn').textContent = (currentQ === questions.length - 1 && answered[currentQ]) ? 'Results →' : 'Next →';
+        }
+
+        function updateStats() {
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('incorrect').textContent = incorrectCount;
+            const perc = (correctCount + incorrectCount) > 0 ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) : 0;
+            document.getElementById('percentage').textContent = perc;
+        }
+
+        function showResults() {
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalIncorrect').textContent = incorrectCount;
+
+            let message = '';
+            if (percentage === 100) message = '🌟 Perfect!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+            else message = '📖 Review more';
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            currentQ = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = new Array(originalQuestionsLength).fill(false);
+            userAnswers = new Array(originalQuestionsLength).fill(-1);
+
+            // Reset questions array based on current mode
+            if (currentMode === 'ordered') {
+                questions = [...questionsOrdered];
+            } else {
+                questions = [...questionsShuffled];
+            }
+
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('resultScreen').classList.remove('show');
+            displayQuestion();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+
+            if (document.getElementById('resultScreen').classList.contains('show')) {
+                if (/[0-9]/.test(key)) resetQuiz();
+                return;
+            }
+
+            if (answered[currentQ]) {
+                if (/[0-9]/.test(key)) nextQuestion();
+                return;
+            }
+
+            if (key === '1' || key === '2' || key === '3' || key === '4') {
+                selectAnswer(parseInt(key) - 1);
+            }
+        });
+
+        displayQuestion();
+    </script>
+</body>
+</html>

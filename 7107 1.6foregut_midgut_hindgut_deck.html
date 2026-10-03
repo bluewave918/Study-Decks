@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foregut Midgut Hindgut Review Deck</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container { max-width: 900px; width: 100%; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            min-height: 500px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .question-number { font-weight: 600; }
+        .accuracy { color: #764ba2; font-weight: 600; }
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            background: white;
+            position: relative;
+            padding-left: 50px;
+        }
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .option-label {
+            position: absolute;
+            left: 18px;
+            font-weight: 600;
+            color: #667eea;
+            width: 20px;
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .option.correct {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        .feedback {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback-correct {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            color: #047857;
+        }
+        .feedback-incorrect {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .feedback-text {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+            border: 2px solid #e5e7eb;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .keyboard-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .review-section {
+            display: none;
+        }
+        .review-section.show {
+            display: block;
+        }
+        .review-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .review-item {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ef4444;
+        }
+        .review-q {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .review-answer {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .review-answer span {
+            font-weight: 600;
+        }
+        .home-screen {
+            text-align: center;
+        }
+        .home-screen h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .home-screen p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .completion-screen {
+            text-align: center;
+        }
+        .completion-screen h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .final-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- Home Screen -->
+            <div id="homeScreen" class="home-screen">
+                <h1>Foregut, Midgut, Hindgut Review</h1>
+                <p><strong>65 Questions</strong></p>
+                <p>Foregut • Midgut • Hindgut • Vascular Supply • Pathology</p>
+                <p style="margin-top: 25px; font-size: 14px; color: #999;">
+                    Press <strong>1-4</strong> to select an answer<br>
+                    Press <strong>DOWN ARROW</strong> to continue
+                </p>
+                <button class="btn btn-primary" onclick="startQuiz()" style="margin-top: 30px;">Start Review</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="stats">
+                    <span class="question-number" id="questionCounter">Question 1 / 65</span>
+                    <span class="accuracy" id="accuracyDisplay">Accuracy: 0%</span>
+                </div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="feedback" id="feedback">
+                    <div class="feedback-title" id="feedbackTitle"></div>
+                    <div class="feedback-text" id="feedbackText"></div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="goHome()">Home</button>
+                    <button class="btn btn-secondary" onclick="showReview()">Show Missed</button>
+                </div>
+                <div class="keyboard-hint">
+                    Press <strong>1-4</strong> to select • <strong>↓</strong> to continue • <strong>H</strong> for home
+                </div>
+            </div>
+
+            <!-- Review Screen -->
+            <div id="reviewScreen" style="display: none;" class="review-section">
+                <button class="btn btn-secondary" onclick="backToQuiz()" style="margin-bottom: 25px;">← Back to Quiz</button>
+                <div class="review-title" id="reviewTitle">Missed Questions</div>
+                <div id="reviewContainer"></div>
+                <button class="btn btn-secondary" onclick="backToQuiz()" style="margin-top: 25px;">← Back to Quiz</button>
+            </div>
+
+            <!-- Completion Screen -->
+            <div id="completionScreen" style="display: none;" class="completion-screen">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="final-stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Correct Answers</div>
+                        <div class="stat-value" id="finalCorrect">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Final Accuracy</div>
+                        <div class="stat-value" id="finalAccuracy">0%</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+                    <button class="btn btn-secondary" onclick="showReviewFromCompletion()">Review Missed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+const questions = [
+{q:"A 55-year-old patient with chronic GERD is evaluated by endoscopy. The physician notes that the lower esophageal sphincter has reduced tone and allows reflux of stomach contents. At what vertebral level is this sphincter located?",o:["T10 level","C4 level","L1 level","T6 level"],a:0,e:"The lower esophageal sphincter (the third anatomic constriction of the esophagus) is located at the level of the esophageal hiatus of the diaphragm at T10. This anatomic landmark is clinically important because incompetence at this level causes gastroesophageal reflux disease (GERD)."},
+{q:"During a trauma evaluation, a patient sustains a blunt injury to the anterior neck at the level of C6. Which esophageal structure is most likely to be damaged at this vertebral level?",o:["Esophageal hiatus","Mid-esophageal segment","Lower esophageal sphincter","Cricopharyngeus muscle"],a:3,e:"The first anatomic constriction of the esophagus is caused by the cricopharyngeus muscle at the C6 vertebral level. This is the junction between the pharynx and esophagus and represents the most common site of esophageal obstruction or perforation."},
+{q:"A 62-year-old male undergoes upper endoscopy for dysphagia. The endoscope encounters resistance at two points: first when passing from the pharynx into the esophagus, and second at a point where the esophagus courses posterior to a major thoracic vascular structure. The second point of resistance most likely represents:",o:["The esophageal hiatus","The gastroesophageal junction","The esophageal passage behind the aortic arch","The cricopharyngeus muscle"],a:2,e:"The esophagus has three anatomic constrictions. The second occurs when the bolus passes behind the aortic arch, creating an area of natural narrowing. This is clinically significant as it can be a site of food impaction or stricture formation."},
+{q:"A patient with GERD asks why stomach acid is refluxing into the esophagus despite having a sphincter. Which of the following best explains the pathophysiology in GERD?",o:["Stomach acid has increased acidity beyond normal physiological range","The lower esophageal sphincter either fails to close completely or opens at inappropriate times","The esophageal mucosa has lost its protective mucus layer due to excessive acid","The lower esophageal sphincter is structurally absent or malformed"],a:1,e:"GERD results from lower esophageal sphincter incompetence, where the sphincter may have reduced tone (doesn't close fully) or relaxes at inappropriate times, allowing gastric contents to reflux into the esophagus. This is a functional problem, not a structural defect in most cases."},
+{q:"A 35-year-old woman presents with left upper quadrant pain after eating. Imaging reveals the stomach in its normal anatomic position. Which organ lies directly superior to the fundus and cardia of the stomach in normal anatomy?",o:["Spleen","Diaphragm","Left lung","Left lobe of liver"],a:1,e:"The fundus and cardia of the stomach are typically in direct contact with the diaphragm. The stomach is positioned in the upper left quadrant, inferior to the left lobe of the liver, with its superior aspect against the diaphragm."},
+{q:"During abdominal examination of a patient with acute gastritis, the physician palpates the upper left abdomen and identifies the stomach lying beneath the left lobe of liver. This anatomic relationship demonstrates that the stomach is:",o:["Extraperitoneal in the retroperitoneal space","Secondarily retroperitoneal","Intraperitoneal, suspended in the peritoneal cavity","Primary retroperitoneal"],a:2,e:"The stomach is an intraperitoneal organ located in the upper left quadrant, inferior to the left lobe of the liver. It is suspended by peritoneal ligaments (greater and lesser omentum) and can move relative to the surrounding structures."},
+{q:"A patient with a perforated gastric ulcer on the posterior wall of the stomach develops severe abdominal pain. Why would this patient be at risk for accumulation of fluid specifically in the lesser sac?",o:["The lesser sac is anterior to the stomach","The posterior wall of the stomach forms the anterior boundary of the lesser sac","The lesser sac communicates directly with the duodenum","The lesser sac has no lymphatic drainage"],a:1,e:"A posterior gastric ulcer would perforate into the lesser sac (which lies posterior to the stomach). The lesser sac is bounded anteriorly by the stomach and posteriorly by the pancreas, making it vulnerable to effusion from posterior wall pathology."},
+{q:"A 28-year-old patient undergoes abdominal imaging that shows prominent rugae in the gastric body. The physician explains that these structures are:",o:["Pathological folds indicating gastritis","Pronounced gyri and sulci that are more visible when the stomach is empty due to sympathetic activation","Permanent peristaltic waves in the stomach","Permanent features of the stomach mucosa that remain visible at all times"],a:1,e:"Rugae are mucosal folds that become more prominent and visible when the stomach is empty and under sympathetic tone. As the stomach fills, these folds flatten. This is a normal anatomic feature related to the functional state of the stomach."},
+{q:"A surgeon performing gastric surgery must identify the gastrocolic ligament to access structures beneath the stomach. This ligament's primary function is to:",o:["Connect the stomach to the duodenum","Suspend the transverse colon to the right, underneath the stomach","Separate the greater and lesser omentum","Suspend the stomach from the diaphragm"],a:1,e:"The gastrocolic ligament is part of the greater omentum that suspends the transverse colon to the right, passing underneath the stomach. This anatomic relationship is clinically important during gastric surgery as it must be divided to access the structures posterior to the stomach."},
+{q:"A 48-year-old patient with peptic ulcer disease is counseled about the anatomy of gastric ulcers. If a posterior gastric ulcer penetrates through the stomach wall, into which anatomic space would infected material or fluid most likely accumulate?",o:["Subphrenic space","Lesser sac (omental bursa)","Greater sac of peritoneal cavity","Retroperitoneal space"],a:1,e:"The lesser sac lies posterior to the stomach, between the stomach anteriorly and the pancreas posteriorly. A posterior gastric ulcer would perforate directly into the lesser sac, potentially causing loculated infection or effusion in this compartment."},
+{q:"A 58-year-old patient with pancreatic cancer undergoes CT imaging that shows tumor involvement of the duodenum. The radiologist explains that the duodenum is vulnerable to pancreatic pathology because:",o:["The duodenum is located anterior to the pancreas and easily compressed","The duodenum is secondarily retroperitoneal and closely associated with the head of the pancreas","The duodenum is completely intraperitoneal and mobile","The duodenum is primary retroperitoneal but lacks blood supply from pancreatic vessels"],a:1,e:"The duodenum is a secondarily retroperitoneal structure in close association with the head of the pancreas. This intimate anatomic relationship makes the duodenum vulnerable to pancreatic pathology and explains why pancreatic cancer frequently involves the duodenum."},
+{q:"During an endoscopic retrograde cholangiopancreatography (ERCP), the endoscopist must cannulate the major duodenal papilla to access the pancreatic and bile ducts. At which portion of the duodenum is this papilla located?",o:["Horizontal portion of duodenum","Proximal jejunum","Descending portion of duodenum","Proximal duodenum"],a:2,e:"The major duodenal papilla is located in the descending (second) portion of the duodenum. It represents the common opening for both the pancreatic duct and common bile duct into the duodenal lumen, making it a critical site for ERCP procedures and assessment of biliopancreatic function."},
+{q:"A 44-year-old patient with choledocholithiasis (bile duct stone) has impaired bile and pancreatic secretion into the duodenum. Which anatomic structure is preventing the normal flow of these secretions?",o:["The sphincter of Oddi","The ileocecal valve","The hepatic sphincter","The pyloric sphincter"],a:0,e:"The sphincter of Oddi closes the major duodenal papilla. When bile or pancreatic secretions are blocked (such as by a stone), it's because the sphincter is contracted or obstructed. This sphincter is normally maintained in tonic contraction and only relaxes with parasympathetic stimulation to allow digestive juice release."},
+{q:"A 52-year-old patient with pancreatic insufficiency has poor digestion despite having adequate pancreatic secretion. The issue may be related to impaired storage of digestive juices prior to their release into the duodenum. Which structure is responsible for this short-term storage function?",o:["The duodenojejunal flexure","The ampulla of Vater","The hepatic duct","The pylorus"],a:1,e:"The ampulla of Vater serves as a short-term storage reservoir for digestive juices from the pancreas and liver. This allows the juices to accumulate and be released in bolus fashion when the sphincter of Oddi opens in response to a meal, ensuring rapid and effective digestion of chyme."},
+{q:"During an ERCP procedure, the endoscopist notes an alternate route of pancreatic duct drainage at the minor duodenal papilla. This represents:",o:["A sign of pancreatic cancer","The drainage site of the accessory pancreatic duct, less commonly used","Abnormal pancreatic development requiring surgical intervention","The drainage site of the main pancreatic duct"],a:1,e:"The minor duodenal papilla represents an alternative route for drainage of the accessory pancreatic duct. This is a less commonly utilized pathway for pancreatic secretions, but may be important in cases where the major papilla is obstructed."},
+{q:"A 41-year-old patient develops acute pancreatitis secondary to biliary obstruction. Which pancreatic secretion type is abnormally retained within the pancreatic ductal system, contributing to the inflammation?",o:["Mucous secretions only","Exocrine secretions (digestive enzymes released into ducts)","Serous secretions only","Endocrine secretions (hormones released into blood)"],a:1,e:"The pancreatic ducts house exocrine secretions (digestive enzymes). In obstruction of the pancreatic duct, these powerful digestive enzymes back up and can cause autodigestion of pancreatic tissue, leading to pancreatitis. Endocrine secretions (hormones) bypass the duct system and go directly into the bloodstream."},
+{q:"A pathologist notes that pancreatic cancer frequently arises from the ductal epithelium. This predisposition is explained by:",o:["Cancer always originates from epithelial cells","The ducts contain rapidly dividing cells with high cell turnover, making them a cancer hotspot","The ducts are exposed to carcinogens from bile","The ducts are the only area with blood supply"],a:1,e:"Pancreatic ductal epithelium is a cancer hotspot due to very high cell turnover and rapid division. The high rate of cell division increases the probability of malignant transformation, making ductal adenocarcinoma the most common pancreatic malignancy."},
+{q:"A surgeon must access a tumor in the duodenum but notes that it is VERY hard to access surgically. Which anatomic feature explains this surgical challenge?",o:["The duodenum is surrounded by multiple organs with no space for access","The duodenum is secondarily retroperitoneal, making it difficult to mobilize and access","The duodenum has extensive vascular supply that bleeds profusely","The duodenum is mobile and can retract during surgery"],a:1,e:"The duodenum's secondary retroperitoneal position makes it surgically challenging to access. Unlike intraperitoneal structures that can be easily mobilized, the retroperitoneal duodenum is fixed in position and requires careful dissection to access."},
+{q:"A 34-year-old woman undergoes an abdominal CT that shows the transition from the duodenum to the jejunum at the duodenojejunal flexure. This transition point marks a shift from which peritoneal classification to another?",o:["Intraperitoneal to primary retroperitoneal","Secondarily retroperitoneal to intraperitoneal","Extraperitoneal to intraperitoneal","Primary retroperitoneal to intraperitoneal"],a:1,e:"The duodenojejunal flexure marks the anatomic transition where the secondarily retroperitoneal duodenum becomes the intraperitoneal jejunum. At this point, the bowel becomes suspended by the mesentery and gains mobility within the peritoneal cavity."},
+{q:"A nutritionist explains to a patient that the duodenum, despite being only 10 inches long, plays a critical role in digestion but is not majorly absorptive. Which organ below the duodenum is primarily responsible for nutrient absorption?",o:["Gallbladder","Pancreas","Jejunum and ileum","Stomach"],a:2,e:"While the duodenum initiates digestion by receiving pancreatic and bile secretions, it is not a major absorptive organ. The jejunum and ileum (suspended by mesentery) are the primary sites of nutrient absorption in the small intestine."},
+{q:"A 55-year-old patient undergoes imaging that shows a fatty mesentery. The physician explains that the mesentery serves multiple functions, including storage of fat and protection of neurovascular structures. The mesentery is composed of:",o:["Pure fat with no connective tissue","Fascia invested in fat surrounding neurovascular structures","Muscle and loose connective tissue","Dense collagenous tissue"],a:1,e:"The mesentery is composed of fascial layers invested in fat. This fat serves dual roles: storing metabolic reserves and providing cushioning and protection for the delicate mesenteric vessels and nerves that pass through it."},
+{q:"A surgeon notes during abdominal surgery that the mesentery attaches diagonally from the upper left to the lower right. Which small bowel segments does this mesentery suspend?",o:["Duodenum and jejunum","Duodenum and ileum","Jejunum and ileum","All small bowel segments equally"],a:2,e:"The mesentery (proper) attaches diagonally from the upper left to the lower right and suspends the jejunum and ileum. The duodenum, being secondarily retroperitoneal, is not suspended by the mesentery proper."},
+{q:"A physician uses the fat stores within the mesentery to assess a patient's overall body composition and visceral fat levels. This clinical assessment is possible because:",o:["Mesenteric fat increases proportionally with age in all patients","The mesentery contains the only fat in the abdominal cavity","Mesenteric fat stores reflect overall body fat distribution and visceral pathology","The mesentery is the site of all adipose tissue in humans"],a:2,e:"The fat within the mesentery can be used as a proxy to estimate visceral fat levels and overall body composition. The amount and distribution of mesenteric fat may correlate with metabolic health and risk of visceral adiposity-related complications."},
+{q:"A pathologist examining a mesenteric biopsy notes the presence of blood vessels and nerves running through the fascial planes. These vascular and neural structures are protected and organized by:",o:["Lymph nodes exclusively","The peritoneal membrane only","The fascial layers and surrounding fat of the mesentery","Muscular walls of the bowel"],a:2,e:"The mesentery's fascial layers and fat provide structural support and cushioning for the mesenteric blood vessels and nerves. This arrangement protects these delicate structures while organizing them for efficient distribution to the small bowel."},
+{q:"A 42-year-old patient with mesenteric ischemia has compromised blood flow through the mesenteric vessels. Where are these critical vessels located within the mesentery?",o:["In the retroperitoneal space","Inside the fascial layers of the mesentery","Within the bowel wall itself","On the surface of the peritoneal membrane"],a:1,e:"The mesenteric vasculature runs within the fascial layers of the mesentery, providing blood supply to the jejunum and ileum. These vessels branch extensively to create anastomoses and ensure adequate perfusion of the small bowel."},
+{q:"A 65-year-old patient with cirrhosis is evaluated for possible liver transplantation. The physician explains that the liver is unique among abdominal organs because:",o:["It is the only organ that can fully regenerate after partial removal","It is the only vascularized organ","It is the primary source of plasma proteins","It is the largest organ in the body"],a:0,e:"The liver has a unique capacity for regeneration. After partial hepatectomy, the remaining liver tissue can proliferate and restore normal liver mass and function. This regeneration primarily occurs in the left lobe where there is more room for expansion."},
+{q:"A 55-year-old male with alcoholic liver disease is counseled that his liver damage may improve if he abstains from alcohol. The mechanism behind potential improvement is:",o:["Damaged hepatocytes are replaced by muscle tissue","The liver regenerates external to damaged tissue while maintaining compromised areas","The liver shrinks to reduce metabolic demands","New liver tissue grows to replace damaged tissue"],a:1,e:"Liver regeneration in cirrhosis occurs around the fibrotic tissue, forming new functional liver tissue externally. However, the underlying cirrhotic damage persists. Abstinence from alcohol allows this compensatory regeneration to occur, potentially improving hepatic function."},
+{q:"During abdominal surgery, a surgeon identifies the falciform ligament separating the right and left lobes of the liver. The clinical significance of this ligament includes:",o:["It is a remnant of fetal gallbladder tissue","It separates the liver lobes and holds the liver anteriorly","It contains the hepatic artery exclusively","It is a major site of pancreatic duct drainage"],a:1,e:"The falciform ligament is a peritoneal reflection that separates the right and left hepatic lobes and anchors the liver anteriorly to the abdominal wall and diaphragm. This attachment is clinically important for maintaining hepatic position."},
+{q:"A pathologist examining liver tissue notes the bare area on the diaphragmatic surface. This region represents:",o:["A site of portal vein entrance","The junction between the right and left lobes","An area where there is no visceral peritoneum due to contact with the IVC","An area of liver tissue necrosis"],a:2,e:"The bare area is a region on the diaphragmatic surface of the liver where visceral peritoneum is absent. This occurs because the inferior vena cava lies directly against the liver at this point, preventing peritoneal coverage."},
+{q:"A 48-year-old patient with hepatitis has impaired ability to regulate bile production and synthesis. Which ligament within the liver represents the remnant of the umbilical vein?",o:["Ligamentum venosum","Ligamentum teres","Hepatoduodenal ligament","Falciform ligament"],a:1,e:"The ligamentum teres is the remnant of the fetal umbilical vein. It travels within the free edge of the falciform ligament and is clinically important as it can become patent (recanalize) in portal hypertension, creating portosystemic collaterals."},
+{q:"A surgeon performing hepatic surgery must carefully identify the portahepatis to understand the entering vessels and departing structures. Which of the following is NOT part of the portahepatis?",o:["Portal vein branches","Proper hepatic artery","Hepatic duct branches","Hepatic veins"],a:3,e:"The portahepatis contains the proper hepatic artery (oxygen-rich blood from celiac trunk), portal vein branches (nutrient-rich blood from GI tract), and hepatic duct (bile). The hepatic veins are NOT part of the portahepatis; they drain into the inferior vena cava at the superior aspect of the liver."},
+{q:"A radiologist explains that the portal vein carries blood rich in nutrients and waste from the GI tract. This describes:",o:["Cerebrospinal fluid leakage","Venous return from abdominal organs carrying absorbed nutrients and metabolic byproducts","Lymphatic fluid from the mesentery","Arterial blood from the systemic circulation"],a:1,e:"The portal vein collects venous blood from the GI tract and spleen. This blood is nutrient-rich (from intestinal absorption) but also contains metabolic waste products and is relatively low in oxygen. The portal blood is processed by the liver before entering systemic circulation."},
+{q:"A patient with portal hypertension is at risk for variceal bleeding. Which hepatic structure represents the primary site of portal blood processing before systemic circulation?",o:["Bile ducts","Portal vein branches","Hepatic sinusoids","Hepatic artery"],a:2,e:"The hepatic sinusoids are the functional units of the liver where portal blood comes into intimate contact with hepatocytes. These specialized capillaries are rich in macrophages (Kupffer cells) that filter and clean the blood, removing pathogens and metabolic waste before the blood enters hepatic veins."},
+{q:"A pathologist notes that the liver has a tight association with the inferior vena cava but explains this is NOT part of the liver hilum. The structure that demonstrates this relationship is:",o:["The bare area of the liver","The hepatic ligament","The portahepatis","The falciform ligament"],a:0,e:"The bare area is where the IVC lies directly against the liver, creating an intimate anatomic association. However, this is not part of the hilum (portahepatis) because the hepatic veins drain here, not the portal structures which enter at the hilum."},
+{q:"A 58-year-old patient with cirrhosis has altered hepatic circulation due to fibrosis and regeneration. On the posterior surface of the liver, a remnant structure of fetal circulation may be present. Which structure is this?",o:["Falciform ligament","Coronary ligament","Ligamentum venosum","Ligamentum teres"],a:2,e:"The ligamentum venosum is a remnant of the fetal ductus venosus (not everyone has it present). It is located on the posterior surface of the liver and represents another fetal vascular remnant, like the ligamentum teres on the anterior surface."},
+{q:"A 52-year-old patient with cholelithiasis has impaired emptying of the gallbladder. The cystic duct serves to:",o:["Synthesize bile salts","Store bile produced by the liver","Articulate the gallbladder neck to the common hepatic duct","Secrete cholecystokinin to stimulate contraction"],a:2,e:"The cystic duct is the conduit connecting the gallbladder (where bile is stored) to the common hepatic duct. This allows bile to be released from the gallbladder into the biliary system when stimulated by cholecystokinin."},
+{q:"A surgeon explains that digestive enzymes are normally NOT released into the duodenum except at mealtimes. This is because:",o:["The pancreas only produces enzymes when food is present","The sphincter of Oddi is normally in tonic contraction (closed) and only relaxes with parasympathetic stimulation","Bile prevents enzyme release between meals","The duodenum cannot accommodate more than one meal's worth of enzymes"],a:1,e:"The sphincter of Oddi maintains tonic (constant) contraction at rest, keeping the major duodenal papilla closed. Parasympathetic stimulation (via vagal fibers and via cholecystokinin) causes relaxation, allowing bile and pancreatic secretions to flow into the duodenum in response to a meal."},
+{q:"A 45-year-old patient with biliary obstruction due to a pancreatic tumor has impaired flow of both bile and pancreatic juice. The common opening through which both secretions enter the duodenum is:",o:["The major duodenal papilla","The ileocecal valve","The pyloric sphincter","The minor duodenal papilla"],a:0,e:"Both the common bile duct and pancreatic duct share a common opening at the major duodenal papilla in the descending portion of the duodenum. Obstruction at this site affects both biliary and pancreatic secretion into the duodenum."},
+{q:"A pathophysiologist explains that the biliary system functions similarly to the vascular system. Which statement best captures this analogy?",o:["Both systems use peristalsis to move fluid","The bile duct traverses the liver like blood vessels, branching to reach hepatocytes","Both use smooth muscle for propulsion","Both systems have sphincters that control flow"],a:1,e:"The bile duct system functions like vasculature, with the common hepatic duct branching into smaller ducts that penetrate the liver tissue to reach hepatocytes. This architectural similarity allows efficient collection and transport of bile from all liver tissue."},
+{q:"A 38-year-old patient is advised to eat small meals due to gallbladder dysfunction. The gallbladder's primary role in digestion is to:",o:["Regulate pH of duodenal contents","Synthesize cholecystokinin","Store bile between meals and release it when stimulated","Produce bile"],a:2,e:"The gallbladder is a storage organ for bile produced by the liver. Between meals, bile concentrates in the gallbladder. When a meal (especially fatty food) enters the duodenum, cholecystokinin stimulates gallbladder contraction, releasing concentrated bile to aid in fat digestion."},
+{q:"A 58-year-old patient is diagnosed with cholelithiasis after ultrasound imaging reveals multiple gallstones. Which of the following accurately describes the composition and clinical significance of gallstones?",o:["They are primarily composed of bilirubin and are always clinically significant","They are hardened balls mostly from cholesterol; smaller ones are more dangerous as they lodge in ducts","They are composed of calcium bilirubinate and do not cause symptoms","They are purely cholesterol without any other components"],a:1,e:"Gallstones are hardened balls mostly from cholesterol. Smaller stones are more clinically significant because they are more likely to lodge in ducts causing obstruction. This can lead to complications like acute cholecystitis, pancreatitis, and gallstone ileus."},
+{q:"A 52-year-old woman presents with acute pancreatitis. The physician determines that a gallstone has migrated into the pancreatic duct, causing obstruction. This pathologic process is referred to as:",o:["Cholecystitis","Biliary dyskinesia","Gallstone ileus","Lithiasis"],a:2,e:"Gallstone ileus occurs when a gallstone erodes through the gallbladder wall and becomes lodged in the bowel, typically the ileum. This can cause acute bowel obstruction. The term lithiasis refers to stone formation in general."},
+{q:"A 65-year-old male with a history of cholelithiasis presents with a rare complication in which a gallstone has eroded through the gallbladder wall and become impacted. Where is this stone most likely to become lodged, creating bowel obstruction?",o:["Duodenum","Ileum","Jejunum","Colon"],a:1,e:"In gallstone ileus, the gallstone typically becomes impacted in the ileum, the narrowest part of the small intestine. This is the most common site of obstruction, though the stone can lodge in the duodenum, colon, or rarely in the jejunum."},
+{q:"A 48-year-old patient develops acute right upper quadrant pain after consuming a fatty meal. Laboratory studies show elevated inflammatory markers. The accumulation of gallstones causing inflammation of the gallbladder is termed:",o:["Lithiasis","Cholecystitis","Gallstone ileus","Biliary colic"],a:1,e:"Cholecystitis is inflammation of the gallbladder caused by gallstone obstruction of the cystic duct. This leads to bile stasis, increased pressure, and inflammation. Acute cholecystitis presents with right upper quadrant pain, especially after fatty meals."},
+{q:"A pathologist explains that the formation of gallstones is a process called lithiasis. In this patient's case, which factors contribute to gallstone formation?",o:["Hemolysis and elevated direct bilirubin","Bile stasis, supersaturation with cholesterol, and nucleation","Bacterial infection of the gallbladder","Portal hypertension causing bile backup"],a:1,e:"Lithiasis (gallstone formation) results from bile stasis, supersaturation of bile with cholesterol, and nucleation of cholesterol crystals. Risk factors include female gender, fat, forty, fertile, family history (the 4 F's) and conditions causing bile stasis or cholesterol supersaturation."},
+{q:"A 42-year-old patient undergoes ultrasound imaging for left upper quadrant pain. The radiologist identifies the spleen and notes it is a small organ positioned above the kidney. Which of the following best describes the primary functions of the spleen?",o:["Development of RBCs and WBCs","Hormone production and endocrine function","Glucose metabolism and storage","Bile storage and concentration"],a:0,e:"The spleen is a small lymphoid organ that develops and produces red blood cells and white blood cells. It also acts as a filter for blood, removing old RBCs and pathogens, and serves as a reservoir for blood in case of emergency."},
+{q:"During abdominal surgery, the surgeon must carefully dissect around the spleen due to its rich vascular supply. Which major artery runs parallel to the pancreas and supplies the spleen with a large caliber vessel?",o:["Celiac trunk","Hepatic artery","Splenic artery","Superior mesenteric artery"],a:2,e:"The splenic artery is a large artery that arises from the celiac trunk and runs a tortuous course parallel to the pancreas. It provides the primary blood supply to the spleen and is vulnerable to injury during pancreatic surgery."},
+{q:"A 35-year-old patient with acute leukemia develops significant left upper quadrant enlargement on physical exam. This clinical finding of splenic enlargement from inflammatory conditions such as leukemia-induced hyperproliferation of WBCs is termed:",o:["Splenic infarction","Splenomegaly","Splenic atrophy","Splenitis"],a:1,e:"Splenomegaly is enlargement of the spleen from various causes including leukemia, lymphoma, infections, or other inflammatory conditions. In leukemia, hyperproliferation of WBCs within the spleen leads to massive enlargement, which can be detected on physical exam and imaging."},
+{q:"A medical student reviews the length and anatomy of different small bowel segments. Which statement accurately compares the jejunum and ileum?",o:["The ileum is located in the upper left and is shorter than the jejunum","Both have equal lengths and are indistinguishable anatomically","The jejunum is longer and located in the lower right; the ileum is shorter and located in the upper left","The jejunum is located in the upper left and is 8 feet; the ileum is the longest component at 11.5 feet in the lower right"],a:3,e:"The jejunum is 8 feet long and located in the upper left abdomen, while the ileum is 11.5 feet long (the longest component) and located in the lower right. The transition between them is imperceptible anatomically, making them difficult to distinguish except by location."},
+{q:"A 28-year-old patient with malabsorption syndrome is evaluated for small bowel pathology. The physician explains that the jejunum is the primary site of nutrient absorption. Which anatomic feature of the jejunum explains this high absorptive capacity?",o:["Vasorecta with very high density providing extensive vascular supply for nutrient transport","Abundant adipose tissue in the mesentery","Direct connection to the portal vein","Proximity to the pancreatic ducts"],a:0,e:"The jejunum has the highest nutrient absorption capacity due to very high density of vasorecta (terminal branches of mesenteric arteries in the gut wall). This extensive vascular supply allows for rapid nutrient transport across the intestinal epithelium."},
+{q:"A surgeon performs a small bowel resection and must determine whether the tissue is jejunum or ileum based on gross appearance and vascular patterns. Which vascular structure is characteristic of the jejunal segments?",o:["Single dominant artery with minimal branching","Sparse vascular supply with few anastomoses","Vasorecta: terminal branches of arteries in the gut wall with very high density in the jejunum","Venous drainage exclusively into the portal system"],a:2,e:"The jejunum is characterized by very high density vasorecta (terminal arterial branches) in the mesentery, giving it an extensive, dense vascular pattern. In contrast, the ileum has longer, more sparse vascular arcades with fat-filled mesentery."},
+{q:"A 55-year-old patient with superior mesenteric artery (SMA) stenosis has compromised blood flow to the small intestine. Which small bowel segment would be most immediately affected given the SMA's primary vascular responsibility?",o:["Ileum exclusively","Duodenum exclusively","Jejunum and ileum","Proximal jejunum only"],a:2,e:"The superior mesenteric artery provides the primary blood supply to both the jejunum and ileum. The duodenum receives collateral supply from multiple sources. SMA stenosis would compromise jejunal and ileal perfusion, leading to mesenteric ischemia."},
+{q:"During colonoscopy, the endoscopist traverses the colon starting from the rectum and notes the transition to the hindgut structures. At which anatomic landmark does the hindgut begin?",o:["At the anus","At the ileocecal valve","At the descending colon","At the sigmoid colon"],a:2,e:"The hindgut begins at the descending colon and extends to the anus. This embryologically distinct segment is supplied by the inferior mesenteric artery and has different innervation than the foregut and midgut."},
+{q:"A pathologist examining colonic tissue under the microscope notes the distinct muscle layer pattern of the colon. The longitudinal smooth muscle bands running along the colon are called:",o:["Mesocolons","Epiploic appendices","Taeniae coli","Haustra"],a:2,e:"The taeniae coli are three longitudinal bands of smooth muscle running the length of the colon. These thick muscular bands help organize the colonic musculature and create the characteristic segmented appearance of the colon."},
+{q:"A 45-year-old patient undergoes colonoscopy for evaluation of chronic diarrhea. The endoscopist notes the characteristic pouching of the colonic wall created by the arrangement of muscle fibers. These circular smooth muscle units are termed:",o:["Haustra","Taeniae coli","Epiploic appendices","Mesocolons"],a:0,e:"The haustra are sacculations (pouches) of the colonic wall created by the arrangement of the taeniae coli and circular muscle. They give the colon its characteristic segmented appearance and allow for increased absorptive surface area and fecal storage."},
+{q:"A surgeon examining the colonic serosa notes small, fat-like droplet structures along the colonic surface. These structures, which resemble and function similarly to the greater omentum with high leukocyte content, are called:",o:["Epiploic appendices","Mesocolons","Taeniae coli","Haustra"],a:0,e:"The epiploic appendices (appendices epiploicae) are small pouches of visceral peritoneum filled with fat along the taeniae coli of the colon. They are rich in leukocytes and function similarly to the greater omentum in immune defense."},
+{q:"A radiologist reviewing abdominal anatomy notes the mesenteric-like support structures for the intraperitoneal portions of the colon. These are anatomically analogous to the mesentery of the small bowel and are called:",o:["Taeniae coli","Mesocolons","Epiploic appendices","Haustra"],a:1,e:"The mesocolons are peritoneal reflections that suspend the intraperitoneal portions of the colon (transverse and sigmoid colons). They are analogous to the mesentery of the small bowel and contain the colonic vasculature and nerves."},
+{q:"A 22-year-old male presents with acute right lower quadrant pain and is diagnosed with acute appendicitis. Regarding the epidemiology of appendicitis, which statement is accurate?",o:["Appendicitis is becoming less common due to dietary changes","Approximately 7% of adults have undergone appendectomy, making it the #1 surgical emergency for men and #3 cancer for women","Appendicitis is the most common abdominal surgical emergency in women but rarely occurs in men","Appendicitis only occurs in children and adolescents"],a:1,e:"Approximately 7% of adults have undergone appendectomy. Appendicitis is the #1 surgical emergency for men and #3 common reason for surgery in women (after cholecystectomy and hysterectomy). It can occur at any age but is most common in adolescents and young adults."},
+{q:"A pathophysiologist explains the mechanism of acute appendicitis. Which of the following best describes how appendicitis typically develops?",o:["The appendix orifice becomes clogged with fecal matter, causing obstruction and inflammation","Bacterial overgrowth in the appendix lumen","Inflammatory response to appendiceal hormones","Perforation of the appendiceal wall by parasites"],a:0,e:"Acute appendicitis typically develops when the appendiceal orifice becomes obstructed by fecal matter, inspissated mucus, or a fecalith. This obstruction traps bacteria within the appendix, leading to inflammation, increased pressure, and potential perforation if untreated."},
+{q:"A surgeon performing an appendectomy notes that the appendix's length varies considerably among patients. Which statement accurately describes the appendix?",o:["The appendix is always greater than 15 centimeters in length","The appendix is a highly variable-length structure considered vestigial","The appendix length correlates with patient height and sex","The appendix has a standard length of exactly 9 centimeters in all adults"],a:1,e:"The appendix is a highly variable-length structure that can range from 2 to 20 centimeters or more. It is considered a vestigial remnant of the larger cecum in other mammals, though it plays a role in immune function through its lymphoid tissue."},
+{q:"A 58-year-old patient presents with a focal outpouching of the sigmoid colon identified on barium study. This outpouching of the bowel wall represents:",o:["A diverticulum","Haustra","An epiploic appendage","A mesocolon"],a:0,e:"A diverticulum is an outpouching of the bowel wall that can occur anywhere in the GI tract. Diverticula are common in the sigmoid colon and can be asymptomatic or lead to complications like diverticulitis if they become inflamed or infected."},
+{q:"A colorectal surgeon explains that diverticula can occur throughout the gastrointestinal tract. Which statement accurately describes the pathophysiology of diverticular disease?",o:["Diverticula represent hypertrophy of the taeniae coli","Diverticula are congenital malformations present at birth","Diverticula are little pockets pushed off the bowel wall and can occur anywhere in the GI tract","Diverticula only occur in the colon and are always clinically significant"],a:2,e:"Diverticula are outpouchings of the bowel wall that occur through weak points in the musculature. They can develop anywhere in the GI tract and are usually asymptomatic, though they can become inflamed (diverticulitis) or bleed."},
+{q:"A pediatrician evaluates a newborn with severe constipation and abdominal distension. The diagnosis of Hirschsprung disease (megacolon) is confirmed. Which embryologic abnormality causes this condition in children?",o:["Intestinal aganglionosis (absence of neural crest-derived ganglion cells)","Excessive smooth muscle development","Mesentery malformation","Bile duct obstruction"],a:0,e:"Hirschsprung disease results from failure of neural crest cells to migrate fully along the bowel during fetal development, leading to absence of ganglion cells (aganglionosis). This creates a segment of bowel without innervation that cannot relax, causing functional obstruction and massive proximal dilation (megacolon)."},
+{q:"A 62-year-old patient who received chemotherapy and radiation for intestinal cancer now presents with severe constipation and abdominal distension. The physician notes colonic dilation and explains this is a complication of cancer treatment. This acquired form of megacolon can result from:",o:["Inflammatory bowel disease alone","Trauma or damage from chemotherapy/radiation affecting neural function","Portal hypertension","Excessive dietary fiber intake"],a:1,e:"Acquired megacolon can develop in adults from trauma, chemotherapy, or radiation therapy that damages the neural plexuses of the bowel. This impairs normal peristalsis and leads to functional obstruction with proximal dilation, similar to Hirschsprung disease but acquired rather than congenital."},
+{q:"A patient with a large colonic diverticulum or megacolon presents with diffuse abdominal pain that is difficult to localize despite the colonic origin. The physician explains this referred pain pattern occurs because:",o:["The pain receptors in the colon are located in the peritoneum","Colonic pathology always causes peritonitis","The colon has extensive somatic innervation","The viscera receive autonomic innervation, causing diffuse, poorly localized referred pain"],a:3,e:"Visceral organs including the colon receive autonomic (visceral) innervation, not somatic innervation. This innervation pattern causes visceral pain to be diffuse, poorly localized, and difficult to pinpoint anatomically, in contrast to somatic pain which is well-localized."}
+];
+
+let currentQuestion = 0;
+let correct = 0;
+let answered = [];
+let missed = [];
+let screen = 'home';
+
+function startQuiz() {
+    currentQuestion = 0;
+    correct = 0;
+    answered = [];
+    missed = [];
+    screen = 'quiz';
+    document.getElementById('homeScreen').style.display = 'none';
+    document.getElementById('quizScreen').style.display = 'block';
+    document.getElementById('completionScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'none';
+    loadQuestion();
+}
+
+function loadQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById('questionText').textContent = q.q;
+
+    const optionsHTML = q.o.map((option, idx) => {
+        const letter = String.fromCharCode(65 + idx);
+        return `<div class="option" onclick="selectAnswer(${idx})" onkeydown="if(event.key === ' ') selectAnswer(${idx})">
+                    <span class="option-label">${letter}</span>
+                    ${option}
+                </div>`;
+    }).join('');
+
+    document.getElementById('optionsContainer').innerHTML = optionsHTML;
+    document.getElementById('feedback').classList.remove('show', 'feedback-correct', 'feedback-incorrect');
+    updateStats();
+}
+
+function selectAnswer(idx) {
+    if(answered[currentQuestion] !== undefined) return;
+
+    const q = questions[currentQuestion];
+    const isCorrect = idx === q.a;
+    answered[currentQuestion] = { idx: idx, correct: isCorrect };
+
+    if(isCorrect) correct++;
+    else missed.push(currentQuestion);
+
+    const options = document.querySelectorAll('.option');
+    options.forEach((opt, i) => {
+        if(i === idx) {
+            opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+            opt.style.pointerEvents = 'none';
+        }
+    });
+
+    showFeedback(isCorrect, q.e);
+}
+
+function showFeedback(isCorrect, explanation) {
+    const fb = document.getElementById('feedback');
+    fb.classList.add('show', isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+    document.getElementById('feedbackTitle').textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+    document.getElementById('feedbackText').textContent = explanation;
+}
+
+function nextQuestion() {
+    if(answered[currentQuestion] === undefined) return;
+    currentQuestion++;
+    if(currentQuestion >= questions.length) {
+        showCompletion();
+    } else {
+        loadQuestion();
+    }
+}
+
+function updateStats() {
+    document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} / ${questions.length}`;
+    const acc = currentQuestion > 0 ? Math.round((correct / currentQuestion) * 100) : 0;
+    document.getElementById('accuracyDisplay').textContent = `Accuracy: ${acc}%`;
+    const prog = ((currentQuestion + 1) / questions.length) * 100;
+    document.getElementById('progressFill').style.width = prog + '%';
+}
+
+function showCompletion() {
+    screen = 'completion';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('completionScreen').style.display = 'block';
+    document.getElementById('finalCorrect').textContent = correct;
+    const finalAcc = Math.round((correct / questions.length) * 100);
+    document.getElementById('finalAccuracy').textContent = finalAcc + '%';
+}
+
+function showReview() {
+    if(missed.length === 0) {
+        alert('Perfect score! No missed questions.');
+        return;
+    }
+    screen = 'review';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'block';
+    renderReview();
+}
+
+function showReviewFromCompletion() {
+    if(missed.length === 0) {
+        alert('Perfect score! No missed questions.');
+        return;
+    }
+    screen = 'review';
+    document.getElementById('completionScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'block';
+    renderReview();
+}
+
+function renderReview() {
+    document.getElementById('reviewTitle').textContent = `Missed Questions (${missed.length})`;
+    const html = missed.map(idx => {
+        const q = questions[idx];
+        const userAns = answered[idx];
+        const correctOpt = q.o[q.a];
+        return `
+            <div class="review-item">
+                <div class="review-q">${q.q}</div>
+                <div class="review-answer">Your answer: <span>${q.o[userAns.idx]}</span></div>
+                <div class="review-answer">Correct: <span>${correctOpt}</span></div>
+                <div class="review-answer" style="margin-top: 10px; color: #555;">${q.e}</div>
+            </div>
+        `;
+    }).join('');
+    document.getElementById('reviewContainer').innerHTML = html;
+}
+
+function backToQuiz() {
+    screen = 'quiz';
+    document.getElementById('reviewScreen').style.display = 'none';
+    document.getElementById('quizScreen').style.display = 'block';
+}
+
+function goHome() {
+    screen = 'home';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('homeScreen').style.display = 'block';
+}
+
+function restartQuiz() {
+    startQuiz();
+}
+
+document.addEventListener('keydown', (e) => {
+    if(screen === 'quiz') {
+        if(e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
+            const idx = parseInt(e.key) - 1;
+            if(idx < 4 && answered[currentQuestion] === undefined) {
+                selectAnswer(idx);
+            }
+        } else if(e.key === 'ArrowDown') {
+            nextQuestion();
+        } else if(e.key === 'h' || e.key === 'H') {
+            goHome();
+        }
+    }
+});
+    </script>
+</body>
+</html>

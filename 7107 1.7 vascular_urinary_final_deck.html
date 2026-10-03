@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vascular Supply & Urinary System Review Deck</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container { max-width: 900px; width: 100%; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            min-height: 500px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .question-number { font-weight: 600; }
+        .accuracy { color: #764ba2; font-weight: 600; }
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .option {
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            background: white;
+            position: relative;
+            padding-left: 50px;
+        }
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .option-label {
+            position: absolute;
+            left: 18px;
+            font-weight: 600;
+            color: #667eea;
+            width: 20px;
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .option.correct {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        .feedback {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback-correct {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            color: #047857;
+        }
+        .feedback-incorrect {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        .feedback-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .feedback-text {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+            border: 2px solid #e5e7eb;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        .keyboard-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .review-section {
+            display: none;
+        }
+        .review-section.show {
+            display: block;
+        }
+        .review-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .review-item {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ef4444;
+        }
+        .review-q {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .review-answer {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .review-answer span {
+            font-weight: 600;
+        }
+        .home-screen {
+            text-align: center;
+        }
+        .home-screen h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .home-screen p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .completion-screen {
+            text-align: center;
+        }
+        .completion-screen h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .final-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- Home Screen -->
+            <div id="homeScreen" class="home-screen">
+                <h1>Vascular & Urinary System Review</h1>
+                <p><strong>75 Questions</strong></p>
+                <p>Vascular Supply • Portal Circulation • Hepatic Pathology • Urinary System • Kidney Transplant</p>
+                <p style="margin-top: 25px; font-size: 14px; color: #999;">
+                    Press <strong>1-4</strong> to select an answer<br>
+                    Press <strong>DOWN ARROW</strong> to continue
+                </p>
+                <button class="btn btn-primary" onclick="startQuiz()" style="margin-top: 30px;">Start Review</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="stats">
+                    <span class="question-number" id="questionCounter">Question 1 / 75</span>
+                    <span class="accuracy" id="accuracyDisplay">Accuracy: 0%</span>
+                </div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="feedback" id="feedback">
+                    <div class="feedback-title" id="feedbackTitle"></div>
+                    <div class="feedback-text" id="feedbackText"></div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="goHome()">Home</button>
+                    <button class="btn btn-secondary" onclick="showReview()">Show Missed</button>
+                </div>
+                <div class="keyboard-hint">
+                    Press <strong>1-4</strong> to select • <strong>↓</strong> to continue • <strong>H</strong> for home
+                </div>
+            </div>
+
+            <!-- Review Screen -->
+            <div id="reviewScreen" style="display: none;" class="review-section">
+                <button class="btn btn-secondary" onclick="backToQuiz()" style="margin-bottom: 25px;">← Back to Quiz</button>
+                <div class="review-title" id="reviewTitle">Missed Questions</div>
+                <div id="reviewContainer"></div>
+                <button class="btn btn-secondary" onclick="backToQuiz()" style="margin-top: 25px;">← Back to Quiz</button>
+            </div>
+
+            <!-- Completion Screen -->
+            <div id="completionScreen" style="display: none;" class="completion-screen">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="final-stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Correct Answers</div>
+                        <div class="stat-value" id="finalCorrect">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Final Accuracy</div>
+                        <div class="stat-value" id="finalAccuracy">0%</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+                    <button class="btn btn-secondary" onclick="showReviewFromCompletion()">Review Missed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+const questions = [
+{q:"A 65-year-old patient undergoes abdominal imaging for evaluation of GI bleeding. The radiologist identifies the celiac trunk at vertebral level L1. Which of the following organs does the celiac trunk vascularize?",o:["Jejunum and ileum exclusively","Descending and sigmoid colon","Foregut structures: esophagus, stomach, and proximal duodenum","Entire colon and rectum"],a:2,e:"The celiac trunk is the primary arterial supply to the foregut at L1. It gives rise to three main branches: the left gastric artery (esophageal branches), the common hepatic artery (proper hepatic artery for the liver), and the splenic artery."},
+{q:"A surgeon reviews vascular anatomy before performing a gastric bypass. Which of the following branches does NOT arise from the celiac trunk?",o:["Superior mesenteric artery","Splenic artery","Common hepatic artery","Left gastric artery"],a:0,e:"The superior mesenteric artery is a separate trunk at L1, posterior to the celiac trunk. The celiac trunk gives rise to the common hepatic, left gastric, and splenic arteries only."},
+{q:"A 58-year-old patient with small bowel ischemia has compromised blood flow to the jejunum and ileum. Which artery provides the primary vascularization to these midgut structures?",o:["Renal artery","Superior mesenteric artery","Inferior mesenteric artery","Celiac trunk"],a:1,e:"The superior mesenteric artery (SMA) at L1, posterior to the celiac trunk, vascularizes the midgut including the jejunum, ileum, and proximal colon up to the transverse colon. It gives rise to intestinal arteries that supply the small bowel."},
+{q:"A vascular surgeon explains the anatomic position of the superior mesenteric artery relative to the celiac trunk. Which statement accurately describes their relationship?",o:["The SMA is anterior and inferior to the celiac trunk","The SMA is more inferior and lateral to the celiac trunk","The SMA is at the same vertebral level (L1) but posterior to the celiac trunk","The SMA is anterior and superior to the celiac trunk"],a:2,e:"Both the celiac trunk and SMA originate at vertebral level L1, but the SMA arises posteriorly (behind) the celiac trunk. This anatomic relationship is important for surgical approach and understanding vascular anatomy."},
+{q:"A 72-year-old patient with chronic constipation and lower GI bleeding is found to have hindgut ischemia. Which artery provides the primary blood supply to the hindgut?",o:["Splenic artery","Celiac trunk","Superior mesenteric artery","Inferior mesenteric artery"],a:3,e:"The inferior mesenteric artery (IMA) at vertebral level L3 is the chief supply to the hindgut, vascularizing the descending colon, sigmoid colon, and rectum. The IMA is lower than both the celiac trunk and SMA."},
+{q:"A vascular radiologist notes that the inferior mesenteric artery is also known as vasorecta in some anatomic contexts. However, the densest concentration of vasorecta occurs in which anatomic location?",o:["Sigmoid colon","Ileum","Jejunum","Rectum"],a:2,e:"While the IMA gives rise to vasorecta (terminal arterial branches), the densest concentration of vasorecta occurs in the jejunum. This high vascular density in the jejunum supports its high absorptive capacity for nutrients."},
+{q:"A 52-year-old patient with portal hypertension has altered venous drainage. The physician explains that venous return from the hindgut follows an unusual pathway. Which vessel does the inferior mesenteric vein drain into?",o:["Hepatic vein","Inferior vena cava directly","Superior mesenteric vein","Splenic vein, then portal vein"],a:3,e:"The inferior mesenteric vein drains into the splenic vein, which then joins the superior mesenteric vein to form the portal vein. This routing brings hindgut blood through the portal circulation to the liver before systemic return."},
+{q:"A surgeon performing elective colon resection must preserve collateral circulation. Which artery provides critical collateral supply to the colon, especially important if the inferior mesenteric artery is damaged?",o:["Colic artery","Rectal artery","Marginal artery","Appendicular artery"],a:2,e:"The marginal artery (of Drummond) runs along the border of the colon, creating anastomoses between the SMA and IMA territories. This collateral pathway is critical if the IMA is damaged or stenosed, providing alternative blood flow to prevent ischemia."},
+{q:"A medical student reviews portal circulation. Which statement accurately describes the two-capillary-bed system of portal circulation?",o:["Blood flows from GI capillaries → splenic artery → portal vein → liver → systemic circulation","Blood flows from GI capillaries → intestinal veins → portal vein → liver sinusoids → hepatic vein → IVC → heart","Blood bypasses the liver and flows directly to the heart via the portal vein","Blood flows from GI capillaries → superior mesenteric artery → portal vein → liver capillaries → hepatic vein → heart"],a:1,e:"The portal circulation is unique because blood from GI capillaries drains to the portal vein (not directly to the heart), which then branches into liver sinusoids (second capillary bed), allowing the liver to process and filter blood before systemic return."},
+{q:"A vascular physiologist explains that portal circulation allows the liver to process nutrients and metabolic byproducts before they enter systemic circulation. Which of the following best describes the purpose of this two-capillary-bed system?",o:["It prevents bacterial translocation from the intestines","It reduces blood pressure in the GI tract","It allows the liver to absorb nutrients, detoxify waste, and process medications before systemic distribution","It prevents blood from reaching the heart too quickly"],a:2,e:"The unique two-capillary-bed system of portal circulation ensures that all blood from the GI tract passes through the liver first, allowing hepatic processing of nutrients, detoxification of absorbed substances, and metabolism before blood enters systemic circulation."},
+{q:"A 55-year-old patient with a history of hepatitis C develops progressive portal hypertension. Which type of portal hypertension results from inflammation and scarring within the liver parenchyma?",o:["Prehepatic portal hypertension","Extrahepatic portal hypertension","Intrahepatic portal hypertension","Posthepatic portal hypertension"],a:2,e:"Intrahepatic portal hypertension results from obstruction within the liver itself, such as from cirrhosis, fibrosis, or inflammation. This is the most common type of portal hypertension, often caused by hepatitis B, hepatitis C, fatty liver disease, or alcohol abuse."},
+{q:"A 62-year-old patient with cirrhosis develops portal hypertension from intrahepatic obstruction. Which factor contributes to the chronic nature of this condition, allowing patients to survive years despite elevated portal pressure?",o:["Hepatic function improves over time in cirrhosis","Blood finds alternative pathways (collateral circulation) to bypass the obstructed liver","The portal vein closes off to prevent backflow","The liver regenerates completely, restoring normal function"],a:1,e:"Despite portal hypertension, patients can survive years (up to a decade) because blood establishes collateral circulation routes to bypass the obstructed liver. These portosystemic anastomoses allow blood to return to the heart despite elevated portal pressure."},
+{q:"A 48-year-old patient with cirrhosis presents with visible distended veins radiating from the umbilicus. This clinical finding represents backflow into paraumbilical veins and is known as:",o:["Internal hemorrhoids","Esophageal varices","Caput medusa","Ascites"],a:2,e:"Caput medusa is the visible dilation of paraumbilical veins radiating from the umbilicus, caused by backflow of blood in the remnant umbilical vein due to portal hypertension. The name refers to the serpent-like appearance of the dilated veins."},
+{q:"A 58-year-old with portal hypertension presents with hematemesis (vomiting blood). The bleeding originates from dilated veins in the distal esophagus. Which collateral pathway is responsible for this bleeding?",o:["Backflow into the spleen causing splenic rupture","Backflow into esophageal veins causing esophageal varices","Backflow into the marginal artery causing rectal bleeding","Backflow into mesenteric vessels causing abdominal wall bleeding"],a:1,e:"Portal hypertension causes backflow of blood into the esophageal venous system, creating esophageal varices (dilated veins in the esophageal wall). These varices are prone to rupture, causing life-threatening hematemesis."},
+{q:"A 65-year-old patient with portal hypertension develops visible hemorrhoids with rectal bleeding. Which collateral pathway explains this clinical finding?",o:["Backflow into the marginal artery causing inferior mesenteric bleeding in the rectum","Backflow into the splenic vein","Backflow into paraumbilical veins","Backflow into mesenteric veins causing rectal varices"],a:0,e:"Portal hypertension causes backflow into the inferior mesenteric venous system, which drains into the rectum. This leads to hemorrhoid formation and rectal bleeding, representing a portosystemic collateral pathway."},
+{q:"A 54-year-old patient develops portal vein thrombosis (a clot in the portal vein). Which term describes this vascular pathology?",o:["Atresia","Stenosis","Thrombosis","Aneurysm"],a:2,e:"Thrombosis is the formation of a clot (thrombus) within a blood vessel. Portal vein thrombosis is a serious complication that can occur in cirrhosis, malignancy, or hypercoagulable states."},
+{q:"A 60-year-old patient undergoes imaging that reveals narrowing of the superior mesenteric artery lumen without complete obstruction. This vascular pathology is termed:",o:["Atresia","Thrombosis","Stenosis","Aneurysm"],a:2,e:"Stenosis is narrowing of a blood vessel lumen, reducing blood flow but not completely obstructing it. SMA stenosis can cause mesenteric ischemia, presenting with postprandial abdominal pain."},
+{q:"A newborn presents with absent celiac trunk and superior mesenteric artery, a rare congenital anomaly. This complete absence of these vessels is termed:",o:["Stenosis","Dysplasia","Hypoplasia","Atresia"],a:3,e:"Atresia is complete occlusion or absence of a normally patent vessel. While rare, atresia of major visceral arteries is incompatible with normal GI blood supply and is typically fatal if not surgically corrected."},
+{q:"A 52-year-old patient with cirrhosis and portal hypertension develops ascites (fluid accumulation in the peritoneal cavity). The physician explains that backflow of portal blood into mesenteric vessels contributes to ascites formation. Which mechanism explains this relationship?",o:["High portal pressure increases capillary hydrostatic pressure, causing fluid transudation into the peritoneal cavity","The spleen ruptures, leaking blood into the peritoneal cavity","Mesenteric vessels dilate and leak protein-rich fluid","The liver stops producing albumin, reducing plasma osmotic pressure"],a:0,e:"Portal hypertension increases hydrostatic pressure in splanchnic capillaries, causing fluid to leak into the peritoneal cavity. This is worsened by reduced hepatic albumin synthesis and lymphatic obstruction, creating a osmotic and hydrostatic imbalance."},
+{q:"A 58-year-old patient with cirrhosis is counseled about risk factors for portal hypertension. Which of the following is NOT a major risk factor for developing intrahepatic portal hypertension?",o:["Renal failure","Hepatitis B infection","Hepatitis C infection","Fatty liver disease"],a:0,e:"The major risk factors for intrahepatic portal hypertension are hepatitis B, hepatitis C, fatty liver disease (NAFLD), and alcohol abuse. While renal failure can complicate cirrhosis, it is not a primary cause of portal hypertension itself."},
+{q:"A 68-year-old patient with history of colorectal cancer develops multiple liver nodules on imaging. The liver parenchyma appears normal without cirrhosis or fibrosis. This presentation most likely represents:",o:["Primary hepatocellular carcinoma","Hepatic cirrhosis","Metastatic cancer to the liver","Fatty liver disease"],a:2,e:"Metastatic liver cancer typically presents as multiple nodules in non-cirrhotic liver. Cancer cells from the GI tract are mechanically trapped in hepatic sinusoids during portal circulation, lodging in the liver. The background liver tissue appears normal unless there is underlying cirrhosis."},
+{q:"A pathologist explains the mechanism by which colorectal cancer metastasizes to the liver. Which statement best describes this process?",o:["Cancer cells migrate through the bloodstream and are attracted to liver tissue","Cancer cells invade the hepatic artery and establish new tumors","Cancer cells from the GI tract enter portal circulation and are mechanically trapped in hepatic sinusoids","The liver attracts cancer cells through secretion of growth factors"],a:2,e:"The unique portal circulation system exposes the liver to all GI blood. Cancer cells from GI malignancies enter the portal vein and are mechanically filtered/trapped in hepatic sinusoids, explaining why the liver is a common site of GI cancer metastasis."},
+{q:"A 55-year-old patient with hepatitis C develops primary liver cancer. On imaging, the liver appears dark greenish, nodular, and cirrhotic with a few hepatic nodules. This presentation is characteristic of:",o:["Hemangioma","Hepatic adenoma","Primary hepatocellular carcinoma","Metastatic cancer"],a:2,e:"Primary hepatocellular carcinoma (HCC) typically develops in cirrhotic livers, which appear dark greenish and nodular. The background liver shows cirrhotic changes (fibrosis, nodularity), distinguishing it from metastatic disease which occurs in non-cirrhotic liver."},
+{q:"A patient with cirrhosis develops a single large hepatic nodule. The physician explains that this represents primary hepatocellular carcinoma rather than metastatic disease based on several features. Which finding MOST STRONGLY suggests primary HCC rather than metastases?",o:["Rapid growth rate","Multiple lesions","Cirrhotic background liver with nodular appearance","Non-cirrhotic background liver"],a:2,e:"Primary HCC characteristically arises in cirrhotic livers, which show fibrosis and nodularity. The presence of cirrhosis in the background hepatic parenchyma strongly suggests primary HCC rather than metastatic disease, which typically occurs in non-cirrhotic liver."},
+{q:"A 62-year-old with cirrhosis develops hepatic nodules. The radiologist notes more than a few nodules with background cirrhosis. The clinical team discusses treatment options, knowing this represents:",o:["Benign adenomas","Early-stage HCC","Advanced HCC","Hepatic hemangiomas"],a:2,e:"Multiple hepatic nodules (more than a few) in a cirrhotic liver represents advanced hepatocellular carcinoma. The presence of multiple nodules indicates multifocal disease or intrahepatic metastases, suggesting advanced stage with poorer prognosis than solitary lesions."},
+{q:"A 55-year-old patient undergoes imaging to evaluate hematuria. The radiologist identifies the kidneys in the retroperitoneum and notes their anterior location. Which statement accurately describes the anatomic position of the kidneys?",o:["They are located in the anterior 2/3 of the retroperitoneal space, representing the highlight of retroperitoneal anatomy","They are located exclusively in the pelvis","They are located in the anterior abdominal wall","They are located in the posterior 1/3 of the retroperitoneal space"],a:0,e:"The kidneys are located in the anterior 2/3 of the retroperitoneal space and represent a highlight of retroperitoneal anatomy. They are found between the peritoneum anteriorly and the posterior body wall posteriorly."},
+{q:"A medical student compares the positions of the left and right kidneys. Which statement accurately describes their relative positioning?",o:["The kidneys change position with body movement","The right kidney is higher than the left due to liver displacement","The left kidney is higher than the right","Both kidneys are at the same vertebral level"],a:2,e:"The left kidney is higher than the right kidney due to the space occupied by the liver on the right side. This difference in height is a consistent anatomic finding."},
+{q:"A surgeon performing a renal artery repair must identify the structures at the renal hilum. Which of the following is NOT normally found at the renal hilum?",o:["Renal vein","Ureter","Renal artery","Renal capsule"],a:3,e:"The renal hilum contains the renal artery (entering), renal vein (exiting), and ureter (exiting). The renal capsule is the fibrous outer layer of the kidney itself, not part of the hilum."},
+{q:"A vascular surgeon notes that the left renal vein is significantly longer than the right renal vein. What anatomic explanation accounts for this asymmetry?",o:["The right kidney has two renal veins instead of one","The left kidney is larger and requires longer venous drainage","The left renal vein drains into the portal vein instead of the IVC","The left renal vein has to cross the abdominal aorta to reach the IVC"],a:3,e:"The left renal vein must cross the abdominal aorta to reach the inferior vena cava, making it significantly longer than the right renal vein which drains directly into the IVC."},
+{q:"A 48-year-old patient has a ureteral obstruction. The physician explains that urine cannot be transported properly from the kidney to the bladder. Which structure is obstructed?",o:["Minor calyx","Renal pelvis","Ureter","Major calyx"],a:2,e:"The ureter carries urine from the kidneys to the bladder. Obstruction of the ureter prevents normal urine flow and can lead to kidney damage from backed-up urine."},
+{q:"A radiologist reviewing renal imaging notes that the renal pelvis is distended with urine but contains no blood. The physician explains that blood should NOT normally be present in the renal pelvis. Which pathologic condition could cause blood to appear in the renal pelvis?",o:["Acute kidney injury","Chronic dehydration","Nutcracker syndrome","Diabetic nephropathy"],a:2,e:"Nutcracker syndrome causes compression of the renal vein, leading to back-pressure in the glomerulus that can force red blood cells through the filtration barrier into the urine."},
+{q:"An endocrinologist discusses the endocrine functions of the kidneys. Which hormone is produced by the kidney in response to low blood oxygen?",o:["Cortisol","Erythropoietin (EPO)","Aldosterone","Vasopressin (ADH)"],a:1,e:"The kidney produces EPO in response to sensing low blood oxygen levels. EPO stimulates the bone marrow to produce red blood cells, helping restore oxygen-carrying capacity of blood."},
+{q:"A nephropathologist explains the multifunctional role of the kidneys. Besides urine formation, which of the following is a major regulatory function of the kidneys?",o:["Blood pressure regulation through hormone production and fluid management","Hemoglobin synthesis","Glucose synthesis","Immune cell production"],a:0,e:"The kidneys regulate blood pressure through hormone production (renin-angiotensin system, aldosterone, ADH) and fluid management. They are extraordinarily well-vascularized to support these functions."},
+{q:"An endocrinologist discusses adrenal gland function. Which hormone produced by the adrenal gland increases sodium reabsorption in the collecting tubule of the nephron?",o:["Vasopressin (ADH)","Aldosterone","Cortisol","Epinephrine"],a:1,e:"Aldosterone increases sodium reabsorption by adding sodium channels in the collecting tubule. When sodium is reabsorbed, water follows osmotically, increasing blood volume and pressure."},
+{q:"A renal physiologist explains the mechanism of aldosterone action. Which statement best describes how aldosterone increases blood volume and pressure?",o:["It directly increases blood vessel diameter","It decreases water reabsorption to concentrate the blood","It increases sodium reabsorption by adding channels in the collecting tubule; increased salt causes water to follow osmotically, increasing blood volume and pressure","It decreases sodium reabsorption, causing water to follow and reducing blood volume"],a:2,e:"Aldosterone works by increasing sodium channels in the collecting tubule, causing sodium reabsorption. Water follows the sodium osmotically, increasing blood volume and therefore blood pressure."},
+{q:"A patient with diabetes insipidus has deficient vasopressin (ADH) production. Which renal structures are affected by the lack of ADH, leading to excessive water loss?",o:["Loop of Henle only","Distal convoluted tubule and collecting tubule","Glomerulus only","Proximal convoluted tubule only"],a:1,e:"ADH (vasopressin) adds aquaporins to the DCT and collecting tubule, allowing water reabsorption. Without ADH, these segments cannot reabsorb water, leading to polyuria (excessive urination) and polydipsia."},
+{q:"A renal pathologist examines kidney tissue under the microscope. The pyramids are noted to have a distinctive shape that matches the functional unit of the kidney. Which structure of the nephron accounts for the shape of the renal pyramid?",o:["The distal convoluted tubule","The proximal convoluted tubule","The glomerulus","The loop of Henle, which extends to the tip of the pyramid"],a:3,e:"The loop of Henle extends from the cortex down into the medulla, reaching the tip of the renal pyramid (papilla). The shape of the pyramid reflects the organization of these loops."},
+{q:"A radiologist reviewing renal imaging identifies the renal papilla. Which statement accurately describes the location and function of the renal papilla?",o:["It is the fibrous covering of the kidney","It is the junction between the kidney and ureter","It is the tip of the renal pyramid where filtrate drains into minor calices","It is the outer surface of the kidney"],a:2,e:"The renal papilla is the tip of the renal pyramid. It has small openings (minor calyces) through which urine drains from the collecting ducts into the minor calices."},
+{q:"A student learning renal anatomy traces the path of urine flow through the collecting system. Which sequence correctly orders the structures from the site of filtrate exit to the bladder?",o:["Major calices → renal pelvis → minor calices → ureter → bladder","Renal papilla → ureter → renal pelvis → bladder","Minor calices → major calices → renal pelvis → ureter → bladder","Renal pelvis → major calices → minor calices → ureter → bladder"],a:2,e:"Urine collects in minor calices from the renal papillae, then flows into major calices, then into the renal pelvis, then down the ureter to the bladder."},
+{q:"A nephropathologist explains the glomerular filtration barrier. During nephron filtration, the filtrate must pass through how many cell membranes before entering Bowman's capsule?",o:["Four membranes (multiple layers)","One membrane (capillary wall only)","Two membranes (capillary cell wall and nephron cell wall)","Three membranes (capillary, podocyte, and tubule cells)"],a:2,e:"The filtration barrier consists of two membranes: the capillary endothelium and the podocyte/Bowman's capsule wall. Filtrate passes through both to enter Bowman's space."},
+{q:"A transplant surgeon prepares for kidney transplant from a living donor. The surgeon explains that the right kidney from the donor will be placed in the left side of the recipient's abdomen. Which is the primary surgical advantage of this approach?",o:["It reduces the risk of rejection","Placing the donor right kidney on the left side allows easier access to connect the ureter to the recipient's bladder","The left side of the recipient has better blood supply","The left kidney is easier to transplant than the right"],a:1,e:"The donor right kidney is placed on the left side of the recipient because this anatomic positioning allows the surgeon easier access to the ureter to connect it to the recipient's bladder."},
+{q:"A transplant surgeon explains the anatomic placement of transplanted kidneys. Which statement accurately describes the location of a kidney transplant?",o:["The transplanted kidney replaces the native kidney in its original location","The transplanted kidney is placed in the retroperitoneal space to match native kidney anatomy","The transplanted kidney is placed in the abdomen but NOT in the retroperitoneal space","The transplanted kidney is placed in the pelvis below the native kidneys"],a:2,e:"Transplanted kidneys are placed in the abdomen but not in the retroperitoneal space. They are usually placed in the iliac fossa, anterior to the iliac vessels."},
+{q:"A patient receives a kidney transplant and asks whether his native kidneys will be removed. The physician explains that the decision depends on specific circumstances. Under which condition would the native kidneys typically be removed during transplant?",o:["If the native kidneys are cancerous","If the patient is on dialysis","If the patient has chronic kidney disease","If the patient is older than 65 years"],a:0,e:"Native kidneys are typically left in place unless they are cancerous, infected, or causing complications. Leaving the native kidneys avoids additional surgery and maintains their residual function."},
+{q:"A transplant team discusses the unique considerations required for kidney transplant surgery. Which statement best captures why kidney transplant requires substantial surgical planning and consideration?",o:["Kidney transplant has a very low success rate","The kidneys are difficult to access surgically","The kidneys' huge role in blood pressure regulation and other critical functions requires careful consideration to prevent transplant-related complications","The kidney has no blood supply"],a:2,e:"The kidneys' critical role in blood pressure regulation, fluid balance, electrolyte management, and hormone production means that transplant surgery must be carefully planned to avoid complications."},
+{q:"A transplant surgeon describes an unusual case where the donor had one kidney with two renal arteries and the other kidney with two renal veins. Which kidney was selected for transplant and why?",o:["Neither, because anatomic variations make transplant impossible","The kidney with two renal veins, because multiple venous drainage options provide better outcomes","The choice between them doesn't matter","The kidney with two renal arteries, because blood supply is more critical"],a:1,e:"The kidney with two renal veins was selected because multiple venous drainage options provide more flexibility and potentially better outcomes. Venous drainage is critical for transplant success."},
+{q:"A 28-year-old patient presents with hematuria (blood in urine) and hypertension. Imaging reveals that the left renal vein is compressed between the descending aorta and superior mesenteric artery. This diagnosis is consistent with:",o:["Pyelonephritis","Renal vein thrombosis","Nutcracker syndrome","Renal artery stenosis"],a:2,e:"Nutcracker syndrome occurs when the left renal vein is compressed between the descending aorta and superior mesenteric artery, leading to renal hypertension and hematuria."},
+{q:"A nephrologist explains the pathophysiology of nutcracker syndrome to a patient. Which sequence of events occurs in this condition?",o:["Glomerular disease → proteinuria → hypertension","Renal artery stenosis → decreased renal perfusion → hypertension","Renal vein compression → impaired blood drainage → renal hypertension and hematuria","Ureteral obstruction → urinary retention → hypertension"],a:2,e:"The compression of the renal vein prevents normal venous drainage, causing back-pressure in the glomerulus. This leads to glomerular hypertension that causes hematuria and triggers the renin-angiotensin system to cause systemic hypertension."},
+{q:"A patient with nutcracker syndrome is found to have hematuria. The physician explains that blood in the urine occurs because the compressed renal vein causes back-pressure. Which mechanism explains this finding?",o:["Increased venous pressure is transmitted back to the glomerulus, pushing red blood cells through the filtration barrier into the nephron filtrate","The renal artery ruptures from increased pressure","The kidney tissue becomes necrotic and sloughs into the urine","The compressed vein leaks blood into the ureter"],a:0,e:"The glomerular filtration barrier is normally impermeable to blood cells. However, the increased venous (and therefore glomerular) pressure in nutcracker syndrome pushes red blood cells through the barrier, resulting in hematuria."},
+{q:"A vascular surgeon evaluates a patient with nutcracker syndrome and renal hypertension. Which anatomic vessels are involved in the compression that occurs in this condition?",o:["Renal pelvis and ureter","Renal vein, descending aorta, and superior mesenteric artery","Renal artery and celiac trunk","Renal artery and aorta"],a:1,e:"Nutcracker syndrome involves compression of the left renal vein between two major vessels: the descending aorta posteriorly and the superior mesenteric artery anteriorly."},
+{q:"A 35-year-old patient with nutcracker syndrome develops secondary renal hypertension. The physician explains that compression of the renal vein triggers a cascade of events leading to hypertension. Which mechanism is primarily responsible?",o:["Glomerular filtration rate increases due to venous back-pressure","Impaired venous drainage activates the renin-angiotensin system, increasing blood pressure","The superior mesenteric artery directly supplies excessive blood to the kidney","Direct compression of the kidney tissue causes ischemia"],a:1,e:"The renal ischemia from impaired drainage triggers the release of renin, activating the renin-angiotensin-aldosterone system, which increases blood pressure systemically."}
+];
+
+let currentQuestion = 0;
+let correct = 0;
+let answered = [];
+let missed = [];
+let screen = 'home';
+
+function startQuiz() {
+    currentQuestion = 0;
+    correct = 0;
+    answered = [];
+    missed = [];
+    screen = 'quiz';
+    document.getElementById('homeScreen').style.display = 'none';
+    document.getElementById('quizScreen').style.display = 'block';
+    document.getElementById('completionScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'none';
+    loadQuestion();
+}
+
+function loadQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById('questionText').textContent = q.q;
+
+    const optionsHTML = q.o.map((option, idx) => {
+        const letter = String.fromCharCode(65 + idx);
+        return `<div class="option" onclick="selectAnswer(${idx})" onkeydown="if(event.key === ' ') selectAnswer(${idx})">
+                    <span class="option-label">${letter}</span>
+                    ${option}
+                </div>`;
+    }).join('');
+
+    document.getElementById('optionsContainer').innerHTML = optionsHTML;
+    document.getElementById('feedback').classList.remove('show', 'feedback-correct', 'feedback-incorrect');
+    updateStats();
+}
+
+function selectAnswer(idx) {
+    if(answered[currentQuestion] !== undefined) return;
+
+    const q = questions[currentQuestion];
+    const isCorrect = idx === q.a;
+    answered[currentQuestion] = { idx: idx, correct: isCorrect };
+
+    if(isCorrect) correct++;
+    else missed.push(currentQuestion);
+
+    const options = document.querySelectorAll('.option');
+    options.forEach((opt, i) => {
+        if(i === idx) {
+            opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+            opt.style.pointerEvents = 'none';
+        }
+    });
+
+    showFeedback(isCorrect, q.e);
+}
+
+function showFeedback(isCorrect, explanation) {
+    const fb = document.getElementById('feedback');
+    fb.classList.add('show', isCorrect ? 'feedback-correct' : 'feedback-incorrect');
+    document.getElementById('feedbackTitle').textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+    document.getElementById('feedbackText').textContent = explanation;
+}
+
+function nextQuestion() {
+    if(answered[currentQuestion] === undefined) return;
+    currentQuestion++;
+    if(currentQuestion >= questions.length) {
+        showCompletion();
+    } else {
+        loadQuestion();
+    }
+}
+
+function updateStats() {
+    document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} / ${questions.length}`;
+    const acc = currentQuestion > 0 ? Math.round((correct / currentQuestion) * 100) : 0;
+    document.getElementById('accuracyDisplay').textContent = `Accuracy: ${acc}%`;
+    const prog = ((currentQuestion + 1) / questions.length) * 100;
+    document.getElementById('progressFill').style.width = prog + '%';
+}
+
+function showCompletion() {
+    screen = 'completion';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('completionScreen').style.display = 'block';
+    document.getElementById('finalCorrect').textContent = correct;
+    const finalAcc = Math.round((correct / questions.length) * 100);
+    document.getElementById('finalAccuracy').textContent = finalAcc + '%';
+}
+
+function showReview() {
+    if(missed.length === 0) {
+        alert('Perfect score! No missed questions.');
+        return;
+    }
+    screen = 'review';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'block';
+    renderReview();
+}
+
+function showReviewFromCompletion() {
+    if(missed.length === 0) {
+        alert('Perfect score! No missed questions.');
+        return;
+    }
+    screen = 'review';
+    document.getElementById('completionScreen').style.display = 'none';
+    document.getElementById('reviewScreen').style.display = 'block';
+    renderReview();
+}
+
+function renderReview() {
+    document.getElementById('reviewTitle').textContent = `Missed Questions (${missed.length})`;
+    const html = missed.map(idx => {
+        const q = questions[idx];
+        const userAns = answered[idx];
+        const correctOpt = q.o[q.a];
+        return `
+            <div class="review-item">
+                <div class="review-q">${q.q}</div>
+                <div class="review-answer">Your answer: <span>${q.o[userAns.idx]}</span></div>
+                <div class="review-answer">Correct: <span>${correctOpt}</span></div>
+                <div class="review-answer" style="margin-top: 10px; color: #555;">${q.e}</div>
+            </div>
+        `;
+    }).join('');
+    document.getElementById('reviewContainer').innerHTML = html;
+}
+
+function backToQuiz() {
+    screen = 'quiz';
+    document.getElementById('reviewScreen').style.display = 'none';
+    document.getElementById('quizScreen').style.display = 'block';
+}
+
+function goHome() {
+    screen = 'home';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('homeScreen').style.display = 'block';
+}
+
+function restartQuiz() {
+    startQuiz();
+}
+
+document.addEventListener('keydown', (e) => {
+    if(screen === 'quiz') {
+        if(e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4') {
+            const idx = parseInt(e.key) - 1;
+            if(idx < 4 && answered[currentQuestion] === undefined) {
+                selectAnswer(idx);
+            }
+        } else if(e.key === 'ArrowDown') {
+            nextQuestion();
+        } else if(e.key === 'h' || e.key === 'H') {
+            goHome();
+        }
+    }
+});
+    </script>
+</body>
+</html>
