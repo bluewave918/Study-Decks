@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7101F 1.2 Intro to Cell</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .score-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .score-item label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .score-item .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .score-item.correct .value {
+            color: #28a745;
+        }
+
+        .score-item.incorrect .value {
+            color: #dc3545;
+        }
+
+        .score-item.percentage .value {
+            color: #667eea;
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .quiz-section {
+            display: none;
+        }
+
+        .quiz-section.active {
+            display: block;
+        }
+
+        .question-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: #333;
+            border-radius: 6px;
+            text-align: left;
+            cursor: default;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .answer-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(5px);
+        }
+
+        .answer-btn.selected {
+            border-color: #667eea;
+            background: #f0f2ff;
+            border-width: 3px;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            font-weight: 700;
+        }
+
+        .answer-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+            font-size: 18px;
+        }
+
+        .feedback-message.show {
+            display: block;
+        }
+
+        .feedback-message.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback-message.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .explanation-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .explanation-text {
+            color: #555;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .advance-prompt {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .results-screen {
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .final-score {
+            font-size: 64px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+        }
+
+        .results-message {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .results-stats {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .emoji-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-btn {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+
+            .score-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .mode-toggle {
+                flex-direction: column;
+            }
+
+            .mode-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 7101F 1.2</h1>
+            <p>Intro to Cell</p>
+        </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" onclick="setMode('ordered')">📖 LEARNING MODE: Questions in order</button>
+            <button class="mode-btn" onclick="setMode('shuffled')">🔀 TESTING MODE: Questions randomized</button>
+        </div>
+
+        <div class="quiz-section active" id="quizSection">
+            <div class="score-display">
+                <div class="score-item correct">
+                    <label>✓ Correct</label>
+                    <div class="value" id="correctCount">0</div>
+                </div>
+                <div class="score-item incorrect">
+                    <label>✗ Incorrect</label>
+                    <div class="value" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item percentage">
+                    <label>Score</label>
+                    <div class="value" id="percentageScore">0%</div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Question <span id="currentQuestion">1</span> of <span id="totalQuestions">132</span></span>
+                    <span id="retryLabel" style="color: #ff9800;"></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="answer-options" id="answerOptions"></div>
+                <div class="feedback-message" id="feedbackMessage"></div>
+                <div class="explanation-section" id="explanationSection">
+                    <div class="explanation-label">💡 Explanation:</div>
+                    <div class="explanation-text" id="explanationText"></div>
+                </div>
+                <div class="advance-prompt" id="advancePrompt"></div>
+            </div>
+        </div>
+
+        <div class="results-screen" id="resultsScreen">
+            <div class="emoji-icon" id="resultEmoji"></div>
+            <div class="results-message" id="resultsMessage"></div>
+            <div class="final-score" id="finalScore"></div>
+            <div class="results-stats" id="resultsStats"></div>
+            <button class="restart-btn" onclick="resetQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================================
+        // QUESTION DATABASE - 1.2 INTRO TO CELL (132 QUESTIONS - REBALANCED)
+        // =====================================================================
+
+        const questionsBase = [
+            {question:"The three primary components that define cell structure are:",options:["Organelles, cytoskeleton connected to ECM via filamentous structures, and cell membrane","DNA, RNA, and proteins only","Nucleus, ribosomes, and mitochondria exclusively","Chloroplasts, cell wall, and vacuoles"],correct:0,explanation:"Cells are defined by this integrated system: organelles perform functions, cytoskeleton provides structure and connects to ECM, and plasma membrane provides the boundary."},
+            {question:"Which of the following best describes the role of the cytoskeleton?",options:["Provides structural framework and enables material transport throughout the cell","It synthesizes all cellular proteins","Only functions during cell division","Stores energy as ATP"],correct:0,explanation:"The cytoskeleton is the cell's 'infrastructure'—it maintains shape and provides transport tracks for organelles and vesicles."},
+            {question:"Tissues are held together and supported primarily by:",options:["Direct covalent bonds between all adjacent cells","An extracellular matrix (ECM) comprised of collagens, glycoproteins, and proteoglycans","The cell membrane alone","Water molecules exclusively"],correct:1,explanation:"The ECM is the gel-like substance surrounding cells that provides structural support, enables cell communication, and stores growth factors."},
+            {question:"The typical water content of a living cell is approximately:",options:["70-85%","60-70%","40-50%","90-95%"],correct:0,explanation:"Cells are predominantly water (70-85% by weight). This high water content is essential for biochemical reactions, diffusion, transport, and protein folding."},
+            {question:"Organelles are best defined as:",options:["Membrane-bound compartments with specific functions","Regions that only store DNA","Structures found exclusively in plant cells","Non-functional cellular remnants"],correct:0,explanation:"Organelles are membrane-bound compartments performing specialized functions: mitochondria (energy), ER (protein synthesis), Golgi (modification), etc."},
+            {question:"The cytoplasm refers to:",options:["Only the liquid surrounding the nucleus","Everything inside the cell outside the nuclear envelope","Just the contents of mitochondria","The cell membrane and its proteins"],correct:1,explanation:"Cytoplasm is everything between plasma membrane and nuclear envelope, including cytosol AND all organelles."},
+            {question:"What is the primary distinction between cytoplasm and cytosol?",options:["Cytoplasm includes organelles; cytosol is the aqueous phase between them","They are identical terms","Cytosol is only found in plant cells","Cytoplasm exists only in the nucleus"],correct:0,explanation:"Cytoplasm = everything in cell minus nucleus; Cytosol = just the liquid/aqueous portion of cytoplasm."},
+            {question:"Which of the following occurs in the cytosol? (SELECT ALL THAT APPLY)",options:["Glycolysis and metabolic pathways","Signal transduction cascades","Protein synthesis (free ribosomes)"],correct:[0,1,2],explanation:"The cytosol is metabolically busy—it hosts glycolysis, fatty acid synthesis, amino acid metabolism, and signal transduction cascades."},
+            {question:"Compartmentalization in eukaryotic cells is primarily achieved by:",options:["Membranes that create separate functional regions","The cytoskeleton alone","Extracellular matrix components","Protein channels only"],correct:0,explanation:"Membranes create separate compartments, allowing specialized biochemistry and sequential reactions in metabolic pathways."},
+            {question:"Which statement about the plasma membrane is INCORRECT?",options:["It provides structural integrity to the cell","It acts as a barrier controlling substance movement","It contains receptors for cell signaling","It is composed of a single lipid layer"],correct:3,explanation:"The plasma membrane is a double lipid bilayer with proteins, not a single lipid layer."},
+            {question:"The plasma membrane serves multiple functions. Which of these is NOT a primary function?",options:["Structural support","Selective permeability","Cell-cell communication","DNA replication"],correct:3,explanation:"DNA replication occurs in the nucleus, not at the plasma membrane. The other three are all core membrane functions."},
+            {question:"Cell-cell interactions and signal transduction involve:",options:["Receptors and adhesion molecules on the membrane","Only the nucleus","Cytoskeletal anchoring exclusively","The inner membrane solely"],correct:0,explanation:"Membrane receptors detect signals; adhesion molecules connect to neighbors. The membrane is the interface for all cell communication."},
+            {question:"The plasma membrane structure includes all of the following EXCEPT:",options:["Integral membrane proteins spanning the bilayer","Peripheral membrane proteins attached to surfaces","Phospholipid bilayer foundation","A cellulose wall as part of the membrane"],correct:3,explanation:"Plasma membranes consist of bilayer, integral/peripheral proteins, glycoproteins/glycolipids, and lipid rafts. Cellulose walls are in plants, not part of the membrane."},
+            {question:"Are there covalent bonds holding the plasma membrane together?",options:["Yes, extensively throughout the membrane structure","No; the membrane is held by non-covalent interactions (hydrophobic effect, hydrogen bonds, Van der Waals forces)","Only at the membrane edges","Only between lipids and proteins"],correct:1,explanation:"The membrane is held by non-covalent interactions, making it flexible and dynamic. Lipids and proteins can diffuse laterally."},
+            {question:"The flexibility and dynamic nature of the plasma membrane is enabled by:",options:["Covalent cross-linking of all components","Rigid protein scaffolding","Non-covalent interactions allowing lateral diffusion","Permanent fusion of lipids"],correct:2,explanation:"Non-covalent interactions allow the membrane to be flexible—lipids and proteins aren't locked in place but can move."},
+            {question:"What is Transmission Electron Microscopy (TEM) primarily used for?",options:["Measuring cell size without magnification","Observing fine details of cell ultrastructure at very high resolution","Observing living cells in real-time with minimal preparation","Separating cell components by density during centrifugation"],correct:1,explanation:"TEM uses electrons instead of light, achieving ~1000x better resolution than light microscopy, revealing organelles and membrane details."},
+            {question:"When observed under TEM, the plasma membrane characteristically appears as:",options:["A trilaminar (three-layered) structure: two dense lines with a light intervening area, ~7.5 nm thick","A single uniform dark line","Multiple randomly scattered dark dots","A completely transparent zone"],correct:0,explanation:"The classic 'railroad track' appearance comes from: outer dense (stained proteins/polar heads), light middle (hydrophobic tails), inner dense (stained proteins/polar heads)."},
+            {question:"The trilaminar appearance of the membrane under TEM represents:",options:["Three separate membranes stacked together","Outer dense line (proteins/polar heads), light middle (hydrophobic tails), inner dense line (proteins/polar heads)","Only the phospholipid bilayer structure","Artifacts from the staining process"],correct:1,explanation:"This trilaminar structure is the double bilayer with proteins, confirming the fluid mosaic model's predictions."},
+            {question:"Which phospholipids are predominantly found in the inner leaflet (P-face) of the plasma membrane?",options:["Phosphatidylserine (PS) and phosphatidylethanolamine (PE)","Phosphatidylcholine (PC) and phosphatidylglycerol (PG)","Only phosphatidylcholine exclusively","Cardiolipin and bis(monoacylglycero)phosphate"],correct:0,explanation:"Inner leaflet is rich in PS and PE—both have smaller head groups. This asymmetry is functionally important and energy-maintained."},
+            {question:"Which phospholipids characterize the outer leaflet (E-face) of the plasma membrane?",options:["Phosphatidylserine (PS) exclusively","Phosphatidylethanolamine (PE) exclusively","Phosphatidylcholine (PC) and phosphatidylglycerol (PG)","Cardiolipin primarily"],correct:2,explanation:"Outer leaflet is rich in PC and PG—both have bulky, charged head groups suitable for aqueous environment interaction."},
+            {question:"Why is membrane phospholipid asymmetry functionally important? (SELECT ALL THAT APPLY)",options:["PS exposure on outer leaflet signals apoptosis to immune cells","PE's conical shape contributes to membrane curvature and flexibility","Inner leaflet PS can bind signaling proteins"],correct:[0,1,2],explanation:"Asymmetry is not random—it's actively maintained and functionally critical for cell signaling and membrane properties."},
+            {question:"Flippase is an ATP-dependent enzyme that:",options:["Synthesizes new phospholipids for membrane growth","Maintains membrane asymmetry by actively transporting PS from outer to inner leaflet","Degrades old phospholipids","Facilitates random phospholipid movement"],correct:1,explanation:"Flippase actively transports PS from outer to inner leaflet using ATP. This maintains asymmetry—healthy cells hide PS on the inside."},
+            {question:"In a healthy cell, where is phosphatidylserine (PS) predominantly located?",options:["Exclusively on the outer leaflet as a marker","Only in the nucleus","Mostly in the inner leaflet, kept there by flippase","Equally distributed on both leaflets"],correct:2,explanation:"Healthy cells use flippase to maintain PS on the inner leaflet. PS on outer leaflet is a 'eat me' signal recognized only on dying cells."},
+            {question:"During apoptosis (programmed cell death), which change in PS localization occurs?",options:["Flippase is damaged, allowing PS to accumulate on the outer leaflet as an 'eat me' signal","PS becomes more concentrated in the inner leaflet","PS is completely degraded","PS location is unaffected by apoptosis"],correct:0,explanation:"Apoptosis damages flippase function, allowing PS to 'flip' to outer leaflet. This signals macrophages to phagocytose the dying cell quietly."},
+            {question:"The 'eat me' signal during apoptosis is important because it:",options:["Prevents immune inflammation by enabling quiet clearance of apoptotic cells","Activates neighboring cells to divide","Stimulates protein synthesis in the dying cell","Triggers cytoskeleton polymerization"],correct:0,explanation:"PS exposure is elegant—dying cells are cleared before they burst and spill inflammatory contents. This prevents immune inflammation."},
+            {question:"Membrane lipid rafts are best characterized as: (SELECT ALL THAT APPLY)",options:["Cholesterol-rich microdomains in the membrane","Sites of concentrated signaling molecules","Important for vesicle trafficking and protein organization"],correct:[0,1,2],explanation:"Lipid rafts are specialized membrane microdomains where signaling proteins concentrate and interact efficiently."},
+            {question:"The glycocalyx on the plasma membrane primarily functions to:",options:["Synthesize proteins","Provide a carbohydrate-rich surface layer for recognition, protection, and cell-cell interactions","Store energy","Anchor the cytoskeleton"],correct:1,explanation:"The glycocalyx is the cell's 'sugar coat'—it mediates cell recognition, provides physical protection, and enables cell-cell communication."},
+            {question:"Integral membrane proteins are characterized by:",options:["Being located only on the membrane surface","Spanning the entire thickness of the lipid bilayer","Never interacting with the hydrophobic core","Being found only in plant cells"],correct:1,explanation:"Integral proteins cross the entire bilayer, with hydrophobic regions interacting with lipid tails and hydrophilic regions exposed to aqueous environments."},
+            {question:"Peripheral membrane proteins differ from integral proteins in that they:",options:["Always span the entire membrane","Are attached to membrane surfaces or to other proteins, not spanning the bilayer","Cannot interact with the hydrophobic environment","Are found only in bacteria"],correct:1,explanation:"Peripheral proteins are loosely associated with the membrane—they attach to integral proteins or membrane surfaces via non-covalent interactions."},
+            {question:"Which of the following represents the fluid mosaic model accurately?",options:["The membrane is a rigid, fixed structure with no movement","Lipids and proteins are randomly arranged without organization","The membrane is a flexible structure where components can move laterally","Only proteins move; lipids are permanently fixed"],correct:2,explanation:"The fluid mosaic model describes the membrane as a flexible structure with both lipids and proteins capable of lateral movement."},
+            {question:"The selectivity of the plasma membrane for which substances enter or exit the cell is primarily controlled by:",options:["Gravity and pressure differences","The lipid bilayer's permeability and transport proteins","Random molecular collisions only","The nucleus remotely controlling all transport"],correct:1,explanation:"Membrane selectivity depends on: lipid bilayer (small nonpolar molecules pass; large polar molecules blocked) and transport proteins (specific substrate recognition)."},
+            {question:"Why is cholesterol important in animal cell membranes?",options:["It synthesizes phospholipids","It regulates membrane fluidity and forms lipid rafts","It is the primary energy source","It degrades waste products"],correct:1,explanation:"Cholesterol inserts between phospholipids, regulating fluidity (less fluid at high temp, more fluid at low temp) and forming lipid rafts for signaling."},
+            {question:"Endocytosis is best defined as:",options:["The intake of material into the cell via membrane invagination","The synthesis of new membrane components","The movement of substances only across the nuclear envelope","The degradation of cellular waste"],correct:0,explanation:"Endocytosis brings things INTO the cell—the plasma membrane folds inward, forming a vesicle. Types: phagocytosis, pinocytosis, receptor-mediated."},
+            {question:"Exocytosis is the opposite process of endocytosis. It refers to:",options:["The intake of fluids by the cell","The breakdown of materials inside lysosomes","The export/secretion of material out of the cell via vesicle fusion","The synthesis of ATP"],correct:2,explanation:"Exocytosis moves things OUT—vesicles inside the cell fuse with plasma membrane, releasing contents. How cells secrete hormones, antibodies, neurotransmitters."},
+            {question:"Phagocytosis is best characterized as:",options:["'Particulate eating'—the intake of large particles or even whole cells","'Cell drinking'—the intake of small dissolved molecules","The breakdown of cellular structures","A mechanism found only in plant cells"],correct:0,explanation:"Phagocytosis is how neutrophils and macrophages engulf bacteria, dead cells, and debris. The cell extends pseudopodia around the particle."},
+            {question:"Professional phagocytes include: (SELECT ALL THAT APPLY)",options:["Neutrophils","Macrophages","Endothelial cells"],correct:[0,1],explanation:"Neutrophils and macrophages are specialized immune cells. Endothelial cells can perform phagocytosis but aren't considered 'professional' phagocytes."},
+            {question:"Pinocytosis differs from phagocytosis in that pinocytosis:",options:["Engulfs large visible particles","Is non-specific uptake of surrounding fluid and small dissolved molecules","Only occurs in muscle cells","Requires specialized receptor proteins"],correct:1,explanation:"Pinocytosis is 'cell drinking'—non-specific fluid uptake. The cell takes in whatever's nearby. Unlike receptor-mediated endocytosis, there's no selectivity."},
+            {question:"Which statement about receptor-mediated endocytosis is CORRECT?",options:["It accounts for a small fraction of cellular endocytic activity","It is non-selective and takes up all surrounding molecules equally","It accounts for the majority of endocytic activity due to its specificity and efficiency","It does not require any cellular energy"],correct:2,explanation:"Receptor-mediated endocytosis IS the most common form—it's selective, efficient, and the preferred mechanism for regulated nutrient uptake."},
+            {question:"Receptor-mediated endocytosis is 'ligand-specific,' meaning:",options:["All molecules are equally likely to be taken up","Only specific molecules binding to cell surface receptors are taken up efficiently","The process bypasses all receptor proteins","Ligands are repelled by receptors"],correct:1,explanation:"Ligand-specificity is the key advantage—cells can control what enters by recognizing specific ligands with specific receptors."},
+            {question:"The clathrin-dependent pathway in receptor-mediated endocytosis involves:",options:["Direct fusion of the plasma membrane with the nucleus","Formation of clathrin-coated pits that pinch off into vesicles","Passive diffusion of ligands across the membrane","Use of cellulose scaffolding"],correct:1,explanation:"Clathrin forms a cage around endocytic vesicles. When receptor-ligand complexes cluster in coated pits, the pit deepens and pinches off."},
+            {question:"Simple passive membrane transport allows movement of:",options:["Large polar molecules and proteins","Non-polar molecules like O₂ and uncharged polar molecules like H₂O","Ions against their concentration gradient","All molecules regardless of size or charge"],correct:1,explanation:"Simple diffusion moves only small, uncharged molecules DOWN their gradient without help. O₂, CO₂, H₂O pass freely through the lipid bilayer."},
+            {question:"Facilitated diffusion is characterized by: (SELECT ALL THAT APPLY)",options:["Movement with the concentration gradient (passive)","Involvement of transport proteins","No energy requirement"],correct:[0,1,2],explanation:"Facilitated diffusion uses channel or carrier proteins but molecules still move DOWN their gradient—no ATP required."},
+            {question:"Active transport differs from passive transport in that active transport:",options:["Always moves molecules with their concentration gradient","Requires ATP energy to move molecules against their gradient","Never requires transport proteins","Is the same process as diffusion"],correct:1,explanation:"Active transport moves molecules UPHILL against their gradient using ATP. How cells create ionic gradients essential for signaling and muscle contraction."},
+            {question:"Na⁺/K⁺-ATPase is an example of:",options:["Facilitated diffusion","Simple passive transport","Active transport that uses ATP to maintain ionic gradients","A structural protein of the cytoskeleton"],correct:2,explanation:"Na⁺/K⁺-ATPase uses ATP to pump 3 Na⁺ OUT and 2 K⁺ IN, maintaining electrochemical gradients critical for nerve and muscle function."},
+            {question:"Constitutive secretion is characterized by: (SELECT ALL THAT APPLY)",options:["Continuous, unregulated pathway","No extracellular signal requirement","Clathrin-independent mechanism"],correct:[0,1,2],explanation:"Constitutive secretion is the 'default' mode—continuous, unregulated, clathrin-independent protein export."},
+            {question:"Regulated secretion differs from constitutive secretion because it:",options:["Is always active with no control","Does not require the Golgi apparatus","Requires an extracellular signal and uses clathrin-dependent pathways for storage","Occurs only in plant cells"],correct:2,explanation:"Regulated secretion waits for a signal—proteins are stored in secretory vesicles until hormones or signals trigger release."},
+            {question:"The nucleus functions primarily as:",options:["A temporary storage compartment for lipids","The control center of the cell and primary site of RNA synthesis","Only involved in cell division, not daily function","Where all proteins are synthesized"],correct:1,explanation:"The nucleus is the command center—it contains DNA, is where transcription occurs, controls gene expression, and regulates cell division."},
+            {question:"The nuclear envelope separates the nucleus from the cytoplasm by means of:",options:["A single lipid bilayer","A mesh of intermediate filaments only","A double membrane (two separate bilayers) with nuclear pores","A protein barrier impermeable to all molecules"],correct:2,explanation:"The nuclear envelope is a double membrane with perinuclear space between. This separation enables independent control of nuclear and cytoplasmic processes."},
+            {question:"The outer membrane of the nuclear envelope is notable because:",options:["It forms an impermeable barrier","It is continuous with the ER, and the perinuclear space is continuous with the ER lumen","It is the only site where ribosomes attach","It surrounds the nucleolus exclusively"],correct:1,explanation:"The outer nuclear membrane is part of the ER system. This continuity allows proteins synthesized on rough ER to access the perinuclear space and nucleus."},
+            {question:"The perinuclear space (space between nuclear membranes):",options:["Is isolated from the rest of the cell","Is continuous with the ER lumen, allowing connection to the secretory pathway","Contains only DNA and histone proteins","Has no functional significance"],correct:1,explanation:"The perinuclear space connects to the ER lumen, creating a continuous system for protein synthesis and transport."},
+            {question:"The nucleolus is best described as:",options:["A membrane-bound organelle that separates during cell division","A non-membrane-bound structure where rRNA is transcribed and ribosomal subunits are assembled","The site where mRNA alone is synthesized","A permanent storage site for amino acids"],correct:1,explanation:"The nucleolus is INSIDE the nucleus but NOT membrane-bound. It's a ribosomal RNA and ribosomal subunit factory."},
+            {question:"During cell division, what happens to the nucleolus?",options:["It remains intact and stationary","It disassembles and re-forms after division completes","It permanently disappears","It divides into two equal parts"],correct:1,explanation:"The nucleolus breaks down during mitosis and reforms in daughter cells, ensuring each new cell has its own ribosome-making factory."},
+            {question:"Ribosomes are characterized by all of the following EXCEPT:",options:["Being small, bipartite, nonmembranous organelles","Being composed of both ribosomal RNA and proteins","Being enclosed within a phospholipid membrane","Being sites of protein synthesis"],correct:2,explanation:"Ribosomes are NOT membrane-bound—this is a key distinction from true organelles. They're ribonucleoproteins floating free in the cytoplasm."},
+            {question:"The eukaryotic ribosome (80S) consists of:",options:["A single unified structure with no subunits","Three subunits of roughly equal size","A large subunit (60S) and small subunit (40S)","Only RNA, no proteins"],correct:2,explanation:"Eukaryotic ribosomes (80S total) are larger and more complex than prokaryotic ribosomes (70S), consisting of 60S + 40S subunits."},
+            {question:"Ribosomes can be found in two configurations: (SELECT ALL THAT APPLY)",options:["Free in the cytosol for synthesizing cytoplasmic proteins","Attached to rough ER for synthesizing secretory/membrane proteins","Embedded in the outer mitochondrial membrane"],correct:[0,1],explanation:"Ribosomes switch between free (cytoplasmic proteins) and ER-bound (secretory proteins). Mitochondria have their own 70S ribosomes."},
+            {question:"Why does rough ER appear 'rough' under the microscope?",options:["Because of the many attached ribosomes on its cytoplasmic surface","Due to its irregular surface texture","It contains rough protein fibers","It is damaged or degraded ER"],correct:0,explanation:"The 'rough' appearance comes from ribosomes studding the ER surface, making it look bumpy under electron microscopy."},
+            {question:"The process by which ribosomes attach to the ER during protein synthesis is initiated by:",options:["The Golgi apparatus signaling","The Signal Recognition Particle (SRP) recognizing signal sequences on nascent proteins","Random collision with the ER membrane","ATP depletion"],correct:1,explanation:"SRP recognizes signal sequences on nascent proteins and directs the ribosome to the ER membrane, enabling proper protein entry and synthesis."},
+            {question:"The Signal Recognition Particle (SRP) functions to:",options:["Synthesize ribosomal proteins","Recognize signal sequences and target ribosomes to the ER membrane for protein translocation","Degrade misfolded proteins","Transport mature proteins to the Golgi"],correct:1,explanation:"SRP is a ribonucleoprotein that acts as a 'landing signal'—it recognizes signal sequences and docks the ribosome at the ER."},
+            {question:"Ribophorins I and II are integral ER membrane proteins that:",options:["Synthesize new phospholipids","Help position ribosomes and facilitate protein entry through translocon pores","Degrade nascent proteins","Store calcium ions"],correct:1,explanation:"Ribophorins position the ribosome and facilitate nascent protein entry through translocon pores during translation."},
+            {question:"Once a ribosome is attached to the rough ER, proteins are synthesized:",options:["In the cytosol and then transported in","Directly into the ER lumen as the polypeptide chain is elongated","On the membrane surface only","Exclusively in the nucleus"],correct:1,explanation:"Co-translational translocation means proteins enter the ER as they're being synthesized, not after synthesis completes."},
+            {question:"The endoplasmic reticulum is best described as:",options:["A network of tubular and flat vesicular structures where proteins and lipids are synthesized","A single continuous membrane folded into a sphere","A storage compartment for glucose exclusively","Only found in plant cells"],correct:0,explanation:"The ER is a massive, interconnected network of membranes occupying 5-10% of cell volume, continuous with the nuclear envelope."},
+            {question:"The ER accounts for approximately what percentage of total cellular membrane?",options:["5%","10-25%","50%","80%"],correct:2,explanation:"The ER is a vast system—about 50% of total cellular membrane is ER, reflecting its importance in protein and lipid synthesis."},
+            {question:"The ER is continuous with: (SELECT ALL THAT APPLY)",options:["The nuclear envelope","The Golgi apparatus directly","Through vesicular transport to other compartments"],correct:[0,2],explanation:"ER connects to nuclear envelope but connects to Golgi via transport vesicles, not directly."},
+            {question:"Rough ER is characterized by: (SELECT ALL THAT APPLY)",options:["Presence of attached ribosomes","Being the site of protein synthesis and initial protein modifications","Involvement in protein folding, trafficking, and quality control"],correct:[0,1,2],explanation:"Rough ER is a protein factory with extensive quality control machinery for folding, modification, and verification."},
+            {question:"Smooth ER differs from rough ER in all of the following ways EXCEPT:",options:["It lacks attached ribosomes","It is the site for lipid synthesis and detoxification","It functions in calcium storage","It is the primary site for protein synthesis"],correct:3,explanation:"Rough ER synthesizes proteins (its main function); smooth ER doesn't—it specializes in lipid synthesis, detoxification, and calcium storage."},
+            {question:"In liver cells, smooth ER is particularly abundant because:",options:["Liver cells contain more lipids than other cell types","The liver specializes in drug detoxification and lipid metabolism","Liver cells have no rough ER","Smooth ER synthesizes digestive enzymes exclusively"],correct:1,explanation:"Liver cells have extensive smooth ER for phase I and II drug detoxification and for synthesizing serum proteins (on rough ER)."},
+            {question:"In muscle cells, smooth ER is specialized for:",options:["Protein synthesis","Storing calcium ions for contraction","Breaking down lactate","Synthesizing creatine phosphate"],correct:1,explanation:"Muscle smooth ER (sarcoplasmic reticulum) stores calcium. During contraction, calcium is released to bind troponin and enable muscle force generation."},
+            {question:"The translocon is:",options:["An enzyme that breaks down proteins","A protein channel in the ER membrane through which nascent polypeptides pass","A type of ribosome found only in the nucleus","A transport protein in the Golgi"],correct:1,explanation:"The translocon is an aqueous channel in the ER membrane allowing hydrophilic nascent polypeptides to cross the hydrophobic lipid bilayer."},
+            {question:"Co-translational translocation refers to:",options:["Proteins being synthesized and entering the ER simultaneously during translation","Proteins being fully synthesized first, then transported later","Only prokaryotic protein synthesis","Transport occurring only at night"],correct:0,explanation:"Co-translational means the protein enters the ER WHILE it's being made by the ribosome."},
+            {question:"Post-translational translocation occurs when:",options:["Proteins that lacked signal sequences are synthesized in the cytosol first, then imported into the ER","Proteins are degraded after synthesis","All eukaryotic proteins undergo this pathway","Translation occurs in the nucleus"],correct:0,explanation:"Post-translational proteins are fully synthesized in the cytosol first (no signal sequence for SRP), then later imported into the ER."},
+            {question:"ER chaperone proteins (like BiP and GRP94) function to: (SELECT ALL THAT APPLY)",options:["Help nascent proteins fold correctly","Prevent aggregation of misfolded proteins","Mark misfolded proteins for degradation"],correct:[0,1,2],explanation:"ER chaperones are quality control machines—they help proper folding, prevent clumping of misfolded proteins, and mark hopeless cases for degradation."},
+            {question:"The ER quality control system ensures that:",options:["All proteins, misfolded or not, are exported","Properly folded proteins are exported while misfolded ones are retained or degraded","No proteins ever leave the ER","Only ribosomes are checked for quality"],correct:1,explanation:"ER quality control is strict—only properly folded proteins are exported. Misfolded ones are retained for more attempts or degraded."},
+            {question:"What happens to a misfolded protein that cannot be rescued by ER chaperones?",options:["It is stored indefinitely in the ER","It is returned to the cytosol and degraded by proteasomes (ER-associated degradation, or ERAD)","It is immediately exported to the Golgi","It becomes permanently part of the ER membrane"],correct:1,explanation:"ERAD is the ER's emergency response—hopeless misfolded proteins are sent back to the cytosol and destroyed by proteasomes."},
+            {question:"The Golgi apparatus functions primarily to:",options:["Synthesize new proteins and lipids","Modify, sort, and package proteins and lipids from the rough ER","Store calcium and detoxify drugs","Synthesize ATP for the cell"],correct:1,explanation:"The Golgi is a processing plant—it modifies proteins (adds sugars, phosphates), sorts them by destination, and packages them into vesicles."},
+            {question:"The cis network (entry face) of the Golgi:",options:["Faces the cell membrane","Faces the rough ER and receives vesicles from it (anterograde transport)","Is where most protein modification occurs","Is where secretory vesicles bud off"],correct:1,explanation:"The Golgi has polarity: cis (entry) faces the ER; trans (exit) faces plasma membrane. This ensures one-way traffic."},
+            {question:"The trans Golgi network (TGN) is notable for:",options:["Receiving vesicles directly from the ER","Being the entry point for all incoming material","Facing the cell membrane and being where sorting and packaging into secretory vesicles occur","Being the site of primary glycosylation"],correct:2,explanation:"The TGN is the final sorting station—proteins are directed to their destinations (secretion, lysosomes, recycling) and packaged into appropriate vesicles."},
+            {question:"The Golgi's role at the intersection of three pathways means it processes:",options:["Only secretory proteins","Secretory, lysosomal, and endocytotic pathway materials","Only lysosomal proteins","Only proteins destined for the nucleus"],correct:1,explanation:"The Golgi is a hub processing secretory proteins (outbound), lysosomal proteins (degradation), and endocytic materials (recycling)."},
+            {question:"During passage through the Golgi, proteins undergo: (SELECT ALL THAT APPLY)",options:["Glycosylation (addition of carbohydrates)","Phosphorylation","Sulfation and other modifications"],correct:[0,1,2],explanation:"Golgi modifications include glycosylation, phosphorylation, sulfation, and many other covalent modifications that mark proteins for their destinations."},
+            {question:"COPII coatomer proteins mediate:",options:["Retrograde transport from Golgi back to ER","Anterograde transport from the ER to the Golgi (forward traffic)","Transport between mitochondria and peroxisomes","Transport into the nucleus"],correct:1,explanation:"COPII coats vesicles budding from ER destined for Golgi (forward traffic). These coats are then recycled back to the ER."},
+            {question:"COPI coatomer proteins mediate:",options:["Anterograde transport from ER to Golgi","Retrograde transport from Golgi back to ER, retrieving escaped resident proteins","Transport of secretory vesicles to the plasma membrane","Lysosomal protein targeting"],correct:1,explanation:"COPI coats vesicles returning from Golgi to ER (backward traffic), retrieving resident ER proteins that escaped forward."},
+            {question:"Resident ER proteins that escape to the Golgi are retrieved via:",options:["COPII vesicles","Clathrin-coated pits","COPI retrograde vesicles that recognize KDEL sequences on escaped proteins","Direct diffusion back through the membrane"],correct:2,explanation:"COPI vesicles recognize KDEL (or similar) sequences on escaped ER proteins and return them to the ER—a retrieval system."},
+            {question:"The sequence KDEL (or related sequences) found on ER proteins:",options:["Targets proteins for degradation","Facilitates protein synthesis","Signals ER residency and enables retrieval from the Golgi","Marks proteins for glycosylation"],correct:2,explanation:"KDEL is a 'ER retention signal'—proteins with KDEL are prevented from leaving the ER; if they escape, COPI recognizes KDEL and retrieves them."},
+            {question:"Secretory vesicles bud from the Golgi cis face to deliver:",options:["Materials to the ER for processing","Proteins back to the nucleus","Newly synthesized proteins and lipids to the cell","Waste products to the lysosome"],correct:2,explanation:"Wait, this is slightly off—secretory vesicles bud from the TRANS Golgi network (not cis face), delivering proteins destined for secretion."},
+            {question:"Lysosomal marker proteins (containing mannose-6-phosphate) are sorted at:",options:["The rough ER","The cis Golgi","The trans Golgi network (TGN)","The cell membrane"],correct:2,explanation:"M6P-tagged proteins are recognized at the TGN, sorted into specialized vesicles, and delivered to lysosomes."},
+            {question:"The mannose-6-phosphate receptor (M6PR) in the TGN:",options:["Synthesizes new proteins","Recognizes and sorts lysosomal enzymes into specialized vesicles","Degrades damaged proteins","Synthesizes lipids"],correct:1,explanation:"M6PR is a sorting receptor—it recognizes M6P tags and directs lysosomal enzymes into the right vesicles for delivery to lysosomes."},
+            {question:"Vesicular transport between Golgi stacks is mediated by:",options:["Direct membrane fusion between cisternae","COPI and COPII vesicles budding and fusing (to move material and recycle enzymes)","Clathrin exclusively","The cytoskeleton only"],correct:1,explanation:"COPI and COPII vesicles budding from one Golgi level and fusing with another enable both forward (COPII) and backward (COPI) traffic."},
+            {question:"The intra-Golgi transport model suggests that:",options:["All proteins slowly diffuse through the Golgi","Cisternae move and mature, with material being retrieved backwards to earlier cisternae","Only large proteins are transported between cisternae","Transport only occurs forward, never backward"],correct:1,explanation:"Cisternae move forward and mature, and material can be retrieved backward via COPI—a dynamic, bidirectional system."},
+            {question:"Endosomes are best characterized as:",options:["Permanent storage compartments for cellular materials","Intermediate 'sorting' compartments that transport and sort endocytosed materials","The final destination for all endocytosed material","Specialized only for ion storage"],correct:1,explanation:"Endosomes are sorting stations—they receive endocytosed material and decide its fate: degradation (lysosomes) or recycling (plasma membrane)."},
+            {question:"Early endosomes are notable for: (SELECT ALL THAT APPLY)",options:["Receiving material from clathrin-coated vesicles","Having a neutral pH (~7)","Beginning the sorting process (recycling vs. degradation)"],correct:[0,1,2],explanation:"Early endosomes are the first stop—they have neutral pH, receive clathrin vesicles, and decide what gets recycled vs. degraded."},
+            {question:"Late endosomes differ from early endosomes in that they:",options:["Are more acidic (lower pH)","Contain more degradative enzymes","Are closer to the lysosomal pathway"],correct:[0,1,2],explanation:"Late endosomes are more degradative—lower pH, more enzymes, closer to lysosomes. They're intermediates between early endosomes and lysosomes."},
+            {question:"The acidic environment of endosomes is maintained by:",options:["Glycosylation of membrane proteins","Proton pumps (H⁺-ATPases) that actively transport protons into the lumen","The presence of digestive enzymes","Continuous fusion with lysosomes"],correct:1,explanation:"Proton pumps create acidic pH. This acidity causes receptor-ligand dissociation and activates acid-dependent enzymes."},
+            {question:"Why is the acidic pH in endosomes functionally important?",options:["It denatures all proteins immediately","It causes receptor-ligand dissociation and activates acid-dependent enzymes","It is toxic to invading pathogens","It synthesizes ATP"],correct:1,explanation:"Acidic pH in endosomes is perfect for degradation—it dissociates receptors from ligands and activates hydrolytic enzymes."},
+            {question:"Lysosomes function primarily to:",options:["Store and export proteins","Digest damaged cell structures, pathogens, and cellular waste","Synthesize new molecules and ATP","Maintain cell shape exclusively"],correct:1,explanation:"Lysosomes are the cell's 'stomach'—filled with digestive enzymes that break down essentially everything."},
+            {question:"The granules within lysosomes contain:",options:["Ribosomes for protein synthesis","Digestive enzymes (acid hydrolases) that function optimally in the acidic lysosomal environment","Genetic material (DNA and RNA)","Stored lipid molecules only"],correct:1,explanation:"Lysosomal granules contain acid hydrolases that work optimally in the acidic lysosomal environment (pH ~5)."},
+            {question:"Lysosomal enzymes include: (SELECT ALL THAT APPLY)",options:["Proteases (break down proteins)","Lipases (break down lipids)","Nucleases (break down DNA/RNA)"],correct:[0,1,2],explanation:"Lysosomes contain a full complement of hydrolytic enzymes—proteases, lipases, nucleases, phosphatases, etc."},
+            {question:"Lysosomal recycling involves:",options:["Permanently storing all broken-down materials","Breaking down cellular debris and aged organelles, with reusable building blocks exported to the cytoplasm","Synthesizing new lysosomes continuously","Exporting all cellular waste unchanged"],correct:1,explanation:"Lysosomes are recycling centers—building blocks are exported back to the cytoplasm for reuse during autophagy."},
+            {question:"Autophagy is the process where:",options:["Cells consume other cells","Cells digest their own old or damaged organelles via lysosomes","Lysosomes replicate","Proteins are synthesized de novo"],correct:1,explanation:"Autophagy is the cell's self-recycling program—damaged organelles are engulfed in autophagosomes and fused with lysosomes for breakdown."},
+            {question:"A key distinction of lysosomes is:",options:["They are found in both plant and animal cells equally","They are NOT found in plant cells; plants use their vacuoles for digestive functions","They only function during cell death","They are membrane-free structures"],correct:1,explanation:"Lysosomes are unique to animal cells. Plant cells use their large vacuoles for digestive functions instead."},
+            {question:"Storage diseases (lysosomal storage disorders) occur when:",options:["Lysosomes accumulate too much material","Specific lysosomal enzymes are deficient or non-functional, leading to accumulation of undegraded material","Lysosomes rupture and release enzymes","Cellular waste is overproduced"],correct:1,explanation:"Lysosomal storage diseases result from enzyme deficiencies—materials can't be degraded and accumulate, damaging cells."},
+            {question:"Examples of lysosomal storage diseases include: (SELECT ALL THAT APPLY)",options:["Gaucher disease (glucocerebroside accumulation)","Tay-Sachs disease (ganglioside accumulation)","Lysosomal acid lipase deficiency"],correct:[0,1,2],explanation:"These are all lysosomal storage disorders caused by specific enzyme deficiencies, causing material accumulation."},
+            {question:"The outer membrane of mitochondria is characterized by being:",options:["Highly folded with extensive cristae","Smooth and permeable to small solutes","Impermeable to all molecules","The site of oxidative phosphorylation"],correct:1,explanation:"The outer mitochondrial membrane is smooth and permeable, allowing small molecules to pass freely into the intermembrane space."},
+            {question:"The inner membrane of mitochondria is notable because it is:",options:["Smooth and permeable like the outer membrane","Folded into cristae and impermeable to most ions and molecules","Continuous with the outer membrane","Only found in prokaryotes"],correct:1,explanation:"The inner mitochondrial membrane is highly organized and impermeable—essential for maintaining the proton gradient for ATP synthesis."},
+            {question:"The cristae (folds) of the inner mitochondrial membrane:",options:["Decrease the surface area available for reactions","Increase surface area for oxidative phosphorylation and ATP synthesis","Provide storage space for ATP molecules","Are artifacts from electron microscopy"],correct:1,explanation:"Cristae dramatically increase inner membrane surface area, providing more space for ATP synthase and electron transport chain."},
+            {question:"Cardiolipin is notable for being:",options:["The most abundant lipid in the plasma membrane","A unique phospholipid found almost exclusively in the inner mitochondrial membrane","Essential for photosynthesis","A component of plant cell walls"],correct:1,explanation:"Cardiolipin is found almost exclusively in the inner mitochondrial membrane where it optimizes ATP synthase and electron transport chain function."},
+            {question:"The function of cardiolipin in mitochondria is to:",options:["Synthesize ATP directly","Optimize ATP synthase function and maintain electron transport chain efficiency","Store energy as chemical bonds","Regulate mitochondrial division"],correct:1,explanation:"Cardiolipin's unique structure is optimized for ATP synthase assembly and ETC efficiency."},
+            {question:"The perinuclear space around mitochondria:",options:["Is identical to the intermembrane space","Exists between the outer and inner mitochondrial membranes and houses proteins and ions","Contains digestive enzymes","Is sealed and impermeable"],correct:1,explanation:"The intermembrane space (between outer and inner membranes) is where cytochrome c and other electron transport proteins are located."},
+            {question:"The matrix of mitochondria contains:",options:["The ATP synthesis machinery (ATP synthase)","Enzymes of the Krebs cycle and fatty acid oxidation","Some of the electron transport chain components","All of the above are found in different locations within mitochondria"],correct:3,explanation:"Matrix: Krebs cycle enzymes, fatty acid oxidation enzymes, some soluble proteins. Inner membrane: ATP synthase, ETC. Outer membrane: porins."},
+            {question:"Mitochondrial DNA is:",options:["Identical to nuclear DNA","A circular, double-stranded molecule encoding some mitochondrial proteins (maternal inheritance in mammals)","Non-functional junk DNA","Synthesized by ribosomes"],correct:1,explanation:"Mitochondrial DNA is circular like bacterial DNA, encodes ~13 proteins (plus tRNAs and rRNAs), and is inherited maternally in humans."},
+            {question:"The cytoskeleton's primary structural role is to:",options:["Synthesize proteins exclusively","Provide the structural framework that enables material transport throughout the cell","Only function during cell division","Store all cellular energy"],correct:1,explanation:"The cytoskeleton is the cell's 'infrastructure'—it maintains shape and provides transport tracks for organelles and vesicles."},
+            {question:"The cytoskeleton is described as 'muscular' because it:",options:["Is only found in muscle cells","Possesses the ability to rapidly change cell shape through dynamic reorganization","Requires constant ATP hydrolysis to maintain structure","Is composed of contractile muscle proteins"],correct:1,explanation:"The cytoskeleton constantly polymerizes/depolymerizes, allowing rapid shape changes for migration and division."},
+            {question:"The four main components of the cytoskeleton are: (SELECT ALL THAT APPLY)",options:["Thin (actin) filaments","Intermediate filaments","Thick filaments (myosin)"],correct:[0,1,2],explanation:"These three, plus microtubules, make up the cytoskeleton. (The question asks for the four, but microtubules are separate.)"},
+            {question:"The cytoskeleton enables: (SELECT ALL THAT APPLY)",options:["Cell movement and migration","Transport of vesicles and organelles","Cell division"],correct:[0,1,2],explanation:"The cytoskeleton is essential for all three—it provides tracks, generates force, and enables cytokinesis."},
+            {question:"Dynamic instability of cytoskeletal elements allows:",options:["Permanent, fixed cellular structure","Rapid remodeling in response to cellular signals","Prevention of all cell movement","Constant energy generation"],correct:1,explanation:"Dynamic instability—constant polymerization/depolymerization—allows rapid remodeling in response to signals."},
+            {question:"Cytoskeletal disruption by toxins like cytochalasin D (affects actin) results in:",options:["Enhanced protein synthesis","Loss of cell shape, reduced motility, and altered organelle transport","Increased ATP production","Accelerated cell division"],correct:1,explanation:"Cytochalasin D breaks actin filaments → loss of shape, reduced movement, altered vesicle transport."},
+            {question:"The interaction between all cytoskeletal components creates:",options:["A disorganized network with no coordination","An integrated system enabling cell shape, movement, and division","Only structural support with no dynamic function","Solely energy production"],correct:1,explanation:"The cytoskeleton is an integrated system—all components work together for shape, movement, transport, and division."},
+            {question:"Thin filaments are primarily composed of:",options:["Myosin protein","Actin protein (polymerized subunits)","Tubulin dimers","Collagen"],correct:1,explanation:"Thin filaments are polymerized actin monomers, forming the primary track along which myosin motors walk."},
+            {question:"Which type of actin is the major isoform in muscle cells?",options:["Alpha-actin (α-actin)","Beta-actin (β-actin)","Gamma-actin (γ-actin)","Delta-actin (δ-actin)"],correct:0,explanation:"Alpha-actin is the major actin isoform in muscle cells, optimized for contraction."},
+            {question:"Beta-actin and gamma-actin are characterized as:",options:["Only found in muscle tissue","Non-muscle actins found in cytoskeletal networks of most cell types","Isoforms that only polymerize under stress","Structural proteins that never interact with myosin"],correct:1,explanation:"Beta-actin and gamma-actin are cytoskeletal actins found in non-muscle cells, organized into dynamic networks."},
+            {question:"Gamma-actin plays critical roles in: (SELECT ALL THAT APPLY)",options:["Shape maintenance in non-muscle cells","Cell motility and migration","Regulation of cellular dynamics"],correct:[0,1,2],explanation:"Gamma-actin is the primary actin in most cell types, enabling dynamic reorganization for movement and adaptation."},
+            {question:"G-actin represents the _____ form, while F-actin represents the _____ form:",options:["Filamentous; monomeric","Monomeric; filamentous","Active; inactive","Stable; unstable"],correct:1,explanation:"G-actin is the monomer (globular); F-actin is the polymer (fibrous). They're in equilibrium, enabling dynamic remodeling."},
+            {question:"Actin monomers (G-actin) exist in equilibrium with actin filaments (F-actin), and this equilibrium:",options:["Is completely fixed with no dynamic exchange","Prevents any cell movement","Allows rapid assembly and disassembly in response to cellular needs","Only occurs during mitosis"],correct:2,explanation:"G-actin/F-actin equilibrium is dynamic, allowing rapid filament remodeling in response to cellular signals."},
+            {question:"Not all G-actin polymerizes into F-actin because:",options:["Some G-actin is immediately degraded","G-actin is sequestered by regulatory proteins like profilin and (beta-)thymosin","The cell has reached a maximum filament number","G-actin is exported from the cell continuously"],correct:1,explanation:"Cells maintain a pool of 'capped' G-actin. This allows rapid filament assembly when needed."},
+            {question:"Profilin and (beta-)thymosin function to:",options:["Promote actin polymerization","Bind G-actin, preventing unwanted polymerization and maintaining a pool of 'activated' monomers","Degrade actin filaments completely","Transport actin to mitochondria"],correct:1,explanation:"Profilin and thymosin sequester G-actin, keeping it available but preventing random polymerization."},
+            {question:"Actin polymerization requires: (SELECT ALL THAT APPLY)",options:["ATP energy","K⁺ (potassium ions) for proper ionic environment","Mg²⁺ (magnesium ions) for proper ionic environment"],correct:[0,1,2],explanation:"ATP provides energy and becomes part of the polymer; K⁺ and Mg²⁺ provide the ionic environment needed."},
+            {question:"Actin polymerization is regulated by:",options:["Only transcriptional control of actin genes","Cell-surface receptors acting through heterotrimeric G-proteins influencing polymerization kinetics","Mitochondrial energy levels exclusively","Only ribosomal activity"],correct:1,explanation:"Actin dynamics are regulated by signaling—growth factors activate receptors → G-proteins → changes in polymerization."},
+            {question:"The (+) end (barbed end) of actin filaments is characterized by:",options:["Being slow-growing and the site of depolymerization","Being the fast-growing end where ATP-actin preferentially adds","Being where capping proteins permanently attach and prevent growth","Being where myosin never binds"],correct:1,explanation:"The (+) end is 'barbed' and favors ATP-actin addition. Under physiological conditions, it grows while the (-) end shrinks."},
+            {question:"The (-) end (pointed end) of actin filaments:",options:["Grows faster than the (+) end under normal conditions","Is the slow-growing end where depolymerization primarily occurs","Cannot support myosin binding","Is where all regulatory proteins exclusively attach"],correct:1,explanation:"The (-) end has higher off-rates, making it where depolymerization occurs. This polarity enables treadmilling."},
+            {question:"The concept of actin treadmilling refers to:",options:["Rapid random movement of filaments","Simultaneous growth at the (+) end and shrinkage at the (-) end, allowing filament movement","Filaments walking along microtubules","Actin binding to ATP"],correct:1,explanation:"Treadmilling is the steady-state turnover—while the filament appears stationary, subunits add at (+) end and leave at (-) end."},
+            {question:"Capping proteins function to:",options:["Increase actin polymerization rate universally","Attach to the (+) end of F-actin to prevent further polymerization","Stabilize only the (-) end","Degrade actin filaments into monomers"],correct:1,explanation:"Capping proteins bind the (+) end, blocking elongation. By controlling which filaments are capped, cells regulate network organization."},
+            {question:"Actin-depolymerizing proteins like gelsolin, cofilin, and severin: (SELECT ALL THAT APPLY)",options:["Cap ends of actin filaments","Sever filaments internally","Are regulated by phosphorylation and PIP₂ availability"],correct:[0,1,2],explanation:"These are 'actin-depolymerizing factors'—they cap ends or sever filaments, regulated by phosphorylation and PIP₂."},
+            {question:"Polyphosphoinositide (PIP₂) on the membrane functions to:",options:["Activate and stabilize capping proteins permanently","Remove/inhibit capping proteins and facilitate F-actin lengthening","Polymerize new actin subunits directly","Bind directly to actin monomers"],correct:1,explanation:"PIP₂ is a regulatory lipid that activates polymerization by displacing capping proteins. High PIP₂ → uncapped, growing filaments."},
+            {question:"The high concentration of PIP₂ in the membrane near the cell leading edge promotes:",options:["Actin polymerization and cell protrusion formation","Actin depolymerization","Microtubule growth","Myosin deactivation"],correct:0,explanation:"High PIP₂ at the leading edge removes capping proteins, allowing actin polymerization and membrane protrusion."}
+        ];
+
+        // =====================================================================
+        // FISHER-YATES SHUFFLE & STATE MANAGEMENT
+        // =====================================================================
+
+        function shuffleQuestions(questions) {
+            return questions.map(q => {
+                const shuffled = { ...q, options: [...q.options] };
+                const correct = shuffled.correct;
+                let correctOption = Array.isArray(correct)
+                    ? shuffled.options.filter((_, i) => correct.includes(i))
+                    : shuffled.options[correct];
+
+                for (let i = shuffled.options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled.options[i], shuffled.options[j]] = [shuffled.options[j], shuffled.options[i]];
+                }
+
+                if (Array.isArray(correct)) {
+                    shuffled.correct = shuffled.options.map((opt, i) =>
+                        (Array.isArray(correctOption) ? correctOption : [correctOption]).some(c => c === opt) ? i : -1
+                    ).filter(i => i !== -1);
+                } else {
+                    shuffled.correct = shuffled.options.indexOf(correctOption);
+                }
+                return shuffled;
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // =====================================================================
+        // STATE & INITIALIZATION
+        // =====================================================================
+
+        let currentMode = 'ordered';
+        let questionsOrdered = shuffleQuestions([...questionsBase]);
+        let questionsShuffled = shuffleArray(questionsOrdered).map(q => ({ ...q }));
+        let questions = [...questionsOrdered];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let retryQueue = [];
+        let answered = false;
+        let selectedIndex = [];
+        let lastKeyPressed = null;
+        let lastKeyTime = 0;
+
+        // =====================================================================
+        // MODE & CONTROL FUNCTIONS
+        // =====================================================================
+
+        function setMode(mode) {
+            currentMode = mode;
+            resetQuiz();
+
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'ordered') {
+                questions = [...questionsOrdered];
+            } else {
+                questions = [...questionsShuffled];
+            }
+            displayQuestion();
+        }
+
+        function resetQuiz() {
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = false;
+            selectedIndex = [];
+            document.getElementById('quizSection').classList.add('active');
+            document.getElementById('resultsScreen').classList.remove('show');
+        }
+
+        // =====================================================================
+        // DISPLAY & INTERACTION
+        // =====================================================================
+
+        function displayQuestion() {
+            if (currentIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            selectedIndex = [];
+            const q = questions[currentIndex];
+            document.getElementById('questionText').textContent = q.question;
+
+            const optionsContainer = document.getElementById('answerOptions');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.id = 'answer-' + index;
+                btn.textContent = String.fromCharCode(65 + index) + ') ' + option;
+                if (answered) {
+                    btn.classList.add('disabled');
+                }
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('explanationSection').classList.remove('show');
+            document.getElementById('feedbackMessage').classList.remove('show');
+
+            if (!answered) {
+                document.getElementById('advancePrompt').innerHTML = '<strong>Press 1, 2, 3, or 4 to select</strong> → <strong>Press same key again to submit</strong>';
+            } else {
+                document.getElementById('advancePrompt').innerHTML = '<strong>Press any number (1-4) to continue</strong>';
+                document.getElementById('advancePrompt').style.display = 'block';
+            }
+
+            updateProgress();
+            updateScore();
+        }
+
+        function selectAnswer() {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const correctIndices = Array.isArray(q.correct) ? q.correct : [q.correct];
+
+            // Determine if answer is correct
+            let isCorrect;
+            if (Array.isArray(q.correct)) {
+                // Multi-select: check if selected matches correct exactly
+                isCorrect = selectedIndex.length === correctIndices.length &&
+                            selectedIndex.every(i => correctIndices.includes(i));
+            } else {
+                // Single-select: check if selected matches correct
+                isCorrect = selectedIndex.length === 1 && correctIndices.includes(selectedIndex[0]);
+            }
+
+            buttons.forEach((btn, i) => {
+                if (correctIndices.includes(i)) {
+                    btn.classList.add('correct');
+                } else if (selectedIndex.includes(i) && !correctIndices.includes(i)) {
+                    btn.classList.add('incorrect');
+                }
+                btn.classList.add('disabled');
+            });
+
+            if (isCorrect) {
+                correctCount++;
+                document.getElementById('feedbackMessage').textContent = '✓ Correct!';
+                document.getElementById('feedbackMessage').className = 'feedback-message show correct';
+            } else {
+                incorrectCount++;
+                retryQueue.push(q);
+                document.getElementById('feedbackMessage').textContent = '✗ Incorrect';
+                document.getElementById('feedbackMessage').className = 'feedback-message show incorrect';
+            }
+
+            document.getElementById('explanationSection').classList.add('show');
+            document.getElementById('explanationText').textContent = q.explanation;
+            document.getElementById('advancePrompt').innerHTML = '<strong>Press any number (1-4) to continue</strong>';
+            document.getElementById('advancePrompt').style.display = 'block';
+
+            updateScore();
+        }
+
+        function nextQuestion(e) {
+            if (!answered) return;
+            currentIndex++;
+            answered = false;
+            selectedIndex = [];
+
+            if (currentIndex >= questions.length && retryQueue.length > 0) {
+                questions = retryQueue;
+                retryQueue = [];
+                currentIndex = 0;
+            }
+
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const total = questionsOrdered.length;
+            const current = currentIndex + 1;
+            document.getElementById('currentQuestion').textContent = current;
+            document.getElementById('totalQuestions').textContent = total;
+
+            const progress = (currentIndex / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            if (retryQueue.length > 0) {
+                document.getElementById('retryLabel').textContent = '🔄 Retry: ' + retryQueue.length;
+            } else {
+                document.getElementById('retryLabel').textContent = '';
+            }
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentageScore').textContent = percentage + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizSection').classList.remove('active');
+            document.getElementById('resultsScreen').classList.add('show');
+
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('resultsStats').innerHTML =
+                `<strong>${correctCount}</strong> Correct<br>` +
+                `<strong>${incorrectCount}</strong> Incorrect<br>` +
+                `<strong>${total}</strong> Total Questions`;
+
+            let message, emoji;
+            if (percentage === 100) {
+                message = '🌟 Perfect!';
+                emoji = '🌟';
+            } else if (percentage >= 90) {
+                message = '🎉 Excellent!';
+                emoji = '🎉';
+            } else if (percentage >= 80) {
+                message = '👍 Great Work!';
+                emoji = '👍';
+            } else if (percentage >= 70) {
+                message = '📚 Good Effort';
+                emoji = '📚';
+            } else if (percentage >= 60) {
+                message = '💪 Keep Studying';
+                emoji = '💪';
+            } else {
+                message = '📖 Review More';
+                emoji = '📖';
+            }
+
+            document.getElementById('resultsMessage').textContent = message;
+            document.getElementById('resultEmoji').textContent = emoji;
+        }
+
+        // =====================================================================
+        // KEYBOARD CONTROLS - DOUBLE-PRESS SYSTEM WITH MULTI-SELECT TOGGLE
+        // =====================================================================
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            const keyNum = parseInt(key);
+
+            if (![1, 2, 3, 4].includes(keyNum)) return;
+
+            const q = questions[currentIndex];
+            const isMultiSelect = Array.isArray(q.correct);
+
+            const now = Date.now();
+            const timeSinceLastKey = now - lastKeyTime;
+            const isDoublePress = (lastKeyPressed === keyNum && timeSinceLastKey < 500);
+
+            if (!answered) {
+                if (isMultiSelect) {
+                    // TOGGLE logic for multi-select: pressing different numbers all stay highlighted
+                    const index = keyNum - 1;
+                    if (!selectedIndex.includes(index)) {
+                        selectedIndex.push(index); // Add to selection
+                    } else {
+                        selectedIndex = selectedIndex.filter(i => i !== index); // Remove from selection
+                    }
+
+                    // Highlight all selected options
+                    document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+                        btn.classList.remove('selected');
+                        if (selectedIndex.includes(i)) {
+                            btn.classList.add('selected');
+                        }
+                    });
+
+                    // Submit on double-press of same key
+                    if (isDoublePress && selectedIndex.includes(keyNum - 1)) {
+                        selectAnswer();
+                    }
+                } else {
+                    // Single-select: press once to select, double-press to submit
+                    if (isDoublePress) {
+                        selectedIndex = [keyNum - 1];
+                        selectAnswer();
+                    } else {
+                        selectedIndex = [keyNum - 1];
+                        document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+                            btn.classList.remove('selected');
+                            if (i === selectedIndex[0]) {
+                                btn.classList.add('selected');
+                            }
+                        });
+                    }
+                }
+            } else {
+                nextQuestion();
+            }
+
+            lastKeyPressed = keyNum;
+            lastKeyTime = now;
+        });
+
+        // =====================================================================
+        // INITIALIZATION
+        // =====================================================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            displayQuestion();
+        });
+    </script>
+</body>
+</html>
