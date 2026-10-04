@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEN101F 1.1 Intro to Bio Molecules</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .score-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .score-item label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .score-item .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .score-item.correct .value {
+            color: #28a745;
+        }
+
+        .score-item.incorrect .value {
+            color: #dc3545;
+        }
+
+        .score-item.percentage .value {
+            color: #667eea;
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .quiz-section {
+            display: none;
+        }
+
+        .quiz-section.active {
+            display: block;
+        }
+
+        .question-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: #333;
+            border-radius: 6px;
+            text-align: left;
+            cursor: default;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .answer-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(5px);
+        }
+
+        .answer-btn.selected {
+            border-color: #667eea;
+            background: #f0f2ff;
+            border-width: 3px;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            font-weight: 700;
+        }
+
+        .answer-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+            font-size: 18px;
+        }
+
+        .feedback-message.show {
+            display: block;
+        }
+
+        .feedback-message.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback-message.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .explanation-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .explanation-text {
+            color: #555;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .advance-prompt {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .results-screen {
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .final-score {
+            font-size: 64px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+        }
+
+        .results-message {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .results-stats {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .emoji-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-btn {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+
+            .score-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .mode-toggle {
+                flex-direction: column;
+            }
+
+            .mode-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 DEN101F 1.1</h1>
+            <p>Intro to Biological Molecules</p>
+        </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" onclick="setMode('ordered')">📖 LEARNING MODE: Questions in order</button>
+            <button class="mode-btn" onclick="setMode('shuffled')">🔀 TESTING MODE: Questions randomized</button>
+        </div>
+
+        <div class="quiz-section active" id="quizSection">
+            <div class="score-display">
+                <div class="score-item correct">
+                    <label>✓ Correct</label>
+                    <div class="value" id="correctCount">0</div>
+                </div>
+                <div class="score-item incorrect">
+                    <label>✗ Incorrect</label>
+                    <div class="value" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item percentage">
+                    <label>Score</label>
+                    <div class="value" id="percentageScore">0%</div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Question <span id="currentQuestion">1</span> of <span id="totalQuestions">111</span></span>
+                    <span id="retryLabel" style="color: #ff9800;"></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="answer-options" id="answerOptions"></div>
+                <div class="feedback-message" id="feedbackMessage"></div>
+                <div class="explanation-section" id="explanationSection">
+                    <div class="explanation-label">💡 Explanation:</div>
+                    <div class="explanation-text" id="explanationText"></div>
+                </div>
+                <div class="advance-prompt" id="advancePrompt"></div>
+            </div>
+        </div>
+
+        <div class="results-screen" id="resultsScreen">
+            <div class="emoji-icon" id="resultEmoji"></div>
+            <div class="results-message" id="resultsMessage"></div>
+            <div class="final-score" id="finalScore"></div>
+            <div class="results-stats" id="resultsStats"></div>
+            <button class="restart-btn" onclick="resetQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================================
+        // QUESTION DATABASE - ALL 111 QUESTIONS WITH EXPLANATIONS
+        // =====================================================================
+
+        const questionsBase = [
+            // SECTION 1: CATABOLISM/ANABOLISM/CONDENSATION
+            {
+                question: "What is the primary difference between catabolism and anabolism?",
+                options: [
+                    "Catabolism breaks down macromolecules to release energy; anabolism uses energy to build macromolecules",
+                    "Catabolism occurs in mitochondria; anabolism occurs in cytoplasm",
+                    "Catabolism creates ATP; anabolism consumes it directly",
+                    "Catabolism requires energy; anabolism releases energy"
+                ],
+                correct: 0,
+                explanation: "This is the foundational distinction—catabolism = breaking down (releasing energy), anabolism = building up (using energy). Catabolic pathways like glycolysis and β-oxidation release ATP; anabolic pathways like protein synthesis and fatty acid synthesis consume ATP. Understanding this split explains why cells have dual metabolic machinery."
+            },
+            {
+                question: "When water is lost during polymer formation, what type of reaction is occurring?",
+                options: [
+                    "Hydrolysis",
+                    "Condensation (dehydration synthesis)",
+                    "Decarboxylation",
+                    "Oxidation-reduction"
+                ],
+                correct: 1,
+                explanation: "Condensation (dehydration synthesis) is how ALL polymers form—water is always the leaving group. This happens in peptide bond formation (amino acids → proteins), glycosidic bonds (monosaccharides → polysaccharides), and phosphodiester bonds (nucleotides → nucleic acids). The reverse is hydrolysis, which breaks these bonds by adding water."
+            },
+            {
+                question: "Which carbon in an amino acid is chiral and serves as the central anchor point?",
+                options: [
+                    "The alpha carbon",
+                    "The side chain carbon",
+                    "The carbonyl carbon",
+                    "The amino group carbon"
+                ],
+                correct: 0,
+                explanation: "The alpha (α) carbon is THE central atom of every amino acid. It's bonded to four different groups: an amino group, a carboxyl group, a hydrogen, and a side chain (R group). This makes it chiral, which is why amino acids come in L and D forms. All amino acid chemistry revolves around reactions at this carbon."
+            },
+            {
+                question: "Why is the alpha carbon of an amino acid considered \"amphoteric\"?",
+                options: [
+                    "It has two chiral centers",
+                    "It can act as either an acid or a base",
+                    "It forms disulfide bonds",
+                    "It contains both polar and nonpolar regions"
+                ],
+                correct: 1,
+                explanation: "Amphoteric means it can act as BOTH an acid (donating H⁺ from the carboxyl group) AND a base (accepting H⁺ at the amino group). This is why the same amino acid can have different charges at different pH values—the alpha carbon's functional groups ionize/deionize depending on pH. This is crucial for understanding isoelectric points and how amino acids behave in buffers."
+            },
+            {
+                question: "At the isoelectric point, what is the net charge on an amino acid?",
+                options: [
+                    "Strongly positive",
+                    "Variable depending on the solvent",
+                    "Neutral (zero)",
+                    "Strongly negative"
+                ],
+                correct: 2,
+                explanation: "The isoelectric point (pI) is where the number of positive charges equals the number of negative charges, resulting in zero net charge. At this specific pH, the amino acid doesn't migrate in an electric field. This concept matters clinically and is essential for protein purification techniques like isoelectric focusing."
+            },
+            {
+                question: "The zwitter ionic form of an amino acid contains which ionized groups?",
+                options: [
+                    "Both amino and carboxyl groups are neutral",
+                    "Amino group is NH₃⁺ and carboxyl group is COO⁻",
+                    "Both groups are negatively charged",
+                    "Amino group is NH₂⁻ and carboxyl group is COOH"
+                ],
+                correct: 1,
+                explanation: "A zwitter ion has BOTH charged groups simultaneously: NH₃⁺ (protonated amino group) and COO⁻ (deprotonated carboxyl group). This is the dominant form of amino acids in physiological conditions (pH ~7). The name comes from German 'zwitter' (hybrid/double). This is why amino acids are zwitterionic in cells, not neutral molecules with -NH₂ and -COOH."
+            },
+            {
+                question: "What does pKa represent, and how does it relate to acid strength?",
+                options: [
+                    "The pH at which an acid is fully ionized; higher pKa = stronger acid",
+                    "The concentration of hydrogen ions in solution",
+                    "The isoelectric point of the molecule",
+                    "The dissociation constant that measures acid strength; lower pKa = stronger acid"
+                ],
+                correct: 3,
+                explanation: "Lower pKa = stronger acid. This is because pKa = -log(Ka), so smaller Ka (weaker acid) → larger pKa, and larger Ka (stronger acid) → smaller pKa. For amino acids: the carboxyl group has pKa ~2.2 (strong acid), the amino group has pKa ~9-10 (weak acid). Memorize: pKa is INVERSE to strength."
+            },
+            {
+                question: "When pKa = pH in a buffer system, what fraction of the ionizable groups have donated their hydrogen ions?",
+                options: [
+                    "About half (~50%)",
+                    "About three-quarters (~75%)",
+                    "None of them (0%)",
+                    "All of them (~100%)"
+                ],
+                correct: 0,
+                explanation: "When pH = pKa, the ratio of deprotonated to protonated form is 1:1 (half and half). This comes from the Henderson-Hasselbalch equation. This is the MOST effective buffer point because small pH changes don't shift the equilibrium much. For amino acids, maximum buffering occurs near the pKa values of carboxyl (~2.2) and amino (~9.6) groups."
+            },
+            {
+                question: "An amino acid that is \"water-soluble\" and has \"uneven electron distribution\" would be classified as:",
+                options: [
+                    "Aliphatic",
+                    "Polar and hydrophilic",
+                    "Amphipathic",
+                    "Nonpolar and hydrophobic"
+                ],
+                correct: 1,
+                explanation: "Polar amino acids have uneven electron distribution (electronegative atoms like O, N creating dipoles) and are thus hydrophilic (water-loving). Examples: Ser, Thr, Asn, Gln. These residues can hydrogen bond with water, making them thermodynamically favorable on protein surfaces. Understanding polarity predicts where amino acids locate in folded proteins."
+            },
+            {
+                question: "Which of the following best describes an \"amphipathic\" molecule?",
+                options: [
+                    "It has a straight or branched chain structure",
+                    "It has both positive and negative charges simultaneously",
+                    "It contains both polar and nonpolar regions",
+                    "It cannot dissolve in water"
+                ],
+                correct: 2,
+                explanation: "Amphipathic = 'both-loving' (amphi = both, pathic = loving). Think phospholipid bilayers: the fatty acid tails are nonpolar, the phosphate head is polar. This dual nature is why they organize into membranes. In proteins, amphipathic α-helices have polar residues on one face and nonpolar on the other, allowing them to sit at membrane-water interfaces."
+            },
+            {
+                question: "An amino acid with a \"straight or branched chain structure\" in its side chain is best described as:",
+                options: [
+                    "Hydrophobic",
+                    "Amphipathic",
+                    "Amphoteric",
+                    "Aliphatic"
+                ],
+                correct: 3,
+                explanation: "Aliphatic = straight or branched chain structure. These are simple hydrocarbon-like side chains (Ala, Val, Leu, Ile, Pro). They're nonpolar and hydrophobic, so they cluster in protein interiors away from water. Aliphatic residues are especially important in hydrophobic cores of globular proteins and in creating extended, fiber-like structures of collagen."
+            },
+            {
+                question: "Why would a polar amino acid be more likely found on the surface of a folded globular protein?",
+                options: [
+                    "Polar amino acids have strong affinity for water in the aqueous environment",
+                    "Polar amino acids cannot form peptide bonds",
+                    "Polar amino acids are larger and need more space",
+                    "Polar amino acids are more stable at the surface"
+                ],
+                correct: 0,
+                explanation: "Polar amino acids are thermodynamically favored at the surface because they can form hydrogen bonds with water. Nonpolar residues are buried inside because water would have to reorganize around them (entropic penalty). This hydrophobic effect is one of the strongest driving forces in protein folding. Prediction: if you see a polar residue buried deep in a crystal structure, something unusual is happening (maybe an active site)."
+            },
+            {
+                question: "Which amino acid is found exclusively in proteins, and in what isomeric form?",
+                options: [
+                    "D-glycine (dextro isomer)",
+                    "L-amino acids (levo isomers)",
+                    "Only achiral amino acids",
+                    "Racemic mixture of L and D isomers"
+                ],
+                correct: 1,
+                explanation: "Only L-amino acids (levo = left-handed in Fischer projection) are incorporated into proteins during ribosomal translation. D-amino acids DO exist in nature (some antibiotics, bacterial cell walls) but NOT in eukaryotic proteins. This stereochemical specificity is enforced by the ribosomal machinery and tRNA synthetases during protein synthesis."
+            },
+            {
+                question: "Why is L-isomer specificity maintained during protein synthesis?",
+                options: [
+                    "D-isomers cannot form peptide bonds",
+                    "L-isomers are chemically more stable",
+                    "The ribosome is specifically designed to incorporate L-amino acids during translation",
+                    "L-isomers have lower energy"
+                ],
+                correct: 2,
+                explanation: "The ribosome's translation machinery is chiral—it was evolutionarily 'designed' to recognize and incorporate L-amino acids. The aminoacyl-tRNA synthetases (which charge tRNAs with amino acids) also have stereospecificity for L-forms. This is essentially a historical accident that became locked in early evolution. D-amino acids simply don't fit properly in the active sites."
+            },
+            {
+                question: "A buffer solution is best described as:",
+                options: [
+                    "Any solution that doesn't change pH",
+                    "A strong acid mixed with a strong base",
+                    "A concentrated salt solution",
+                    "A weak acid combined with its corresponding salt"
+                ],
+                correct: 3,
+                explanation: "A buffer is a weak acid + its conjugate base salt (or weak base + its conjugate acid salt). Examples: acetate buffer (acetic acid + acetate ion), phosphate buffer (H₂PO₄⁻ + HPO₄²⁻). Buffers resist pH changes because the weak acid can donate H⁺ if pH rises, and the conjugate base can accept H⁺ if pH drops. The bicarbonate system (H₂CO₃/HCO₃⁻) is the primary blood buffer."
+            },
+            {
+                question: "What is the relationship between pKa and acid strength?",
+                options: [
+                    "Higher pKa indicates a stronger acid",
+                    "pKa and strength are completely unrelated",
+                    "Lower pKa indicates a stronger acid",
+                    "Larger pKa values indicate weaker acids"
+                ],
+                correct: 2,
+                explanation: "Lower pKa = stronger acid. Examples: HCl (pKa ≈ -7, very strong), acetic acid (pKa ≈ 4.7, weak), ammonia as acid (pKa ≈ 9.25, very weak). This inverse relationship trips up many students—memorize: smaller pKa number = stronger acid. For your exam: know the pKa values of amino acid functional groups (~2.2 for COOH, ~9.6 for NH₃⁺)."
+            },
+            {
+                question: "Ka measures _________________, and a higher Ka value indicates a _____________ acid.",
+                options: [
+                    "Buffer capacity; more buffered",
+                    "Acid strength; stronger",
+                    "pH; more neutral",
+                    "Acid strength; weaker"
+                ],
+                correct: 1,
+                explanation: "Ka (acid dissociation constant) directly measures how readily an acid donates H⁺. Higher Ka = more dissociation = stronger acid. Ka and pKa are inversely related: pKa = -log(Ka). Strong acids have Ka >> 1 and pKa < 0; weak acids have Ka << 1 and pKa > 0. For amino acids (weak acids), typical Ka values are 10⁻² to 10⁻¹⁰."
+            },
+            {
+                question: "Which enzyme catalyzes the bicarbonate buffer system to help maintain blood pH?",
+                options: [
+                    "Amylase",
+                    "Protease",
+                    "Carbonic anhydrase",
+                    "Phosphatase"
+                ],
+                correct: 2,
+                explanation: "Carbonic anhydrase catalyzes CO₂ + H₂O ⇌ H₂CO₃ ⇌ H⁺ + HCO₃⁻. This enzyme is CRITICAL for blood pH regulation. CO₂ produced by metabolism is converted to bicarbonate in red blood cells, transported as HCO₃⁻, and exhaled as CO₂ in lungs. Without this enzyme, pH regulation would be extremely slow. This is one of the fastest enzymes known (10⁶ reactions/second)."
+            },
+            {
+                question: "The bicarbonate buffer system functions primarily to maintain pH in:",
+                options: [
+                    "Only blood plasma",
+                    "Only stomach acid",
+                    "Only the kidney",
+                    "Blood, pancreatic juice, digestive juice, bile, and other body fluids"
+                ],
+                correct: 3,
+                explanation: "The bicarbonate buffer system maintains pH across ALL major body fluids: blood (pH 7.35-7.45), pancreatic juice (pH 8-8.3), bile (pH 7.5-8), digestive juices, cerebrospinal fluid. This ubiquity reflects its importance. The H₂CO₃/HCO₃⁻ pair is the primary extracellular buffer, while phosphate (H₂PO₄⁻/HPO₄²⁻) is the major intracellular buffer."
+            },
+            {
+                question: "Why are amino acids described as \"weak acids\" and given special importance in buffer systems?",
+                options: [
+                    "They contain carboxyl groups that can donate/accept protons (H⁺)",
+                    "They only function in acidic environments",
+                    "They are less soluble than other acids",
+                    "They cannot be involved in neutralization reactions"
+                ],
+                correct: 0,
+                explanation: "Amino acids contain carboxyl (-COOH, pKa ~2) and amino (-NH₃⁺, pKa ~9) groups, making them amphoteric weak acids. Because of these ionizable groups at physiological pH, amino acids and proteins act as buffers. Proteins in blood (especially hemoglobin) are actually significant physiological buffers. Free amino acids in cells also contribute to buffering capacity."
+            },
+            {
+                question: "Peptide bonds are which type of chemical bond?",
+                options: [
+                    "Ionic bonds",
+                    "Covalent bonds (specifically C-N bonds)",
+                    "Disulfide bonds",
+                    "Hydrogen bonds"
+                ],
+                correct: 1,
+                explanation: "A peptide bond is a specific C-N covalent bond formed by condensation between the carboxyl group of one amino acid and the amino group of another. It's a strong, stable bond that makes proteins durable and requires enzyme hydrolysis (proteases) to break. This covalent nature means peptide bonds determine primary structure—the basic scaffold of every protein."
+            },
+            {
+                question: "When an amino acid is incorporated into a polypeptide chain, it is referred to as:",
+                options: [
+                    "A monomer",
+                    "A domain",
+                    "A residue",
+                    "A subunit"
+                ],
+                correct: 2,
+                explanation: "Once incorporated into a polypeptide chain, an amino acid is called a 'residue' because it's missing the elements of water (H and OH). Example: free amino acid is glycine (C₂H₅NO₂), but when incorporated it becomes a glycine residue (C₂H₃NO—two fewer atoms). This terminology reflects the condensation chemistry: amino acids lose water and become residues in the polymer."
+            },
+            {
+                question: "A polypeptide chain has directionality. This polarity runs from:",
+                options: [
+                    "The side chains to the backbone",
+                    "The carboxyl group to the amino group",
+                    "The alpha carbon outward",
+                    "The N-terminal to the C-terminal"
+                ],
+                correct: 3,
+                explanation: "Polypeptides have directionality: the N-terminal (free amino group) to C-terminal (free carboxyl group). By convention, sequences are written N→C. This matters because: (1) peptide bond formation always goes N-terminus of incoming amino acid to C-terminus of growing chain, (2) enzymes read sequences in specific directions, (3) it affects secondary structure preferences. Always specify direction when describing sequences."
+            },
+            {
+                question: "Why is understanding the hierarchy of protein structure levels (primary → secondary → tertiary → quaternary) essential in biochemistry?",
+                options: [
+                    "It explains how amino acid sequence ultimately determines final protein structure and function",
+                    "It is only relevant for teaching purposes",
+                    "It determines how many disulfide bonds a protein has",
+                    "It tells us the size of the protein"
+                ],
+                correct: 0,
+                explanation: "The structure hierarchy shows the path from DNA → amino acid sequence → folded structure → function. Primary structure (sequence) is determined by the gene. This sequence contains all the information needed to fold correctly into secondary, tertiary, and quaternary structures. If you know the primary structure and the cellular environment, you can often predict the final 3D structure and function. This is why mutations in amino acid sequence can cause disease."
+            },
+            {
+                question: "Which level of protein structure describes the linear arrangement of amino acids connected by peptide bonds?",
+                options: [
+                    "Secondary structure",
+                    "Primary structure",
+                    "Quaternary structure",
+                    "Tertiary structure"
+                ],
+                correct: 1,
+                explanation: "Primary structure is simply the LINEAR order of amino acids connected by peptide bonds. It's the most basic level—just the backbone sequence. Two proteins with identical primary structures in different organisms are called homologs. Primary structure is determined by mRNA codon sequence, which is determined by DNA. Changes to primary structure can drastically alter function."
+            },
+            {
+                question: "Alpha helices and beta sheets are examples of which protein structure level?",
+                options: [
+                    "Primary structure",
+                    "Secondary structure",
+                    "Quaternary structure",
+                    "Tertiary structure"
+                ],
+                correct: 1,
+                explanation: "Secondary structure refers to local, regular 3D folding stabilized by hydrogen bonds between backbone amide groups (C=O and N-H), NOT side chains. The two main types are α-helix (coiled structure, very stable) and β-pleated sheet (extended, zigzag structure). Other secondary structures include turns and loops. Secondary structure is predicted from amino acid sequence using algorithms like PSIPRED."
+            },
+            {
+                question: "The three-dimensional folding of a polypeptide chain is best described as:",
+                options: [
+                    "Primary structure",
+                    "Secondary structure",
+                    "Tertiary structure",
+                    "Quaternary structure"
+                ],
+                correct: 2,
+                explanation: "Tertiary structure is the overall 3D shape of a single polypeptide chain. It results from interactions between side chains: hydrophobic interactions (nonpolar residues cluster inside), hydrogen bonds, ionic interactions (salt bridges), and disulfide bonds (Cys-Cys covalent bonds). Tertiary structure determines the protein's function—where the active site is, what substrate it binds, etc."
+            },
+            {
+                question: "What determines the overall three-dimensional structure of a protein?",
+                options: [
+                    "The amino acid sequence",
+                    "The pH during synthesis",
+                    "The number of disulfide bonds",
+                    "The amount of enzyme present"
+                ],
+                correct: 0,
+                explanation: "The amino acid SEQUENCE contains all the structural information. This remarkable fact (Anfinsen's principle) was proven by denaturation/renaturation experiments: if you unfold a protein and remove the denaturant, it refolds spontaneously into its native structure. The sequence determines which residues are where, and their chemical properties drive folding. This is why protein synthesis has such high fidelity—one wrong amino acid can change everything."
+            },
+            {
+                question: "When multiple polypeptide chains assemble together to form a functional protein complex, this is:",
+                options: [
+                    "Secondary structure",
+                    "Quaternary structure",
+                    "Tertiary structure",
+                    "Primary structure"
+                ],
+                correct: 1,
+                explanation: "Quaternary structure appears only in proteins made of MULTIPLE separate polypeptide chains (subunits) held together by non-covalent interactions. Examples: hemoglobin (4 subunits), antibodies (4 chains), collagen (3 polypeptide chains). Quaternary structure enables allosteric regulation (subunits communicate) and is functionally important. Many proteins are inactive as monomers but functional as quaternary complexes."
+            },
+            {
+                question: "What is the fundamental structural difference between fibrous and globular proteins?",
+                options: [
+                    "Fibrous proteins are found only in animals; globular proteins are found only in plants",
+                    "Fibrous proteins contain no secondary structure; globular proteins contain extensive secondary structure",
+                    "Fibrous proteins provide structural support with extended, fiber-like conformations; globular proteins fold into compact, functional shapes",
+                    "Fibrous proteins are larger; globular proteins are always smaller"
+                ],
+                correct: 2,
+                explanation: "Fibrous proteins have extended, elongated shapes and provide structural support (Collagen in skin/bone, Keratin in hair, Elastin in ligaments). Globular proteins fold into compact 3D structures and perform functions like catalysis and regulation (Enzymes, Antibodies, Hormones). This shape difference reflects their evolutionary roles: structure vs. function. You can often guess function from shape."
+            },
+            {
+                question: "Which of the following is an example of a fibrous protein?",
+                options: [
+                    "Amylase",
+                    "Hemoglobin",
+                    "Collagen",
+                    "Myoglobin"
+                ],
+                correct: 2,
+                explanation: "Collagen is the most abundant protein in animals—it's in skin, bone, tendons, cartilage. Its triple helix structure (3 polypeptides wound together) gives it tensile strength. It's water-insoluble and mechanically strong, which makes it perfect for structural support. The presence of hydroxyproline (formed by Vitamin C-dependent hydroxylation) adds stability. Collagen breakdown is why scurvy (Vitamin C deficiency) causes bleeding and poor wound healing."
+            },
+            {
+                question: "Examples of globular proteins include:",
+                options: [
+                    "Hormones, antibodies, and enzymes",
+                    "All of the above",
+                    "Keratin and fibrin",
+                    "Elastin and collagen"
+                ],
+                correct: 0,
+                explanation: "These are the 'working' proteins. Enzymes catalyze reactions, antibodies recognize pathogens, hormones signal between cells. All are compact, soluble, and functionally active. These proteins are sensitive to pH and temperature because they rely on weak interactions (hydrogen bonds, hydrophobic effect) to maintain their 3D shape. Denaturation of a globular protein (e.g., boiling an egg) often permanently destroys function."
+            },
+            {
+                question: "In a folded globular protein, where are nonpolar amino acid residues typically located?",
+                options: [
+                    "At the N-terminal end",
+                    "In the interior, away from water",
+                    "On the outer surface",
+                    "At the active site"
+                ],
+                correct: 1,
+                explanation: "The hydrophobic effect drives nonpolar residues (Leu, Val, Ile, Phe, Pro) into the protein interior, away from water. This is thermodynamically favorable because it minimizes unfavorable interactions between polar water and nonpolar residues. The protein interior is essentially a hydrophobic core. This arrangement is so consistent that it's one of the most reliable predictors of protein structure from sequence."
+            },
+            {
+                question: "Globular proteins typically have charged residues positioned:",
+                options: [
+                    "In alpha helices only",
+                    "In the protein core",
+                    "On the outer surface, exposed to the aqueous environment",
+                    "At the active site only"
+                ],
+                correct: 2,
+                explanation: "Charged residues (Asp, Glu, Lys, Arg, His) are thermodynamically favored on the surface because they can interact with the aqueous environment through electrostatic interactions and hydrogen bonding. This makes globular proteins soluble in water. The surface charges also enable protein-protein interactions and substrate binding at active sites. Loss of surface charge often causes protein aggregation and precipitation."
+            },
+            {
+                question: "Why are globular proteins particularly sensitive to changes in temperature and pH?",
+                options: [
+                    "They are primarily held together by weak bonds (ionic, hydrogen) that can be disrupted",
+                    "They have more disulfide bonds than fibrous proteins",
+                    "They cannot exist in physiological conditions",
+                    "They denature irreversibly"
+                ],
+                correct: 0,
+                explanation: "Globular proteins are held together primarily by weak interactions: hydrogen bonds, ionic bonds (salt bridges), and hydrophobic effects. These interactions are disrupted by temperature changes (increased thermal motion) and pH changes (ionization changes that disrupt salt bridges, alter hydrogen bonding). In contrast, fibrous proteins like collagen have extensive disulfide bonds and covalent cross-links, making them more resistant. This is why enzymes have narrow optimal pH and temperature ranges."
+            },
+            {
+                question: "What is the distinctive structural feature of collagen?",
+                options: [
+                    "Triple helix",
+                    "Random coil",
+                    "Beta pleated sheet",
+                    "Alpha helix"
+                ],
+                correct: 0,
+                explanation: "Collagen's distinctive structure is a triple helix—three left-handed polypeptide chains wound around each other in a right-handed superhelix. This gives collagen its characteristic strength and stability. The tight packing requires glycine (the smallest amino acid) at every third position. This is a unique structure in proteins—most proteins are single chains or loosely associated subunits. The triple helix can be disrupted by heating (used in gelatin production) but reforms on cooling."
+            },
+            {
+                question: "In the collagen amino acid sequence, every third amino acid is:",
+                options: [
+                    "Lysine",
+                    "Glycine",
+                    "Alanine",
+                    "Proline"
+                ],
+                correct: 1,
+                explanation: "The collagen sequence is Gly-X-Y repeated hundreds of times, where X is often proline and Y is often hydroxyproline. This rigid, repetitive structure is critical to collagen's function. The frequent glycine placement is evolutionarily optimized—collagen is NOT a random protein. This pattern is so characteristic that you can identify collagen sequences just by looking for this repetitive pattern."
+            },
+            {
+                question: "Why is glycine at every third position critical to collagen's triple helix structure?",
+                options: [
+                    "Glycine is hydrophobic and stabilizes interactions",
+                    "Glycine contains sulfur and forms bonds",
+                    "Glycine has the smallest side chain (just -H), allowing tight packing needed for triple helix formation",
+                    "Glycine is the largest amino acid and provides bulk"
+                ],
+                correct: 2,
+                explanation: "Glycine's side chain is just -H (a single hydrogen atom). This makes it the smallest amino acid. In the collagen triple helix, three polypeptide chains wind tightly together, and every third residue points toward the center. Only glycine is small enough to fit in this central cavity without steric clash. Any larger amino acid (even alanine with its -CH₃) would disrupt the structure. This is a beautiful example of how amino acid properties determine protein structure."
+            },
+            {
+                question: "Vitamin C functions as a cofactor for which enzyme involved in collagen synthesis?",
+                options: [
+                    "Collagenase",
+                    "Glycosidase",
+                    "Carbonic anhydrase",
+                    "Prolyl hydroxylase"
+                ],
+                correct: 3,
+                explanation: "Prolyl hydroxylase is the enzyme that hydroxylates proline residues in collagen, converting them to hydroxyproline. Vitamin C (ascorbic acid) is an essential cofactor—it keeps the enzyme's iron center in the Fe²⁺ oxidation state. Without Vitamin C, the enzyme can't function, collagen isn't properly cross-linked, and structural integrity fails. This is why Vitamin C supplementation is crucial for wound healing."
+            },
+            {
+                question: "What is the specific role of prolyl hydroxylase in collagen formation?",
+                options: [
+                    "It hydroxylates proline residues to form hydroxyproline (Hyp) for proper collagen stability",
+                    "It adds carbohydrates to collagen",
+                    "It breaks down collagen after synthesis",
+                    "It creates the triple helix structure"
+                ],
+                correct: 0,
+                explanation: "Prolyl hydroxylase adds a hydroxyl group (-OH) to proline residues, creating hydroxyproline. Hydroxyproline residues form additional hydrogen bonds (the new -OH group can hydrogen bond), which stabilize collagen's triple helix and overall structure. Hydroxyproline makes up ~10% of collagen—that's a LOT of post-translational modification. Without it, collagen is less stable and more prone to degradation."
+            },
+            {
+                question: "The disease scurvy is caused by deficiency of Vitamin C, which impairs:",
+                options: [
+                    "Thyroid hormone production",
+                    "Collagen formation due to lack of prolyl hydroxylase cofactor",
+                    "Hemoglobin synthesis",
+                    "Calcium absorption"
+                ],
+                correct: 1,
+                explanation: "Scurvy is caused by Vitamin C deficiency, which prevents prolyl hydroxylase from functioning. This means collagen can't be properly hydroxylated, weakening its structure. Symptoms include poor wound healing, bleeding gums, and joint pain (collagen in connective tissue breaks down). Historical note: sailors on long voyages developed scurvy until citrus fruits were provided. This was one of the earliest connections between nutrition and disease."
+            },
+            {
+                question: "What is the primary biochemical role of an enzyme in a biochemical reaction?",
+                options: [
+                    "To change the free energy (ΔG) of the overall reaction",
+                    "To provide energy for reactions to proceed",
+                    "To lower the activation energy required for a reaction",
+                    "To shift the equilibrium entirely toward products"
+                ],
+                correct: 2,
+                explanation: "Enzymes are catalysts—they speed up reactions by LOWERING the activation energy (Ea) barrier, allowing more molecules to overcome it at physiological temperature. They do NOT change the starting energy of reactants or the ending energy of products (ΔG remains the same). They do NOT make unfavorable reactions favorable—if ΔG is positive, no enzyme will make it go forward. Understanding this distinction is crucial for biochemistry exams."
+            },
+            {
+                question: "Which of the following is NOT a function of enzymes?",
+                options: [
+                    "Increasing reaction rate",
+                    "Lowering activation energy",
+                    "Changing the free energy of reactants and products",
+                    "Providing specificity for their substrates"
+                ],
+                correct: 2,
+                explanation: "Enzymes lower Ea, increase reaction rate, and provide specificity. They do NOT change ΔG (free energy change) of the reaction. If a reaction is thermodynamically unfavorable (ΔG > 0), adding an enzyme won't make it happen spontaneously. They don't provide energy (though coupled reactions can). Misunderstanding this is a common exam trap—enzymes speed up reactions, they don't force unfavorable ones to occur."
+            },
+            {
+                question: "What is the primary exception to the rule that enzymes are proteins?",
+                options: [
+                    "Catalytic RNA (ribozymes) can act as enzymes",
+                    "Metal ions act as enzymes",
+                    "Cofactors are enzymes",
+                    "Carbohydrates can catalyze reactions"
+                ],
+                correct: 0,
+                explanation: "Most enzymes are proteins, but RNA can also catalyze reactions—these are called ribozymes or catalytic RNAs. Examples: RNase P (processes precursor tRNA), spliceosome (removes introns from pre-mRNA), self-splicing introns. This discovery revolutionized understanding of RNA—it's not just a messenger; it has catalytic ability. This supports the RNA World hypothesis for early life."
+            },
+            {
+                question: "According to the lock-and-key theory of enzyme-substrate interaction, what occurs when a substrate binds?",
+                options: [
+                    "The enzyme becomes denatured",
+                    "The substrate is immediately converted to product",
+                    "A conformational change occurs that stabilizes the transition state, facilitating the reaction",
+                    "The enzyme's active site is permanently altered"
+                ],
+                correct: 2,
+                explanation: "The lock-and-key model says the substrate (key) fits into the enzyme's active site (lock), but the MORE accurate model is induced fit: substrate binding causes a conformational change in the enzyme that stabilizes the transition state of the reaction. The stabilization lowers the activation energy. The enzyme-substrate complex briefly forms, reaction occurs, product is released, enzyme regenerates. This happens thousands of times per second."
+            },
+            {
+                question: "If you double the amount of enzyme present while substrate concentration remains constant, the reaction rate will:",
+                options: [
+                    "Decrease",
+                    "Double",
+                    "Remain the same",
+                    "Quadruple"
+                ],
+                correct: 1,
+                explanation: "If you double enzyme while substrate is in excess (not limiting), reaction rate doubles proportionally. This is because more enzyme molecules = more active sites = more reactions per unit time. This linear relationship holds as long as substrate isn't limiting. If substrate is already limiting (saturating the enzyme), adding more enzyme won't help—you'd need more substrate. This principle is used to troubleshoot reactions."
+            },
+            {
+                question: "If you double the substrate concentration in an enzyme-catalyzed reaction, the reaction rate will:",
+                options: [
+                    "Increase exponentially",
+                    "Remain the same",
+                    "NOT double—it will plateau as enzyme active sites become saturated (hyperbolic curve)",
+                    "Double as well"
+                ],
+                correct: 2,
+                explanation: "Doubling substrate does NOT double reaction rate. Instead, the rate increases but not linearly—it follows a hyperbolic curve (Michaelis-Menten kinetics). At low [S], doubling substrate increases rate significantly. At high [S], enzyme active sites are already saturated, so doubling substrate barely increases rate. This saturation kinetics is characteristic of enzyme-catalyzed reactions. On an exam: never say 'doubling substrate doubles rate'—that's wrong."
+            },
+            {
+                question: "Km (Michaelis constant) is defined as:",
+                options: [
+                    "The substrate concentration at which the reaction velocity is half of Vmax (Vmax/2)",
+                    "The binding constant between enzyme and product",
+                    "The maximum speed of an enzyme-catalyzed reaction",
+                    "The temperature at which an enzyme is most active"
+                ],
+                correct: 0,
+                explanation: "Km is the substrate concentration at which reaction velocity = Vmax/2 (half-maximal velocity). It has units of concentration (mM, μM). Km is NOT the equilibrium dissociation constant, though for some simple enzymes it approximates this. Km is an important parameter: it tells you how much substrate is needed to get the enzyme 'working' efficiently. Different enzymes have different Km values for the same substrate, reflecting different affinities."
+            },
+            {
+                question: "If an enzyme has a small Km value, this indicates:",
+                options: [
+                    "The enzyme is easily inhibited",
+                    "The enzyme has high affinity for its substrate and reaches Vmax at relatively low [S]",
+                    "The enzyme requires high substrate concentration to reach maximum velocity",
+                    "The enzyme has low affinity for its substrate"
+                ],
+                correct: 1,
+                explanation: "Small Km = high affinity = enzyme reaches Vmax/2 at low [S]. The enzyme 'grabs' substrate efficiently even when it's scarce. Example: enzymes regulating hormones often have low Km for their hormonal substrates (because hormones are present at low concentrations and need rapid response). Large Km = low affinity = enzyme only 'works well' at high [S]. This is evolutionarily important: enzymes are optimized for their substrate concentrations."
+            },
+            {
+                question: "Comparing two enzymes catalyzing the same reaction: Enzyme A has Km = 0.5 mM, Enzyme B has Km = 5 mM. Which enzyme has higher affinity for the substrate?",
+                options: [
+                    "They have equal affinity",
+                    "Enzyme B",
+                    "Enzyme A (smaller Km = higher affinity)",
+                    "Affinity cannot be determined from Km alone"
+                ],
+                correct: 2,
+                explanation: "Enzyme A (Km = 0.5 mM) has HIGHER affinity than Enzyme B (Km = 5 mM) because it reaches Vmax/2 at a lower substrate concentration. The relationship is inverse: smaller Km = higher affinity. This is important for understanding enzyme regulation—if a substrate concentration changes, enzymes with higher affinity respond more sensitively. In metabolism, this allows coordinated regulation: different enzymes have different Km values for the same substrates."
+            },
+            {
+                question: "Enzyme regulation that occurs over hours to days through changes in enzyme synthesis is called:",
+                options: [
+                    "Allosteric control",
+                    "Covalent modification",
+                    "Isozyme switching",
+                    "Long-term regulation (transcriptional/translational control)"
+                ],
+                correct: 3,
+                explanation: "Long-term regulation (hours to days) works by changing the AMOUNT of enzyme present. This happens through transcriptional control (increased mRNA synthesis), translational control (increased protein synthesis), or protein degradation (reduced enzyme amount). This is slow but powerful—you can completely change metabolic capacity. Example: starvation increases gluconeogenic enzymes, fed state increases glycolytic enzymes. This requires new protein synthesis."
+            },
+            {
+                question: "Short-term enzyme regulation occurs over seconds to minutes through which mechanism(s)?",
+                options: [
+                    "Changing the amount of enzyme via transcription/translation",
+                    "Allosteric control, isozymes, and covalent modifications",
+                    "Only through feedback inhibition",
+                    "Degradation of the enzyme"
+                ],
+                correct: 1,
+                explanation: "Short-term regulation (seconds to minutes) changes enzyme ACTIVITY without changing amount. Mechanisms include: (1) Allosteric control—regulatory molecules bind sites other than active site, altering Vmax/Km; (2) Isozymes—different enzyme forms expressed in different tissues; (3) Covalent modification—phosphorylation/dephosphorylation, etc. These are reversible and allow rapid response to cellular signals. Example: phosphorylation of glycogen phosphorylase in response to epinephrine."
+            },
+            {
+                question: "What is a key advantage of allosteric control for short-term enzyme regulation?",
+                options: [
+                    "It is very slow but highly specific",
+                    "It is reversible and allows rapid response to cellular signals",
+                    "It requires no energy",
+                    "It is permanent and irreversible"
+                ],
+                correct: 1,
+                explanation: "Allosteric control is reversible and allows rapid response (seconds) to cellular signals. An allosteric activator increases enzyme activity; an allosteric inhibitor decreases it. These regulatory molecules bind sites OTHER than the active site and change enzyme shape/activity. This is much faster than making new enzyme (which takes hours) and reversible (unlike peptide cleavage). Example: phosphofructokinase in glycolysis is allosterically inhibited by ATP and citrate."
+            },
+            {
+                question: "Isozymes are best described as:",
+                options: [
+                    "Multiple copies of the same enzyme",
+                    "Enzymes that require multiple cofactors",
+                    "Different molecular forms of the same enzyme that catalyze the same reaction but have different kinetics and regulation",
+                    "Enzymes that can only work on one substrate"
+                ],
+                correct: 2,
+                explanation: "Isozymes (or isoenzymes) are different molecular forms of the same enzyme catalyzing the same reaction but with different kinetics and regulation. They're encoded by different genes and often expressed in different tissues. Example: Lactate dehydrogenase (LDH) has 5 isozymes (tissue-specific combinations of M and H subunits). Different tissues express different isozymes optimized for their metabolic needs. This allows coordinated but tissue-specific regulation."
+            },
+            {
+                question: "The advantage of using isozymes for enzyme regulation is that:",
+                options: [
+                    "They eliminate the need for other regulatory mechanisms",
+                    "One enzyme can serve all metabolic needs",
+                    "Isozymes are always more efficient than regular enzymes",
+                    "Different tissues/conditions can express different forms with appropriate kinetics/regulation"
+                ],
+                correct: 3,
+                explanation: "Using isozymes allows different tissues/conditions to express forms optimized for their specific needs. Example: red blood cells express high-Km hexokinase (GLUT1-hexokinase complex), while liver expresses glucokinase (high Km glucose sensor). Isozymes also allow tissue-specific regulation—liver isozymes respond to fed/fasted state differently than muscle isozymes. This is more elegant than having a single enzyme trying to handle all metabolic contexts."
+            },
+            {
+                question: "The two main types of covalent enzyme modifications are:",
+                options: [
+                    "Peptide bond cleavage and chemical modification",
+                    "Phosphorylation and dephosphorylation",
+                    "Acetylation and methylation",
+                    "Glycosylation and hydroxylation"
+                ],
+                correct: 0,
+                explanation: "Covalent modifications fall into two categories: (1) Peptide bond cleavage (proteolytic activation/inactivation—irreversible), and (2) Chemical modification (phosphorylation, glycosylation, methylation, etc.—often reversible). Cleavage examples: conversion of trypsinogen to trypsin, activation of caspases in apoptosis. Chemical modification examples: phosphorylation of kinases. Understanding which is reversible matters for mechanism."
+            },
+            {
+                question: "Which type of covalent enzyme modification is generally irreversible?",
+                options: [
+                    "Phosphorylation",
+                    "Peptide bond cleavage",
+                    "Glycosylation",
+                    "Hydroxylation"
+                ],
+                correct: 1,
+                explanation: "Cutting peptide bonds is generally irreversible (you'd need to re-synthesize the protein to 'undo' it). This is used for permanent activation (convert inactive zymogen to active enzyme) or inactivation. Example: Digestive enzymes are secreted as inactive zymogens (pepsinogen, trypsinogen) and activated by proteolytic cleavage in the gut. This prevents autolysis in the pancreas. Cleavage is a one-way commitment—useful when permanent change is needed."
+            },
+            {
+                question: "Chemical modifications of enzymes include all of the following EXCEPT:",
+                options: [
+                    "Phosphorylation",
+                    "Glycosylation",
+                    "Gene amplification",
+                    "Hydroxylation"
+                ],
+                correct: 2,
+                explanation: "Chemical modifications (phosphorylation, glycosylation, methylation, hydroxylation, etc.) are types of covalent modification. Gene amplification is NOT a covalent modification—it's a genetic change (more copies of the gene). Covalent modifications alter enzyme activity post-translationally. Gene amplification changes the AMOUNT of enzyme synthesized (long-term regulation). These are different regulatory levels."
+            },
+            {
+                question: "Which amino acids contain hydroxyl (-OH) groups that can be phosphorylated in post-translational enzyme regulation?",
+                options: [
+                    "Leucine, isoleucine, valine",
+                    "Histidine, arginine",
+                    "Serine, threonine, tyrosine",
+                    "Aspartate, glutamate"
+                ],
+                correct: 2,
+                explanation: "Serine, threonine, and tyrosine all contain hydroxyl (-OH) groups that can be phosphorylated (adding a phosphate group, creating PO₄²⁻). These are the main targets of kinases in cell signaling. Phosphorylation of Ser/Thr/Tyr changes charge and often alters enzyme activity. Ser/Thr phosphorylation is VERY common (often in regulatory proteins). Tyr phosphorylation is especially important in receptor tyrosine kinase signaling."
+            },
+            {
+                question: "A kinase enzyme functions to:",
+                options: [
+                    "Add phosphate groups to hydroxyl-containing residues to alter enzyme activity",
+                    "Add carbohydrate chains to proteins",
+                    "Break peptide bonds",
+                    "Remove phosphate groups from target proteins"
+                ],
+                correct: 0,
+                explanation: "Kinases ADD phosphate groups (from ATP) to target proteins, typically on Ser/Thr/Tyr residues. This phosphorylation changes the protein's charge and often activates or inactivates it. Most kinases are activated by phosphorylation themselves (cascades). There are ~500 kinases in the human genome—one of the largest enzyme families. Understanding kinase cascades is crucial for cell signaling."
+            },
+            {
+                question: "A phosphatase enzyme functions to:",
+                options: [
+                    "Synthesize ATP",
+                    "Remove phosphate groups from proteins",
+                    "Add phosphate groups to proteins",
+                    "Hydrolyze peptide bonds"
+                ],
+                correct: 1,
+                explanation: "Phosphatases REMOVE phosphate groups from target proteins (opposite of kinases). Removing the phosphate reverses kinase-mediated changes. The kinase/phosphatase balance determines enzyme activity—it's a regulatory switch. Phosphatases are equally important as kinases in signaling. Example: Calcineurin is a phosphatase that dephosphorylates NFAT, allowing immune cell activation. Dysregulation of kinases/phosphatases is common in cancer."
+            },
+            {
+                question: "Why is the kinase/phosphatase regulatory system particularly effective for enzyme control?",
+                options: [
+                    "It is very slow but highly specific",
+                    "It is irreversible and permanent",
+                    "It is reversible and allows for rapid response to cellular signals via rapid addition/removal of phosphates",
+                    "It requires no energy input"
+                ],
+                correct: 2,
+                explanation: "The kinase/phosphatase system is incredibly effective because: (1) It's reversible—you can quickly turn activity on/off; (2) It's fast—phosphorylation happens in seconds; (3) It's amplified—one kinase can phosphorylate many proteins, creating cascades; (4) It's specific—different kinases target different residues. This system allows cells to respond rapidly to signals like hormones, growth factors, and stress. Disruption of this system (e.g., oncogenic kinases) causes cancer."
+            },
+            {
+                question: "Glycosylation as an enzyme modification involves:",
+                options: [
+                    "Breaking disulfide bonds",
+                    "Adding a phosphate group to lysine residues",
+                    "Attaching a carbohydrate chain to the enzyme",
+                    "Removing amino acids from the enzyme"
+                ],
+                correct: 2,
+                explanation: "Glycosylation is the addition of carbohydrate chains (oligosaccharides or polysaccharides) to proteins. This can occur on asparagine residues (N-glycosylation, in ER/Golgi) or on Ser/Thr residues (O-glycosylation, in Golgi). Glycosylation affects protein folding, stability, localization, and immunogenicity. Many blood proteins are glycosylated. Defective glycosylation causes congenital disorders of glycosylation (CDG)."
+            },
+            {
+                question: "Hydroxylation in the context of collagen involves:",
+                options: [
+                    "Adding a carbohydrate chain",
+                    "Adding a hydroxyl group (-OH) to proline and lysine residues",
+                    "Removing water molecules",
+                    "Adding phosphate groups"
+                ],
+                correct: 1,
+                explanation: "Hydroxylation adds a hydroxyl (-OH) group to specific residues. In collagen, prolyl hydroxylase hydroxylates proline → hydroxyproline, and lysyl hydroxylase hydroxylates lysine → hydroxylysine. These modifications stabilize collagen's structure through additional hydrogen bonding (hydroxyproline) and allow cross-linking (hydroxylysine can form covalent cross-links). This is why Vitamin C is essential for collagen synthesis."
+            },
+            {
+                question: "Vitamin K serves as a cofactor for γ-carboxylation of prothrombin. What is the significance of this modification?",
+                options: [
+                    "It breaks peptide bonds",
+                    "It maintains proper blood clotting function by adding carboxyl groups",
+                    "It changes the shape of the protein",
+                    "It adds a carbohydrate chain"
+                ],
+                correct: 1,
+                explanation: "Vitamin K is a cofactor for γ-glutamyl carboxylase, which adds carboxyl groups (-COOH) to glutamate residues in prothrombin and other clotting factors. These γ-carboxyglutamate residues bind calcium, which is essential for clotting cascade activation. Without Vitamin K, clotting factors don't function properly → bleeding disorder. This is why warfarin (Vitamin K antagonist) is used as an anticoagulant."
+            },
+            {
+                question: "Competitive inhibition occurs when:",
+                options: [
+                    "An inhibitor binds to a site different from the active site",
+                    "An inhibitor causes permanent denaturation",
+                    "An inhibitor competes with substrate for binding to the active site",
+                    "An inhibitor binds to the enzyme-substrate complex"
+                ],
+                correct: 2,
+                explanation: "Competitive inhibitors structurally resemble the substrate and compete for binding to the enzyme's active site. Since both inhibitor and substrate vie for the same site, this is a competition (hence the name). The inhibitor prevents substrate from binding. Clinically important: many drugs are competitive inhibitors designed to block specific enzymes. Example: Statins competitively inhibit HMG-CoA reductase in cholesterol synthesis."
+            },
+            {
+                question: "How can you overcome competitive inhibition of an enzyme?",
+                options: [
+                    "You cannot overcome it",
+                    "Add more enzyme",
+                    "Increase the concentration of substrate",
+                    "Lower the temperature"
+                ],
+                correct: 2,
+                explanation: "Because competitive inhibitors bind the active site, you can overcome inhibition by increasing substrate concentration. At high enough [S], substrate outcompetes inhibitor for the active site. This is the defining feature of competitive inhibition. On a Michaelis-Menten plot, competitive inhibition increases apparent Km but doesn't change Vmax (more substrate needed but same max rate). This mechanism is exploited therapeutically."
+            },
+            {
+                question: "Noncompetitive inhibition differs fundamentally from competitive inhibition because:",
+                options: [
+                    "The inhibitor binds to a site OTHER than the active site and cannot be overcome by increasing [S]",
+                    "The inhibitor binds to the active site (same as competitive)",
+                    "Noncompetitive inhibitors are always reversible",
+                    "Noncompetitive inhibitors only affect enzyme structure"
+                ],
+                correct: 0,
+                explanation: "Noncompetitive inhibitors bind to a site DIFFERENT from the active site (allosteric site). This binding doesn't directly block substrate access but causes a conformational change that reduces enzyme activity. Crucially, increasing substrate concentration CANNOT overcome noncompetitive inhibition because the inhibitor isn't competing for the active site—it's stuck on the allosteric site. On kinetics plots, noncompetitive inhibition decreases Vmax but doesn't change Km."
+            },
+            {
+                question: "Can noncompetitive inhibition be overcome by increasing substrate concentration?",
+                options: [
+                    "Yes, always",
+                    "No, because the inhibitor is not competing for the active site",
+                    "Only if the inhibitor is reversible",
+                    "Only if allosteric sites are present"
+                ],
+                correct: 1,
+                explanation: "You CANNOT overcome noncompetitive inhibition by adding more substrate. The inhibitor is bound to an allosteric site, not the active site, so substrate concentration is irrelevant. The inhibitor reduces enzyme activity regardless of how much substrate is present. This is the key distinction from competitive inhibition. Clinically: irreversible noncompetitive inhibitors are useful because they provide lasting effects with smaller doses."
+            },
+            {
+                question: "Uncompetitive inhibitors bind to:",
+                options: [
+                    "The active site",
+                    "The free enzyme only",
+                    "The ES (enzyme-substrate) complex",
+                    "The product"
+                ],
+                correct: 2,
+                explanation: "Uncompetitive inhibitors bind specifically to the ES (enzyme-substrate) complex, not to free enzyme. This is unique—they don't inhibit formation of the complex, but rather stabilize it, preventing product formation. Uncompetitive inhibition decreases both Vmax and Km proportionally. These are less common than competitive/noncompetitive types but important in some metabolic pathways where product inhibition is regulated."
+            },
+            {
+                question: "A nucleoside consists of:",
+                options: [
+                    "A sugar + nitrogenous base",
+                    "A base + phosphate group",
+                    "A sugar + amino acid",
+                    "A sugar + phosphate group"
+                ],
+                correct: 0,
+                explanation: "A nucleoside = sugar (ribose or deoxyribose) + nitrogenous base (purine or pyrimidine). Example: adenosine (adenine + ribose), deoxyguanosine (guanine + deoxyribose). Nucleosides are building blocks for nucleotides and can also be signaling molecules (adenosine activates purinergic receptors). They appear in nature and can be taken up by cells for nucleotide synthesis (salvage pathway)."
+            },
+            {
+                question: "How does a nucleotide differ from a nucleoside?",
+                options: [
+                    "A nucleotide is smaller",
+                    "A nucleotide is the same as a nucleoside",
+                    "A nucleotide contains an additional phosphate group",
+                    "A nucleotide cannot form polymers"
+                ],
+                correct: 2,
+                explanation: "A nucleotide = nucleoside + phosphate group(s). Example: adenosine monophosphate (AMP) = adenosine + 1 PO₄; ATP = adenosine + 3 phosphates. The phosphate groups are critical—they make nucleotides the energy currency of cells (ATP), building blocks of RNA/DNA, and signaling molecules. Nucleosides are relatively inert compared to nucleotides. Adding phosphate is like activating the nucleoside for function."
+            },
+            {
+                question: "How do carbohydrates primarily supply biological energy to cells?",
+                options: [
+                    "Through glycolysis and the TCA cycle, which break down glucose to produce ATP",
+                    "By being converted directly to amino acids",
+                    "Through photosynthesis in mitochondria",
+                    "By storing energy as proteins"
+                ],
+                correct: 0,
+                explanation: "Carbohydrates are the primary fuel for cells. Glucose enters glycolysis (cytoplasm), producing pyruvate and ATP. Pyruvate enters the TCA cycle (mitochondria), generating more ATP, NADH, and FADH₂. The electron transport chain oxidizes NADH and FADH₂ to generate the bulk of ATP. This is the central energy-production pathway in all cells. Understanding glucose metabolism is fundamental to biochemistry."
+            },
+            {
+                question: "Which of the following is classified as a monosaccharide?",
+                options: [
+                    "Starch",
+                    "Glucose",
+                    "Sucrose",
+                    "Glycogen"
+                ],
+                correct: 1,
+                explanation: "Monosaccharides are single sugar units that cannot be hydrolyzed into smaller sugars. Glucose is the archetypal monosaccharide—6 carbons, formula C₆H₁₂O₆. Other monosaccharides include galactose, fructose, and ribose. Starch and glycogen are polysaccharides (many glucose units). Sucrose is a disaccharide (2 units). Knowing monosaccharide chemistry is essential for understanding all carbohydrate metabolism."
+            },
+            {
+                question: "All of the following are monosaccharides EXCEPT:",
+                options: [
+                    "Fructose",
+                    "Galactose",
+                    "Glucose",
+                    "Cellulose"
+                ],
+                correct: 3,
+                explanation: "Cellulose is a polysaccharide made of thousands of glucose units linked by β-1,4 glycosidic bonds. It's the structural component of plant cell walls. Fructose, galactose, and glucose are all monosaccharides (C₆H₁₂O₆). Distinguishing monosaccharides from poly/oligosaccharides is a fundamental classification that affects their solubility, absorption, and metabolism."
+            },
+            {
+                question: "A disaccharide consists of:",
+                options: [
+                    "One monosaccharide unit",
+                    "Two monosaccharide units linked by a glycosidic bond",
+                    "Many polysaccharide units",
+                    "3-10 monosaccharide units"
+                ],
+                correct: 1,
+                explanation: "Disaccharides are exactly two monosaccharides joined by a glycosidic bond (C-O-C). Examples: maltose (glucose+glucose), sucrose (glucose+fructose), lactose (galactose+glucose). Disaccharides are smaller than polysaccharides but larger than single monosaccharides. They're absorbed in the small intestine after digestion. Understanding disaccharide composition is clinically important (lactose intolerance = inability to digest lactose)."
+            },
+            {
+                question: "An oligosaccharide is best defined as:",
+                options: [
+                    "A carbohydrate polymer containing 3-10 monosaccharide units",
+                    "A single monosaccharide",
+                    "A polymer with more than 100 units",
+                    "Any carbohydrate except glucose"
+                ],
+                correct: 0,
+                explanation: "Oligosaccharides ('oligo' = few) contain 3-10 monosaccharide units. They're intermediate between disaccharides (2 units) and polysaccharides (>10 units). Examples: trisaccharides (3 units), tetrasaccharides (4 units). This category is less commonly discussed than mono/di/polysaccharides but is important in glycobiology and cell signaling."
+            },
+            {
+                question: "Which of the following is a polysaccharide that stores glucose in plant cells?",
+                options: [
+                    "Fructose",
+                    "Starch",
+                    "Lactose",
+                    "Galactose"
+                ],
+                correct: 1,
+                explanation: "Starch is the primary energy storage polysaccharide in plants, made of glucose units linked by α-1,4 and α-1,6 glycosidic bonds. Humans digest starch with amylase enzymes to release glucose. Starch consists of amylose (unbranched) and amylopectin (branched) components. Glycogen is the animal equivalent. Understanding starch digestion is relevant to glucose homeostasis and diabetes."
+            },
+            {
+                question: "What structural feature defines an aldohexose?",
+                options: [
+                    "A ketone (C=O) group in the main chain",
+                    "An aldehyde (H-C=O) group on the first carbon",
+                    "A hydroxyl group on every carbon",
+                    "Six branching points"
+                ],
+                correct: 1,
+                explanation: "Aldohexoses have a terminal aldehyde group (-CHO) on C1 and six carbons total. 'Aldo' = aldehyde. The aldehyde group is what makes these sugars reducing sugars (capable of reducing Cu²⁺ in lab assays). Examples: glucose, galactose, mannose. Ketohexoses have the carbonyl in a different position (C2). This structural distinction affects reactivity."
+            },
+            {
+                question: "Which of the following sugars are aldohexoses?",
+                options: [
+                    "Fructose and xylose only",
+                    "Glucose, galactose, and mannose",
+                    "Only ketohexoses",
+                    "All sugars containing six carbons"
+                ],
+                correct: 1,
+                explanation: "Glucose, galactose, and mannose all have aldehyde groups at C1 and six carbons. They're all aldohexoses. Fructose is a ketohexose (ketone at C2). These structural differences matter because: (1) they affect glycosidic linkage formation at C1 (anomeric carbon), (2) they determine which isomers form (α vs β), and (3) they affect reactivity and enzymatic specificity."
+            },
+            {
+                question: "What structural feature defines a ketohexose?",
+                options: [
+                    "An aldehyde group at C1",
+                    "Six branches",
+                    "A hydroxyl group on C1",
+                    "A ketone (C=O) group, typically at C2, within the carbon chain"
+                ],
+                correct: 3,
+                explanation: "Ketohexoses have a ketone (C=O) group within the chain (usually at C2) rather than as a terminal aldehyde. 'Keto' = ketone. The classic ketohexose is fructose (C₆H₁₂O₆, but with ketone at C2). Despite having the same molecular formula as glucose, fructose behaves differently due to its carbonyl position. This structural difference means fructose is still a reducing sugar but has different enzyme specificity in metabolism."
+            },
+            {
+                question: "Fructose is an example of a ketohexose. Which position does fructose's carbonyl group occupy?",
+                options: [
+                    "C1 (terminal position)",
+                    "C2 (second carbon)",
+                    "C6 (end of chain)",
+                    "Throughout the chain"
+                ],
+                correct: 1,
+                explanation: "Fructose has its ketone group at C2, making it a ketohexose (vs glucose with aldehyde at C1). This C2 ketone is significant because when fructose forms a ring structure, the anomeric carbon is C2 (not C1 like glucose). Fructose is sweeter than glucose and has different metabolic handling (primarily in liver). Understanding this structural difference is important for metabolism questions."
+            },
+            {
+                question: "The anomeric carbon in a sugar is best defined as:",
+                options: [
+                    "Any carbon with a hydroxyl group",
+                    "The last carbon in the chain",
+                    "The carbon where the ring closes (where the aldehyde/ketone reacts with a hydroxyl group)",
+                    "The carbon where mutarotation occurs, determining α and β isomers"
+                ],
+                correct: 2,
+                explanation: "The anomeric carbon is where the carbonyl (C=O) becomes a chiral center upon ring formation. In glucose, this is C1. When the C1 aldehyde reacts with the C5 hydroxyl, a ring forms and C1 becomes the anomeric carbon. The hydroxyl on the anomeric carbon can point up (β) or down (α), creating different isomers. This position is crucial for glycosidic bond formation because disaccharides and polysaccharides link through the anomeric carbon."
+            },
+            {
+                question: "At physiological pH and temperature, glucose predominantly exists in which form?",
+                options: [
+                    "Free aldehyde (linear form)",
+                    "Cyclic ring structure (overwhelmingly favors the ring form)",
+                    "Dehydrated form",
+                    "A mixture of aldehyde and ring forms in equal amounts"
+                ],
+                correct: 1,
+                explanation: "Equilibrium heavily favors the cyclic form of glucose (>99% in cells). The linear aldehyde form is present in only trace amounts. This is thermodynamically favorable because: (1) the ring is more stable, (2) it shields the reactive aldehyde group, (3) it allows hydrogen bonding. This is why glucose is relatively inert in cells despite having a reactive aldehyde—it's safely locked in the ring. Only small amounts of open-chain form are available for reactions."
+            },
+            {
+                question: "A furanose is best described as:",
+                options: [
+                    "A five-membered ring form of a sugar",
+                    "A six-membered ring form of a sugar",
+                    "A linear form of a sugar",
+                    "A sugar with more than six carbons"
+                ],
+                correct: 0,
+                explanation: "Furanose comes from 'furan,' a five-membered ring. Fructose commonly forms a furanose (5-membered ring). Ribose (in RNA) also forms a furanose. The five-membered ring is less common than six-membered pyranose for hexoses, but important in pentoses and some derivatives. The ring size affects structure and function—RNA uses ribofuranose, which contributes to RNA's different structure compared to DNA."
+            },
+            {
+                question: "A pyranose ring form refers to:",
+                options: [
+                    "A five-membered ring sugar",
+                    "A six-membered ring form of sugar, commonly seen in glucose and galactose",
+                    "A linear sugar chain",
+                    "A polymerized form"
+                ],
+                correct: 1,
+                explanation: "Pyranose comes from 'pyran,' a six-membered ring. Glucose typically forms glucopyranose (6-membered ring). Galactose forms galactopyranose. The six-membered ring is more common for hexoses than the five-membered furanose form. Understanding pyranose vs furanose is important for recognizing different sugar forms in complex carbohydrates and nucleotides."
+            },
+            {
+                question: "In glucose, the alpha (α) hydroxyl group on the anomeric carbon (C1) points:",
+                options: [
+                    "Above the ring plane (axial)",
+                    "Perpendicular to the ring",
+                    "Below the ring plane",
+                    "Varies depending on temperature"
+                ],
+                correct: 2,
+                explanation: "In α-glucose (the more common form at equilibrium), the hydroxyl on C1 points DOWN (below the ring plane). This is α-linkage. In β-glucose, the hydroxyl points UP. The α/β distinction seems small but is CRITICAL: α-1,4 linkages (glucose to glucose) form starch and glycogen; β-1,4 linkages form cellulose. Humans can digest α-linkages but not β-linkages, which is why cellulose is indigestible fiber."
+            },
+            {
+                question: "In glucose, the beta (β) hydroxyl group on the anomeric carbon (C1) points:",
+                options: [
+                    "Below the ring plane",
+                    "Horizontally along the ring",
+                    "Varies based on pH",
+                    "Above the ring plane"
+                ],
+                correct: 3,
+                explanation: "In β-glucose, the hydroxyl on C1 points UP (above the ring plane). This is the opposite of α-glucose. At physiological equilibrium, glucose exists as ~36% β-glucose and ~64% α-glucose (the α form is slightly more stable). Despite the smaller percentage, β-glucose is important because: (1) many enzymes recognize β-anomers, (2) glycosidic bonds require the anomeric OH, (3) the ratio shifts during metabolism."
+            },
+            {
+                question: "In fructose, which carbon is the anomeric carbon when it forms a cyclic ring structure?",
+                options: [
+                    "C2",
+                    "C1",
+                    "C6",
+                    "C3"
+                ],
+                correct: 0,
+                explanation: "Fructose's anomeric carbon is C2 (where the ketone is), not C1 like glucose. When fructose cyclizes, its C2 ketone becomes the ring-closing carbon, making C2 chiral and anomeric. This C2 anomeric position is why fructose's ring structure and isomerization behavior differ from glucose. This affects how fructose participates in disaccharides—sucrose is glucose C1 linked to fructose C2 (not glucose C1 to glucose C1 like maltose)."
+            },
+            {
+                question: "When a monosaccharide's hydroxyl group reacts with an aldehyde or ketone group from another sugar, what happens?",
+                options: [
+                    "The sugars are oxidized",
+                    "A glycosidic bond forms and water is released (condensation reaction)",
+                    "The sugars separate further",
+                    "A hydrogen bond forms"
+                ],
+                correct: 1,
+                explanation: "Hydroxyl groups from one sugar react with the aldehyde/ketone (anomeric carbon) of another sugar, forming a C-O-C glycosidic bond with loss of water. This is condensation/dehydration synthesis—the same mechanism as forming peptide bonds and ester bonds. The reverse reaction (hydrolysis) breaks glycosidic bonds and requires enzymes like amylase, lactase, sucrase. Understanding this reaction is central to carbohydrate chemistry."
+            },
+            {
+                question: "Which of the following reactions is used in blood glucose assays to measure monosaccharide concentration?",
+                options: [
+                    "Acid hydrolysis",
+                    "Enzyme-catalyzed phosphorylation",
+                    "Reduction of Cu²⁺ by monosaccharides (monosaccharides act as reducing agents)",
+                    "pH titration"
+                ],
+                correct: 2,
+                explanation: "Monosaccharides are reducing sugars—their free aldehyde or ketone groups can reduce Cu²⁺ to Cu⁺ (forming Cu₂O precipitate, giving a brick-red color). This is the basis of the Benedict test and historically used for glucose assays. The free aldehyde/ketone is what makes monosaccharides (and some disaccharides) reducing sugars. Modern labs use enzymatic assays (glucose oxidase), but understanding the reducing property is important for biochemistry."
+            },
+            {
+                question: "Glycosylated hemoglobin (HbA1c) is clinically important because it:",
+                options: [
+                    "Indicates acute blood glucose changes over hours",
+                    "Is the primary form of hemoglobin",
+                    "Requires insulin for formation",
+                    "Reflects long-term blood glucose control over ~3 months"
+                ],
+                correct: 3,
+                explanation: "HbA1c is formed by non-enzymatic glycosylation (glucose attaches to lysine residues on hemoglobin over time). It reflects average blood glucose for the 120-day RBC lifespan. HbA1c > 7% indicates poor diabetes control. This is more reliable than fasting glucose (snapshot) for assessing long-term glycemic control. Understanding HbA1c requires knowing: (1) non-enzymatic glycosylation occurs with elevated glucose, (2) it's irreversible over RBC lifetime, (3) RBC turnover is ~120 days."
+            },
+            {
+                question: "Maltose is composed of:",
+                options: [
+                    "Two glucose molecules linked by a glycosidic bond",
+                    "Glucose and fructose",
+                    "Glucose and galactose",
+                    "Galactose and glucose"
+                ],
+                correct: 0,
+                explanation: "Maltose (malt sugar) = glucose + glucose. It's formed during starch digestion (amylase breaks starch into maltose). Maltose is a disaccharide with a glycosidic linkage. Despite being made of two identical glucose units, maltose isn't simply 'double glucose'—the linkage and ring structure matter for its properties and metabolism."
+            },
+            {
+                question: "Maltose is produced as a product of:",
+                options: [
+                    "Lactose digestion",
+                    "Starch digestion",
+                    "Cellulose digestion",
+                    "Glycogen breakdown"
+                ],
+                correct: 1,
+                explanation: "Salivary amylase and pancreatic amylase break starch (α-1,4 linkages) into maltose. Maltose is then hydrolyzed to glucose by maltase in the small intestine. This is the primary pathway for starch digestion and glucose absorption from dietary carbohydrates. Understanding this pathway is important for carbohydrate metabolism and why α-linkages (vs β in cellulose) are digestible."
+            },
+            {
+                question: "The glycosidic linkage in maltose is:",
+                options: [
+                    "β-1,4 glycosidic bond",
+                    "α-1,4 glycosidic bond",
+                    "α-1,6 glycosidic bond",
+                    "β-1,6 glycosidic bond"
+                ],
+                correct: 1,
+                explanation: "Maltose is two glucose units joined by an α-1,4 glycosidic bond (C1 of one glucose to C4 of the other, with α-configuration). This α-1,4 linkage is the dominant linkage in amylose (unbranched starch) and glycogen. β-1,4 linkages form cellulose (indigestible). The α vs β distinction is THE key difference that determines whether humans can digest a carbohydrate."
+            },
+            {
+                question: "Sucrose is composed of:",
+                options: [
+                    "Glucose and galactose",
+                    "Two glucose molecules",
+                    "Galactose and fructose",
+                    "Glucose and fructose"
+                ],
+                correct: 3,
+                explanation: "Sucrose (table sugar) = glucose + fructose. It's the primary sugar transported in plants and commonly used as a sweetener. Unlike maltose, sucrose is a non-reducing sugar (more on that later) because the glycosidic linkage involves both anomeric carbons, leaving no free aldehyde/ketone. Sucrose is hydrolyzed by sucrase in the small intestine."
+            },
+            {
+                question: "Lactose is composed of:",
+                options: [
+                    "Galactose and glucose",
+                    "Fructose and glucose",
+                    "Two glucose molecules",
+                    "Two galactose molecules"
+                ],
+                correct: 0,
+                explanation: "Lactose (milk sugar) = galactose + glucose. It's found in milk and requires the enzyme lactase to digest. Lactose intolerance results from lactase deficiency—lactose remains undigested and causes osmotic diarrhea. Lactose is a reducing sugar (free anomeric carbon on glucose). This is clinically important because lactose intolerance is common in adults worldwide."
+            },
+            {
+                question: "Maltose is classified as a reducing sugar because:",
+                options: [
+                    "It contains glucose, which is a sugar",
+                    "It has a free hydroxyl group on the anomeric carbon that can be oxidized to an aldehyde",
+                    "It's naturally reduce in calories",
+                    "It's broken down quickly in the body"
+                ],
+                correct: 1,
+                explanation: "Reducing sugars have a free aldehyde or ketone group (or a free anomeric carbon that can form one). Maltose has a free anomeric carbon on one of its glucose units, so it can reduce Cu²⁺ in Benedict's test. This is the defining chemical property—not about calories or metabolism. The ability to reduce Cu²⁺ depends on whether the anomeric carbon is free."
+            },
+            {
+                question: "Sucrose is classified as a non-reducing sugar because:",
+                options: [
+                    "It's less sweet than other sugars",
+                    "It cannot be digested",
+                    "Both anomeric carbons are involved in the glycosidic linkage, leaving no free aldehyde/ketone group",
+                    "It contains fructose instead of glucose"
+                ],
+                correct: 2,
+                explanation: "In sucrose, glucose's C1 (anomeric) is linked to fructose's C2 (anomeric). Both anomeric carbons are 'used up' in the linkage, so no free aldehyde or ketone remains. Therefore, sucrose cannot reduce Cu²⁺ and is non-reducing. This is purely a structural consequence—nothing to do with sweetness or digestibility. Non-reducing disaccharides are less reactive because their anomeric carbons are protected."
+            },
+            {
+                question: "Amylose is best described as:",
+                options: [
+                    "A branched starch with glucose linked by α-1,6 bonds",
+                    "A polysaccharide found in animals",
+                    "The outer layer of starch granules",
+                    "The unbranched, water-soluble form of starch where glucose units are linked by α-1,4 glycosidic bonds"
+                ],
+                correct: 3,
+                explanation: "Amylose is the linear, helical component of starch (makes up ~20-25% of starch). Its glucose units are linked only by α-1,4 bonds with no branching. Amylose is water-soluble and forms a helix that can bind iodine (giving a blue-black color—iodine test for starch). Amylopectin is the branched component. Together they make up starch. Understanding this distinction matters for starch digestibility and property differences."
+            },
+            {
+                question: "Amylopectin differs from amylose because it:",
+                options: [
+                    "Contains branches formed by α-1,6 glycosidic bonds in addition to α-1,4 bonds",
+                    "Is found in animals instead of plants",
+                    "Is insoluble in water",
+                    "Contains galactose instead of glucose"
+                ],
+                correct: 0,
+                explanation: "Amylopectin (makes up ~75-80% of starch) is branched—it has α-1,4 linkages along the main chains AND α-1,6 linkages at branch points. This branching: (1) makes it less soluble than amylose, (2) increases glucose accessibility for enzyme digestion, (3) creates a more compact structure. Both amylose and amylopectin are mixtures in starch granules. The branching in amylopectin is why starch digests more completely than amylose alone would."
+            },
+            {
+                question: "Glycogen is a branched polysaccharide that contains:",
+                options: [
+                    "Only α-1,4 glycosidic bonds",
+                    "Both α-1,4 and α-1,6 glycosidic bonds to create a highly branched structure",
+                    "Mostly β-1,4 bonds",
+                    "β-1,6 bonds exclusively"
+                ],
+                correct: 1,
+                explanation: "Glycogen is the animal equivalent of starch. Like amylopectin, it has α-1,4 main chains and α-1,6 branch points. However, glycogen is MUCH more heavily branched than starch—branch points occur every 8-12 residues (vs every 25-30 in amylopectin). This extreme branching is functionally important: (1) more branch ends = more glucose can be released simultaneously, (2) allows rapid glucose mobilization during fight-or-flight response. Glycogen is stored in liver (~100g) and muscle (~400g)."
+            },
+            {
+                question: "Cellulose is a polysaccharide where glucose units are linked by:",
+                options: [
+                    "α-1,4 glycosidic bonds",
+                    "α-1,6 glycosidic bonds",
+                    "β-1,4 glycosidic bonds",
+                    "β-1,6 glycosidic bonds"
+                ],
+                correct: 2,
+                explanation: "Cellulose = glucose units linked by β-1,4 glycosidic bonds. This single structural difference from starch (α-1,4) makes cellulose completely indigestible to humans—we lack the enzyme cellulase. The β-1,4 linkage creates a linear, insoluble structure that's mechanically strong, making cellulose the structural component of plant cell walls. Ruminants (cows, sheep) have cellulase-producing gut bacteria and CAN digest cellulose. This is why dietary fiber (cellulose) passes through our GI tract undigested."
+            },
+            {
+                question: "Glucose is converted to glycogen primarily in which tissues?",
+                options: [
+                    "Brain and kidney",
+                    "Adipose tissue and pancreas",
+                    "Liver and muscle",
+                    "Bone and blood"
+                ],
+                correct: 2,
+                explanation: "The liver and muscle are the main glycogen storage sites. Liver stores ~100-120g glycogen (maintains blood glucose). Muscle stores ~400-500g glycogen (for its own energy needs during contraction). Both tissues contain glycogen synthase (makes glycogen from glucose). During fasting, liver glycogen is mobilized for blood glucose. During exercise, muscle glycogen is mobilized for ATP production. Understanding tissue-specific storage is important for metabolic regulation."
+            },
+            {
+                question: "The most common chain lengths for fatty acids in biological systems are:",
+                options: [
+                    "16 and 18 carbons (mostly even-numbered)",
+                    "12 and 14 carbons only",
+                    "Odd-numbered chains are most common",
+                    "Variable lengths depending on organism"
+                ],
+                correct: 0,
+                explanation: "Fatty acids in nature are predominantly even-numbered, with 16 (palmitate) and 18 (stearate, oleate, linoleate) being most abundant. This is because fatty acid synthesis (elongation) adds 2-carbon units at a time. Even-numbered chains are thermodynamically favored and easier to process metabolically. Odd-numbered chains exist but are rare. This is a pattern worth memorizing—it reflects the biochemistry of fatty acid synthesis."
+            },
+            {
+                question: "A saturated fatty acid is characterized by:",
+                options: [
+                    "Multiple double bonds in the carbon chain",
+                    "No double bonds in the hydrocarbon tail; all carbons bonded to hydrogen",
+                    "At least one triple bond",
+                    "Contain oxygen atoms in the chain"
+                ],
+                correct: 1,
+                explanation: "Saturated fatty acids have only single C-C bonds and the maximum number of hydrogens (every carbon except the carboxyl is bonded to 2 hydrogens). Examples: palmitic acid (16:0), stearic acid (18:0). Saturated fats are solid at room temperature and more stable (no double bonds to oxidize). They're associated with increased cardiovascular risk. The saturation refers to being 'saturated' with hydrogens."
+            },
+            {
+                question: "A monounsaturated fatty acid contains:",
+                options: [
+                    "No double bonds",
+                    "Multiple double bonds",
+                    "Exactly one double bond in the hydrocarbon tail",
+                    "Triple bonds"
+                ],
+                correct: 2,
+                explanation: "Monounsaturated fatty acids have ONE C=C double bond. Examples: oleic acid (18:1, omega-9). The double bond creates a 'kink' in the structure that affects packing and physical properties. Monounsaturated fats are liquid at room temperature (lower melting point than saturated). Olive oil is rich in oleic acid. One double bond is typically enough to increase fluidity while maintaining some stability."
+            },
+            {
+                question: "Polyunsaturated fatty acids are characterized by:",
+                options: [
+                    "No double bonds",
+                    "Only one double bond",
+                    "Triple bonds",
+                    "Multiple (two or more) double bonds in the chain"
+                ],
+                correct: 3,
+                explanation: "Polyunsaturated fatty acids (PUFAs) have TWO or more C=C double bonds. Examples: linoleic acid (18:2, omega-6), alpha-linolenic acid (18:3, omega-3), arachidonic acid (20:4, omega-6). Multiple double bonds make these oils very fluid (liquid at room temperature). PUFAs are essential—humans cannot synthesize them and must obtain them from diet. They're important for membrane structure, signaling, and inflammation regulation."
+            },
+            {
+                question: "The concentration of free fatty acids in the blood under normal conditions is:",
+                options: [
+                    "Very low because free fatty acids are hydrophobic and largely insoluble in aqueous solution",
+                    "Very high due to continuous dietary intake",
+                    "Constant regardless of metabolic state",
+                    "Higher than albumin-bound fatty acids"
+                ],
+                correct: 0,
+                explanation: "Free fatty acids (unesterified) are extremely hydrophobic and poorly soluble in blood. Instead, they're transported bound to albumin (one of the most abundant blood proteins, which carries ~6-8 fatty acid molecules). Only trace amounts of true 'free' fatty acids exist in blood at any time. During fed state, fatty acids are esterified into triglycerides. During fasting, hormone-sensitive lipase releases fatty acids from adipose tissue for transport (still bound to albumin). This limited free fatty acid pool is actually protective—lipotoxicity from excessive free fatty acids damages cells."
+            },
+            {
+                question: "The most abundant lipid in the human body, serving as the primary long-term energy storage form, is:",
+                options: [
+                    "Cholesterol",
+                    "Triglycerides",
+                    "Phospholipids",
+                    "Sphingolipids"
+                ],
+                correct: 1,
+                explanation: "Triglycerides (triacylglycerols) are the dominant lipid form for energy storage. They consist of glycerol + 3 fatty acids esterified together. Adipose tissue stores enormous amounts of triglycerides. Triglycerides are energy-dense (9 kcal/g vs 4 kcal/g for carbs/protein) and hydrophobic (can be stored anhydrous, unlike carbs which require water for hydration). Understanding triglyceride metabolism is essential for understanding obesity, diabetes, and lipid disorders."
+            },
+            {
+                question: "The most abundant sterol in human tissues is:",
+                options: [
+                    "Progesterone",
+                    "Testosterone",
+                    "Cholesterol",
+                    "Cortisol"
+                ],
+                correct: 2,
+                explanation: "Cholesterol is by far the most abundant sterol (steroid with -OH group). It's essential for: (1) membrane fluidity (intercalates between phospholipids), (2) hormone synthesis (precursor for sex hormones and adrenal steroids), (3) vitamin D synthesis, (4) bile acid synthesis, (5) myelin insulation of nerves. While cholesterol has a bad reputation (elevated blood cholesterol = cardiovascular risk), it's absolutely essential for life. The body tightly regulates cholesterol synthesis via HMG-CoA reductase feedback inhibition."
+            }
+        ];
+
+        // =====================================================================
+        // FISHER-YATES SHUFFLE
+        // =====================================================================
+
+        function shuffleQuestions(questions) {
+            return questions.map(q => {
+                const shuffled = { ...q, options: [...q.options] };
+                const correct = shuffled.correct;
+                let correctOption = shuffled.options[correct];
+
+                for (let i = shuffled.options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled.options[i], shuffled.options[j]] = [shuffled.options[j], shuffled.options[i]];
+                }
+
+                shuffled.correct = shuffled.options.indexOf(correctOption);
+                return shuffled;
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // =====================================================================
+        // STATE
+        // =====================================================================
+
+        let currentMode = 'ordered';
+        let questionsOrdered = shuffleQuestions([...questionsBase]);
+        let questionsShuffled = shuffleArray(questionsOrdered).map(q => ({ ...q }));
+        let questions = [...questionsOrdered];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let retryQueue = [];
+        let answered = false;
+        let selectedIndex = -1;
+        let lastKeyPressed = null;
+        let lastKeyTime = 0;
+
+        // =====================================================================
+        // FUNCTIONS
+        // =====================================================================
+
+        function setMode(mode) {
+            currentMode = mode;
+            resetQuiz();
+
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'ordered') {
+                questions = [...questionsOrdered];
+            } else {
+                questions = [...questionsShuffled];
+            }
+            displayQuestion();
+        }
+
+        function resetQuiz() {
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = false;
+            selectedIndex = -1;
+            document.getElementById('quizSection').classList.add('active');
+            document.getElementById('resultsScreen').classList.remove('show');
+        }
+
+        function displayQuestion() {
+            if (currentIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            selectedIndex = -1;
+            const q = questions[currentIndex];
+            document.getElementById('questionText').textContent = q.question;
+
+            const optionsContainer = document.getElementById('answerOptions');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.id = 'answer-' + index;
+                btn.textContent = String.fromCharCode(65 + index) + ') ' + option;
+                if (answered) {
+                    btn.classList.add('disabled');
+                }
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('explanationSection').classList.remove('show');
+            document.getElementById('feedbackMessage').classList.remove('show');
+
+            if (!answered) {
+                document.getElementById('advancePrompt').innerHTML = '<strong>Press 1, 2, 3, or 4 to select</strong> → <strong>Press same key again to submit</strong>';
+            } else {
+                document.getElementById('advancePrompt').innerHTML = '<strong>Press any number (1-4) to continue</strong>';
+                document.getElementById('advancePrompt').style.display = 'block';
+            }
+
+            updateProgress();
+            updateScore();
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const correctIndex = q.correct;
+
+            buttons.forEach((btn, i) => {
+                if (i === correctIndex) {
+                    btn.classList.add('correct');
+                } else if (i === index) {
+                    btn.classList.add('incorrect');
+                }
+                btn.classList.add('disabled');
+            });
+
+            if (index === correctIndex) {
+                correctCount++;
+                document.getElementById('feedbackMessage').textContent = '✓ Correct!';
+                document.getElementById('feedbackMessage').className = 'feedback-message show correct';
+            } else {
+                incorrectCount++;
+                retryQueue.push(q);
+                document.getElementById('feedbackMessage').textContent = '✗ Incorrect';
+                document.getElementById('feedbackMessage').className = 'feedback-message show incorrect';
+            }
+
+            document.getElementById('explanationSection').classList.add('show');
+            document.getElementById('explanationText').textContent = q.explanation;
+            document.getElementById('advancePrompt').innerHTML = '<strong>Press any number (1-4) to continue</strong>';
+            document.getElementById('advancePrompt').style.display = 'block';
+
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            answered = false;
+            selectedIndex = -1;
+
+            if (currentIndex >= questions.length && retryQueue.length > 0) {
+                questions = retryQueue;
+                retryQueue = [];
+                currentIndex = 0;
+            }
+
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const total = questionsOrdered.length;
+            const current = currentIndex + 1;
+            document.getElementById('currentQuestion').textContent = current;
+            document.getElementById('totalQuestions').textContent = total;
+
+            const progress = (currentIndex / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            if (retryQueue.length > 0) {
+                document.getElementById('retryLabel').textContent = '🔄 Retry: ' + retryQueue.length;
+            } else {
+                document.getElementById('retryLabel').textContent = '';
+            }
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentageScore').textContent = percentage + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizSection').classList.remove('active');
+            document.getElementById('resultsScreen').classList.add('show');
+
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('resultsStats').innerHTML =
+                `<strong>${correctCount}</strong> Correct<br>` +
+                `<strong>${incorrectCount}</strong> Incorrect<br>` +
+                `<strong>${total}</strong> Total Questions`;
+
+            let message, emoji;
+            if (percentage === 100) {
+                message = '🌟 Perfect!';
+                emoji = '🌟';
+            } else if (percentage >= 90) {
+                message = '🎉 Excellent!';
+                emoji = '🎉';
+            } else if (percentage >= 80) {
+                message = '👍 Great Work!';
+                emoji = '👍';
+            } else if (percentage >= 70) {
+                message = '📚 Good Effort';
+                emoji = '📚';
+            } else if (percentage >= 60) {
+                message = '💪 Keep Studying';
+                emoji = '💪';
+            } else {
+                message = '📖 Review More';
+                emoji = '📖';
+            }
+
+            document.getElementById('resultsMessage').textContent = message;
+            document.getElementById('resultEmoji').textContent = emoji;
+        }
+
+        // =====================================================================
+        // KEYBOARD CONTROLS - DOUBLE-PRESS SYSTEM
+        // =====================================================================
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            const keyNum = parseInt(key);
+
+            // Only handle 1, 2, 3, 4
+            if (![1, 2, 3, 4].includes(keyNum)) return;
+
+            const now = Date.now();
+            const timeSinceLastKey = now - lastKeyTime;
+            const isDoublePress = (lastKeyPressed === keyNum && timeSinceLastKey < 500);
+
+            if (!answered) {
+                // SELECTION MODE: First press selects, second press submits
+                if (isDoublePress) {
+                    // DOUBLE PRESS = SUBMIT
+                    selectAnswer(keyNum - 1);
+                } else {
+                    // SINGLE PRESS = SELECT
+                    selectedIndex = keyNum - 1;
+                    document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+                        btn.classList.remove('selected');
+                        if (i === selectedIndex) {
+                            btn.classList.add('selected');
+                        }
+                    });
+                }
+            } else {
+                // ANSWERED MODE: Any number advances
+                nextQuestion();
+            }
+
+            lastKeyPressed = keyNum;
+            lastKeyTime = now;
+        });
+
+        // =====================================================================
+        // INIT
+        // =====================================================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            displayQuestion();
+        });
+    </script>
+</body>
+</html>
