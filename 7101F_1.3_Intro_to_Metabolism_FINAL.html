@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7101F 1.3 Intro to Metabolism</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .score-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .score-item label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .score-item .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .score-item.correct .value {
+            color: #28a745;
+        }
+
+        .score-item.incorrect .value {
+            color: #dc3545;
+        }
+
+        .score-item.percentage .value {
+            color: #667eea;
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .quiz-section {
+            display: none;
+        }
+
+        .quiz-section.active {
+            display: block;
+        }
+
+        .question-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            background: white;
+            color: #333;
+            border-radius: 6px;
+            text-align: left;
+            cursor: default;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .answer-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(5px);
+        }
+
+        .answer-btn.selected {
+            border-color: #667eea;
+            background: #f0f2ff;
+            border-width: 3px;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            font-weight: 700;
+        }
+
+        .answer-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+            font-size: 18px;
+        }
+
+        .feedback-message.show {
+            display: block;
+        }
+
+        .feedback-message.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback-message.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .explanation-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .explanation-text {
+            color: #555;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .advance-prompt {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .results-screen {
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .final-score {
+            font-size: 64px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+        }
+
+        .results-message {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .results-stats {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .emoji-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-btn {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+
+            .score-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .mode-toggle {
+                flex-direction: column;
+            }
+
+            .mode-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ 7101F 1.3</h1>
+            <p>Intro to Metabolism</p>
+        </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" onclick="setMode('ordered')">📖 LEARNING MODE: Questions in order</button>
+            <button class="mode-btn" onclick="setMode('shuffled')">🔀 TESTING MODE: Questions randomized</button>
+        </div>
+
+        <div class="quiz-section active" id="quizSection">
+            <div class="score-display">
+                <div class="score-item correct">
+                    <label>✓ Correct</label>
+                    <div class="value" id="correctCount">0</div>
+                </div>
+                <div class="score-item incorrect">
+                    <label>✗ Incorrect</label>
+                    <div class="value" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item percentage">
+                    <label>Score</label>
+                    <div class="value" id="percentageScore">0%</div>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Question <span id="currentQuestion">1</span> of <span id="totalQuestions">146</span></span>
+                    <span id="retryLabel" style="color: #ff9800;"></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="answer-options" id="answerOptions"></div>
+                <div class="feedback-message" id="feedbackMessage"></div>
+                <div class="explanation-section" id="explanationSection">
+                    <div class="explanation-label">💡 Explanation:</div>
+                    <div class="explanation-text" id="explanationText"></div>
+                </div>
+                <div class="advance-prompt" id="advancePrompt"></div>
+            </div>
+        </div>
+
+        <div class="results-screen" id="resultsScreen">
+            <div class="emoji-icon" id="resultEmoji"></div>
+            <div class="results-message" id="resultsMessage"></div>
+            <div class="final-score" id="finalScore"></div>
+            <div class="results-stats" id="resultsStats"></div>
+            <button class="restart-btn" onclick="resetQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================================
+        // QUESTION DATABASE - 1.3 INTRO TO METABOLISM (146 QUESTIONS)
+        // Chunk 1 (72Q) + Chunk 2 (74Q)
+        // =====================================================================
+
+        const questionsBase = [
+            {question:"Metabolism is best defined as:",options:["Only the breakdown of glucose for energy","The sum of all physical and chemical processes by which living organized substance is produced and maintained, and the transformation by which energy is made available for organismal use","A process found only in animals","The storage of energy in the form of fat"],correct:1,explanation:"Metabolism encompasses all biochemical processes maintaining life—both anabolic (synthesis) and catabolic (breakdown) pathways."},
+            {question:"How do cells extract energy from their surroundings?",options:["From sunlight exclusively","From food they ingest and from energy stores already present in the cell","From the surrounding water molecules","From atmospheric nitrogen"],correct:1,explanation:"Cells break down food molecules and mobilize stored energy (glycogen, fats) to extract energy for ATP synthesis."},
+            {question:"Most catabolic reactions involve:",options:["Oxidative degradation of organic molecules","Synthesis of new molecules","Storage of energy","Production of enzymes"],correct:0,explanation:"Catabolism breaks molecules down through oxidation, releasing energy captured in ATP."},
+            {question:"Oxidation is best characterized as:",options:["Gain of electrons","Loss of electrons","Addition of oxygen atoms only","Formation of water"],correct:1,explanation:"Oxidation = loss of electrons (or hydrogen). Reduction = gain of electrons. They're complementary."},
+            {question:"Most anabolic reactions involve:",options:["Oxidative processes","Reductive biosynthetic reactions","Breakdown of glucose","Loss of electrons exclusively"],correct:1,explanation:"Anabolism builds molecules through reduction, using reducing power (NADPH) and ATP energy."},
+            {question:"Reduction is best characterized as:",options:["Loss of electrons","Gain of electrons","Removal of oxygen atoms","Breaking of chemical bonds"],correct:1,explanation:"Reduction = gain of electrons (or hydrogen). Paired with oxidation in redox reactions."},
+            {question:"Synthetic reactions normally occur in:",options:["The mitochondria","The nucleus","The cytosol","The cell membrane"],correct:2,explanation:"Anabolic synthesis occurs in the cytosol where substrates are abundant and reducing power (NADPH) is available."},
+            {question:"Oxidative reactions are primarily located in:",options:["The cytosol","The nucleus","The mitochondria","The ribosome"],correct:2,explanation:"Mitochondria are the powerhouse—oxidative phosphorylation, TCA cycle, and electron transport chain all occur here."},
+            {question:"What powers the formation of ATP in cells?",options:["Oxidation of carbon fuels","Photosynthesis only","Storage of glucose","Breakdown of the cell membrane"],correct:0,explanation:"ATP formation is powered by oxidation—breaking down food molecules and capturing energy in high-energy bonds."},
+            {question:"ATP structure consists of: (SELECT ALL THAT APPLY)",options:["Adenine base","Ribose sugar","Three phosphate groups"],correct:[0,1,2],explanation:"ATP = adenine (purine base) + ribose (5-carbon sugar) + three phosphate groups in a linear chain."},
+            {question:"ATP releases energy primarily through:",options:["Breaking the N-glycosidic bond","Cleaving one phosphate group, forming ADP and inorganic phosphate","Deamination of the adenine base","Hydrolysis of the ribose sugar"],correct:1,explanation:"ATP → ADP + Pi releases ~30.5 kJ/mol. One phosphate bond breaks, releasing energy used to power cellular work."},
+            {question:"How many high-energy phosphoanhydride bonds does ATP contain?",options:["One","Two","Three","Four"],correct:1,explanation:"ATP has 2 high-energy phosphoanhydride bonds (between the phosphates). These store the energy cells use."},
+            {question:"A high-energy phosphoanhydride bond is:",options:["A covalent bond formed by condensation of two phosphate molecules (PO₄³⁻)","A weak electrostatic interaction","Only found in carbohydrates","A hydrogen bond"],correct:0,explanation:"Phosphoanhydride bonds form when two phosphate groups condense with water removal, storing significant energy."},
+            {question:"Why doesn't ATP serve as a long-term storage of free energy?",options:["It is too large to store","It is not stable enough for long-term storage and is rapidly converted to ADP and inorganic phosphate","ATP only forms in the nucleus","Living organisms don't need long-term energy storage"],correct:1,explanation:"ATP is unstable—it's hydrolyzed quickly if not used. Cells store long-term energy as glycogen or fat instead."},
+            {question:"ATP hydrolysis can drive unfavorable reactions by:",options:["Providing heat energy","Changing the equilibrium ratio by approximately 10⁵, making unfavorable reactions favorable","Increasing enzyme concentration","Lowering temperature"],correct:1,explanation:"ATP couples to unfavorable reactions, shifting equilibrium ~100,000-fold in the favorable direction."},
+            {question:"Is ATP the only phosphoryl carrier in cells?",options:["Yes, all phosphoryl transfer depends on ATP","No, other molecules like phosphoenolpyruvate also serve as phosphoryl carriers","ATP is the only carrier in prokaryotes","Phosphoryl carriers only exist in plants"],correct:1,explanation:"Multiple phosphoryl carriers exist: ATP, phosphoenolpyruvate, creatine phosphate, acetyl-CoA, etc."},
+            {question:"Which phosphoryl carrier has the highest phosphate transfer potential?",options:["ATP","Creatine phosphate","Phosphoenolpyruvate","Glucose-6-phosphate"],correct:2,explanation:"Phosphoenolpyruvate has the highest phosphate transfer potential (~-62 kJ/mol), higher than ATP's ~-30.5 kJ/mol."},
+            {question:"Why is ATP used so frequently despite not having the highest phosphate transfer potential?",options:["It is the cheapest to produce","It needs to function as both a phosphate donor AND acceptor in cellular reactions","ATP is more stable than other carriers","It is the only carrier found in all organisms"],correct:1,explanation:"ATP is the perfect 'universal currency'—it's both a good donor (for work) and good acceptor (for energy capture)."},
+            {question:"Phosphoenolpyruvate functions to:",options:["Store glucose in muscle tissue","Transfer a phosphoryl group to ADP in the breakdown of glucose","Activate amino acids for protein synthesis","Transport electrons to the electron transport chain"],correct:1,explanation:"PEP transfers its high-energy phosphate to ADP forming ATP during glycolysis and gluconeogenesis."},
+            {question:"Creatine phosphate serves which primary function?",options:["Transfers phosphoryl groups to ADP in muscle tissue, serving as a reservoir of high-energy groups","Breaks down glucose in the liver","Transports electrons in the electron transport chain","Activates fatty acids for beta-oxidation"],correct:0,explanation:"Creatine phosphate is a phosphate reservoir in muscle—it rapidly regenerates ATP during intense contraction."},
+            {question:"Many activated carriers in cells are derived from:",options:["Amino acids exclusively","Fatty acids","Water-soluble vitamins (many of them B vitamins)","Carbohydrates only"],correct:2,explanation:"NAD+, FAD, and Coenzyme A all derive from water-soluble B vitamins (niacin, riboflavin, pantothenic acid)."},
+            {question:"Coenzyme A functions to:",options:["Catalyze enzymatic reactions directly","Transfer acyl groups between molecules (NOT an enzyme itself)","Transport glucose across membranes","Regulate protein synthesis"],correct:1,explanation:"CoA is not an enzyme—it transfers acyl groups (like acetyl) between molecules as an activated carrier."},
+            {question:"The reactive group of Coenzyme A is:",options:["A terminal carboxyl group","A terminal amino group","A terminal sulfhydryl group (-SH)","A terminal phosphate group"],correct:2,explanation:"CoA's reactive group is a sulfhydryl (-SH) at the end of adenosine, enabling acyl group transfer via thioester bonds."},
+            {question:"NADH and FADH₂ are involved in:",options:["Synthesis of new glucose molecules","Oxidation of glucose and fatty acids to produce ATP","Breakdown of cell membranes","Activation of hormones"],correct:1,explanation:"NADH and FADH₂ are electron carriers that donate electrons to the electron transport chain to generate the proton gradient for ATP synthesis."},
+            {question:"Under aerobic conditions, the ultimate electron acceptor is:",options:["NAD⁺","FAD","O₂ (oxygen)","Pyruvate"],correct:2,explanation:"O₂ is the final electron acceptor in aerobic respiration—it accepts electrons and combines with H⁺ to form water."},
+            {question:"NAD⁺ (Nicotinamide Adenine Dinucleotide) vitamin precursor is:",options:["Riboflavin (B2)","Niacin (B3)","Pantothenic acid (B5)","Biotin (B7)"],correct:1,explanation:"NAD⁺ is synthesized from niacin (B3), making niacin deficiency dangerous for cellular energy metabolism."},
+            {question:"NAD⁺ behavior in redox reactions is to:",options:["Accept 2 hydrogen ions and 1 electron","Accept 1 hydrogen ion and 2 electrons, becoming NADH","Donate electrons directly to O₂","Store energy as ATP"],correct:1,explanation:"NAD⁺ accepts a hydride ion (H⁻ = 2e⁻ + H⁺) forming NADH, an electron carrier for energy metabolism."},
+            {question:"NADH functions as:",options:["An electron acceptor","The reduced form that passes electrons to O₂","A catalyst for protein synthesis","A structural component of the cell membrane"],correct:1,explanation:"NADH is the reduced form carrying electrons to the electron transport chain for ATP synthesis."},
+            {question:"FAD (Flavin Adenine Dinucleotide) vitamin precursor is:",options:["Niacin (B3)","Riboflavin (B2)","Thiamine (B1)","Cobalamin (B12)"],correct:1,explanation:"FAD is synthesized from riboflavin (B2), critical for energy-producing reactions."},
+            {question:"FAD accepts which of the following during reduction?",options:["1 electron and 1 H⁺","2 electrons exclusively","2 electrons and 2 H⁺","1 hydrogen atom only"],correct:2,explanation:"FAD accepts 2e⁻ and 2 H⁺ forming FADH₂, similar to NAD⁺ but with different redox potential."},
+            {question:"NADPH is best characterized as:",options:["An electron donor for reductive biosynthesis (providing reducing power)","An electron acceptor in the electron transport chain","Involved only in energy production","Found exclusively in mitochondria"],correct:0,explanation:"NADPH is reducing power for anabolic reactions—building fatty acids, nucleotides, and other biosynthetic molecules."},
+            {question:"The extra phosphate group on NADPH (compared to NADH) acts as:",options:["A high-energy bond for ATP synthesis","A tag for enzyme recognition","A binding site for oxygen","An anchor to the inner mitochondrial membrane"],correct:1,explanation:"The extra phosphate makes NADPH a 'tag' distinguishing it from NADH, allowing enzymes to use each specifically."},
+            {question:"Acetyl CoA is characterized by: (SELECT ALL THAT APPLY)",options:["Activation of the acetyl group with very high acetyl group transfer potential","Formation as a common intermediate in digestion of fats, polysaccharides, and proteins","Direct production of large amounts of ATP"],correct:[0,1],explanation:"Acetyl-CoA is a hub intermediate from all macronutrients but produces only trace ATP at formation."},
+            {question:"The primary role of Acetyl CoA in metabolism is:",options:["To store energy long-term","To activate the acetyl group for subsequent metabolic reactions","To produce ATP immediately","To break down proteins exclusively"],correct:1,explanation:"Acetyl-CoA activates 2-carbon units for entry into TCA cycle and anabolic biosynthesis."},
+            {question:"How much ATP is directly produced when molecules are converted to Acetyl CoA?",options:["Large amounts","Moderate amounts","A tiny bit of ATP is produced","No ATP is produced"],correct:2,explanation:"Very little ATP forms during pyruvate → Acetyl-CoA. Most ATP comes from oxidizing the acetyl group in TCA cycle."},
+            {question:"Regulation of metabolic reactions occurs through which mechanisms? (SELECT ALL THAT APPLY)",options:["Amount of enzyme present","Catalytic enzyme activity","Substrate availability"],correct:[0,1,2],explanation:"Metabolism is controlled at all levels: enzyme expression, allosteric activity, and substrate supply."},
+            {question:"If ΔG (delta G) is negative, what is true of the reaction?",options:["The reaction is not spontaneous and will not proceed","The reaction is spontaneous and favorably proceeds in the forward direction","The reaction is at equilibrium","The reaction requires energy input"],correct:1,explanation:"ΔG < 0 means spontaneous and thermodynamically favorable—the reaction proceeds forward."},
+            {question:"If ΔG (delta G) is positive, the reaction is:",options:["Spontaneous and favors the forward direction","Not spontaneous and does not favor the forward direction without energy input","At thermodynamic equilibrium","Independent of temperature"],correct:1,explanation:"ΔG > 0 means non-spontaneous and unfavorable—the reaction needs energy coupling to proceed."},
+            {question:"Coupled reactions in metabolism function to:",options:["Prevent all unfavorable reactions","Link exergonic reactions to endergonic reactions to drive the latter forward","Decrease the rate of all metabolic reactions","Eliminate the need for enzymes"],correct:1,explanation:"Coupling exergonic (ΔG < 0) to endergonic (ΔG > 0) reactions makes the sum favorable."},
+            {question:"An exergonic reaction is best characterized as:",options:["A reaction that requires energy input with positive ΔG","A reaction that releases energy with negative ΔG (SPONTANEOUS)","A reaction that is always irreversible","A reaction that only occurs in mitochondria"],correct:1,explanation:"Exergonic = releases energy, ΔG < 0, spontaneous. Fuels endergonic reactions through coupling."},
+            {question:"An endergonic reaction is characterized by:",options:["Release of energy with negative ΔG","Requirement of energy input with positive ΔG (NOT spontaneous)","Always being the same rate as exergonic reactions","Only occurring in the cytosol"],correct:1,explanation:"Endergonic = requires energy, ΔG > 0, non-spontaneous. Must be coupled to exergonic reactions."},
+            {question:"How do cells couple unfavorable endergonic reactions to favorable exergonic reactions?",options:["By using different enzymes for each reaction","By sharing an intermediate and making the SUM of reactions thermodynamically favorable","By increasing temperature","By separating the reactions in different compartments"],correct:1,explanation:"Coupling via shared intermediate ensures both reactants and products are at similar concentrations, favoring the coupled reaction."},
+            {question:"ATP carries which functional group?",options:["Amino group","Carboxyl group","Phosphoryl group","Carbonyl group"],correct:2,explanation:"ATP carries phosphoryl groups (PO₄³⁻) transferred to power cellular work."},
+            {question:"NADH and NADPH carry which functional groups?",options:["Phosphoryl groups","Acyl groups","Electron carriers (hydride ions)","Amino groups"],correct:2,explanation:"NADH/NADPH carry hydride ions (H⁻) as electron carriers for redox reactions."},
+            {question:"Coenzyme A carries which functional group?",options:["Electron carriers","Phosphoryl group","Acyl group","Carbonyl group"],correct:2,explanation:"CoA carries acyl groups (R-CO-) via thioester bonds, transferring acetyl and other acyl groups."},
+            {question:"ATP is best described as:",options:["The universal energy carrier in cells","A catalyst for all reactions","A structural component of DNA","A hormone that regulates glucose levels"],correct:0,explanation:"ATP is the universal energy currency—nearly all cells use ATP to couple energy-releasing to energy-consuming reactions."},
+            {question:"Stage I of glucose oxidation involves:",options:["Oxidation of pyruvate to CO₂","Breaking one 6-carbon glucose into two 3-carbon pyruvate molecules","Electron transport and proton gradient formation","Direct formation of ATP via oxidative phosphorylation"],correct:1,explanation:"Stage I = Glycolysis: glucose → 2 pyruvate + 2 ATP + 2 NADH in the cytosol."},
+            {question:"Stage II of glucose oxidation refers to:",options:["The TCA (Citric Acid) Cycle: Pyruvate oxidation → CO₂","Glycolysis: glucose breakdown","The electron transport chain","Anaerobic metabolism"],correct:0,explanation:"Stage II = TCA Cycle: pyruvate (from glycolysis) → CO₂, generating NADH and FADH₂."},
+            {question:"Stage III of glucose oxidation involves:",options:["Glycolysis","TCA cycle","Electron transport to generate a proton-motive force","Direct ATP synthesis without protons"],correct:2,explanation:"Stage III = Electron Transport Chain: electrons from NADH/FADH₂ pump protons, building membrane potential."},
+            {question:"Stage IV of glucose oxidation is:",options:["Glycolysis","TCA cycle","Electron transport","Formation of ATP via oxidative phosphorylation"],correct:3,explanation:"Stage IV = Oxidative Phosphorylation: proton gradient drives ATP synthase to make ~32 ATP per glucose."},
+            {question:"Glycolysis is best defined as:",options:["Oxidation of pyruvate in mitochondria","Breakdown of glucose to pyruvate (in the cytosol)","Production of CO₂ from acetyl groups","Formation of ATP via electron transport"],correct:1,explanation:"Glycolysis = glucose → 2 pyruvate + 2 ATP + 2 NADH, the first stage of glucose oxidation."},
+            {question:"Where does glycolysis occur in the cell?",options:["In the mitochondrial matrix","In the inner mitochondrial membrane","In the cytosol","In the nucleus"],correct:2,explanation:"Glycolysis occurs entirely in the cytosol—not compartmentalized to mitochondria."},
+            {question:"The net production of glycolysis is: (SELECT ALL THAT APPLY)",options:["2 ATP","2 NADH","2 pyruvate molecules"],correct:[0,1,2],explanation:"Net output: 2 ATP (4 produced - 2 consumed), 2 NADH (reducing power), 2 pyruvate."},
+            {question:"Stage 1 of glycolysis functions to:",options:["Trap glucose in the cell","Harvest a small amount of ATP","Produce pyruvate","Generate NADH"],correct:0,explanation:"Stage 1 (Energy Investment): Glucose is phosphorylated (trapped) and split into two 3-carbon units."},
+            {question:"Stage 2 of glycolysis functions to:",options:["Trap glucose in the cell","Harvest a small amount of ATP and produce pyruvate","Generate all NADH molecules","Oxidize pyruvate to acetyl-CoA"],correct:1,explanation:"Stage 2 (Payoff): Oxidation conserves energy as NADH and ATP."},
+            {question:"All glycolysis intermediates are characterized as:",options:["Large lipid-soluble molecules","Volatilized gases","Water-soluble and phosphorylated molecules","Proteins"],correct:2,explanation:"Phosphorylation traps intermediates inside the cell and increases solubility for enzyme catalysis."},
+            {question:"How much ATP is produced during glycolysis?",options:["None","1 ATP","2 ATP (net)","30+ ATP"],correct:2,explanation:"4 ATP formed (substrate-level), 2 ATP consumed = 2 ATP net gain. Major ATP comes from oxidation."},
+            {question:"How much NADH is produced during glycolysis?",options:["None","1 NADH","2 NADH","10 NADH"],correct:2,explanation:"Glycolysis generates 2 NADH (from 2 glyceraldehyde-3-phosphate → 2 1,3-bisphosphoglycerate)."},
+            {question:"How many pyruvate molecules result from one glucose molecule during glycolysis?",options:["1","2","3","6"],correct:1,explanation:"Glucose (6C) splits into 2 pyruvate (3C each) via aldolase."},
+            {question:"Stage 1 of glycolysis is also called:",options:["The preparation phase","The energy investment phase (trapping glucose in the cell)","The ATP harvest phase","The NADH production phase"],correct:1,explanation:"Stage 1 'invests' 2 ATP to phosphorylate glucose and split into 2 molecules for later energy harvest."},
+            {question:"Hexokinase catalyzes the:",options:["Second irreversible step of glycolysis","First irreversible step where glucose enters the cell and gets phosphorylated to be trapped","Final step of glycolysis","Conversion of pyruvate to acetyl-CoA"],correct:1,explanation:"Hexokinase: glucose → glucose-6-phosphate (first irreversible step, traps glucose)."},
+            {question:"The hexokinase reaction is:",options:["Glucose → Pyruvate","Glucose + ATP → Glucose-6-phosphate + ADP","Glucose-6-phosphate → Fructose-1,6-bisphosphate","Pyruvate → Acetyl-CoA"],correct:1,explanation:"Hexokinase transfers phosphate from ATP to glucose, creating glucose-6-phosphate."},
+            {question:"Hexokinase has a Km of 0.2 mmol/L. What does this indicate?",options:["Low affinity for glucose","High affinity for glucose","No affinity for glucose","Variable affinity depending on temperature"],correct:1,explanation:"Low Km (0.2) = high affinity. Hexokinase binds glucose tightly even at low concentrations."},
+            {question:"Hexokinase is regulated by:",options:["Activation by its product, glucose-6-phosphate","Inhibition by its product, glucose-6-phosphate, ensuring controlled glycolytic flux","Direct inhibition by ATP","Activation by AMP"],correct:1,explanation:"Product inhibition: high G6P signals glucose has entered; slows hexokinase to prevent overloading."},
+            {question:"The liver-specific hexokinase is called:",options:["Phosphofructokinase","Glucokinase","Pyruvate kinase","Aldolase"],correct:1,explanation:"Glucokinase is liver's hexokinase—high Km means it phosphorylates glucose only when glucose is abundant."},
+            {question:"Glucokinase has a Km of 10 mmol/L. What does this indicate compared to hexokinase?",options:["Higher affinity than hexokinase","Lower affinity than hexokinase","Identical affinity to hexokinase","No affinity for glucose"],correct:1,explanation:"High Km (10) = lower affinity than hexokinase (0.2). Glucokinase is a glucose sensor."},
+            {question:"Glucokinase at high glucose levels functions to:",options:["Stop all glucose metabolism","Drive the formation of glycogen (storage of glucose)","Convert glucose directly to fatty acids","Inhibit all liver enzymes"],correct:1,explanation:"High glucose + glucokinase phosphorylation signals abundance → triggers glycogen synthesis in liver."},
+            {question:"Although glucose-6-phosphate (G6P) results from the first irreversible step, it does NOT commit glucose to glycolysis because:",options:["It cannot be phosphorylated further","It can feed into other pathways like the pentose phosphate pathway or glycogen synthesis","It immediately leaves the cell","It is converted back to glucose immediately"],correct:1,explanation:"G6P is a branch point—it can go to glycolysis, pentose phosphate pathway, or glycogen synthesis."},
+            {question:"Glucose-6-phosphatase catalyzes:",options:["Glucose-6-phosphate → Fructose-6-phosphate","Glucose-6-phosphate + H₂O → Glucose + Pi","Glucose + ATP → Glucose-6-phosphate + ADP","Glucose-6-phosphate → Pyruvate"],correct:1,explanation:"G6P phosphatase releases free glucose from the liver into bloodstream (gluconeogenesis final step)."},
+            {question:"Why is Glucose-6-phosphatase important?",options:["It is the rate-limiting enzyme of glycolysis","It provides the only source of ATP in the liver","It is essential to the liver's role in maintaining blood glucose levels","It only functions at night"],correct:2,explanation:"Glucose-6-phosphatase enables liver to release free glucose during fasting to maintain blood glucose for the brain."},
+            {question:"Glucose-6-phosphatase is found primarily in:",options:["All cells equally","Muscle cells only","The liver and kidney, allowing them to release free glucose to the bloodstream","The brain exclusively"],correct:2,explanation:"Only liver and kidney have G6P phosphatase—muscle cannot release free glucose (lacks the enzyme)."},
+            {question:"The reaction catalyzed by glucose-6-phosphatase allows:",options:["Glucose to be trapped in cells for energy production","Free glucose to be released from the liver into the bloodstream to maintain blood glucose","Glucose to be polymerized into glycogen","ATP to be produced directly"],correct:1,explanation:"G6P → glucose + Pi releases free glucose to bloodstream—this is how liver maintains blood glucose during fasting."},
+            {question:"Where does the AMP come from during cellular energy depletion?",options:["Direct hydrolysis of ATP only","Adenylate kinase catalyzes conversion of two ADP molecules into one ATP and one AMP","Synthesis in the mitochondria","Breakdown of glucose"],correct:1,explanation:"Adenylate kinase: 2 ADP ⇌ ATP + AMP. This reaction senses energy status."},
+            {question:"AMP functions as:",options:["An energy abundance signal","An indicator of energy deficiency in the cell, signaling the need for increased ATP production","A storage molecule for glucose","A structural component of the cell membrane"],correct:1,explanation:"High AMP signals energy crisis—activates catabolic pathways (like PFK-1) to restore ATP."},
+            {question:"When AMP levels are high in a cell, what occurs?",options:["Phosphofructokinase-1 is inhibited","Glycolysis slows down","Phosphofructokinase-1 is activated, increasing glycolytic flux","All metabolic reactions stop"],correct:2,explanation:"High AMP activates PFK-1 to accelerate glycolysis and ATP regeneration."},
+            {question:"Phosphofructokinase-1 allosteric regulation by AMP results in: (SELECT ALL THAT APPLY)",options:["Increased substrate affinity","Activation of the enzyme","Increased glycolytic flux"],correct:[0,1,2],explanation:"AMP binding to allosteric site increases PFK-1 activity and substrate affinity."},
+            {question:"High ATP levels inhibit Phosphofructokinase-1 by:",options:["Lowering substrate affinity","Causing irreversible enzyme denaturation","Binding to the allosteric site and decreasing enzyme activity","Preventing enzyme synthesis"],correct:2,explanation:"ATP inhibits PFK-1 allosterically—signals energy is sufficient, slow glycolysis."},
+            {question:"What happens when Phosphofructokinase-1 is inhibited?",options:["Fructose-1,6-bisphosphate accumulates immediately","Fructose-6-phosphate and Glucose-6-phosphate increase, which inhibits hexokinase","All glycolysis stops completely","Pyruvate levels increase dramatically"],correct:1,explanation:"PFK-1 inhibition backs up the pathway: F6P ↑ → G6P ↑ → inhibits hexokinase (feedback)."},
+            {question:"Feedback inhibition of hexokinase by Glucose-6-phosphate serves to:",options:["Accelerate glycolysis","Prevent excessive glucose entry into the cell when it's not being used","Increase ATP production","Block all metabolic pathways"],correct:1,explanation:"G6P inhibition of hexokinase is negative feedback preventing glucose overload."},
+            {question:"Phosphofructokinase-1 is also inhibited by:",options:["AMP exclusively","ATP exclusively","High citrate levels (indicating sufficient metabolic intermediates)","Only by glucose levels"],correct:2,explanation:"Citrate signals abundant metabolic intermediates—signals to slow glycolysis and reduce acetyl-CoA production."},
+            {question:"Citrate inhibition of Phosphofructokinase-1 signals:",options:["Energy deficiency","The need for increased glucose breakdown","Abundance of metabolic intermediates, reducing need for additional glycolysis","Low blood glucose levels"],correct:2,explanation:"High citrate = abundant acetyl-CoA and building blocks; inhibits glycolysis to prevent waste."},
+            {question:"Fructose-1,6-bisphosphate is cleaved to form:",options:["Glucose and Glucose-6-phosphate","Two glyceraldehyde-3-phosphate molecules","Pyruvate and Acetyl-CoA","Lactate and Alanine"],correct:1,explanation:"Aldolase cleaves F1,6BP into 2 glyceraldehyde-3-phosphate (G3P), 3-carbon sugars for energy harvest."},
+            {question:"Glyceraldehyde-3-phosphate dehydrogenase functions to:",options:["First irreversible step where energy is conserved and NADH is formed from 1,3-bisphosphoglycerate","Produce ATP directly","Break down pyruvate","Form acetyl-CoA"],correct:0,explanation:"G3P dehydrogenase oxidizes G3P → 1,3-bisphosphoglycerate, conserving energy as NADH."},
+            {question:"The step producing 1,3-bisphosphoglycerate is when:",options:["ATP is consumed in glycolysis","All NADH is produced","ATP is generated through substrate-level phosphorylation","Pyruvate is formed"],correct:2,explanation:"1,3-bisphosphoglycerate has an ultra-high-energy acyl phosphate bond—transfers P to ADP forming ATP."},
+            {question:"Substrate-level phosphorylation in glycolysis involves:",options:["Electron transport chain activity","Direct transfer of a phosphate group from substrate to ADP to form ATP","Breaking down glucose completely","Oxidative processes in mitochondria"],correct:1,explanation:"Substrate-level phosphorylation: high-energy substrate directly transfers phosphate to ADP → ATP."},
+            {question:"Which enzyme in glycolysis drives substrate-level phosphorylation?",options:["Hexokinase","Phosphofructokinase-1","Phosphoglycerate kinase","Aldolase"],correct:2,explanation:"Phosphoglycerate kinase transfers phosphate from 1,3-bisphosphoglycerate to ADP forming ATP."},
+            {question:"Phosphoglycerate kinase catalyzes:",options:["Glucose to Glucose-6-phosphate","Formation of 2 ATP from two 1,3-bisphosphoglycerate molecules","Pyruvate formation","G6P to F6P conversion"],correct:1,explanation:"PG kinase: 1,3-bisphosphoglycerate + ADP → 3-phosphoglycerate + ATP (x2 per glucose)."},
+            {question:"3-Phosphoglycerate is converted to Phosphoenolpyruvate through:",options:["A single irreversible step","Two reactions that rearrange to make high-energy phosphate bonds","Direct phosphorylation by ATP","Oxidation in mitochondria"],correct:1,explanation:"Enolase removes water from 2-phosphoglycerate forming PEP with high-energy phosphate bond."},
+            {question:"What is the net result of ATP production during glycolysis of one glucose?",options:["4 ATP produced, 2 ATP consumed = 2 ATP net","2 ATP produced total","10 ATP produced","No ATP produced until oxidative phosphorylation"],correct:0,explanation:"Glycolysis: 4 ATP produced (substrate-level) - 2 ATP invested = 2 ATP net."},
+            {question:"How many times does substrate-level phosphorylation occur during glycolysis of one glucose?",options:["Once","Twice","Three times","No substrate-level phosphorylation occurs in glycolysis"],correct:1,explanation:"Twice: each of 2 G3P → 1,3-bisphosphoglycerate (PG kinase produces ATP twice)."},
+            {question:"The third irreversible step of glycolysis is catalyzed by:",options:["Hexokinase","Phosphofructokinase-1","Pyruvate kinase","Aldolase"],correct:2,explanation:"Pyruvate kinase catalyzes PEP → pyruvate (third and final irreversible step)."},
+            {question:"Pyruvate kinase catalyzes:",options:["Glucose to Glucose-6-phosphate","Fructose-6-phosphate to Fructose-1,6-bisphosphate","Phosphoenolpyruvate to Pyruvate, producing 2 ATP in the process","Pyruvate to Acetyl-CoA"],correct:2,explanation:"PEP + ADP → Pyruvate + ATP. Final step of glycolysis, produces 2 ATP per glucose (one per pyruvate)."},
+            {question:"The irreversible steps of glycolysis are: (SELECT ALL THAT APPLY)",options:["Hexokinase","Phosphofructokinase-1","Pyruvate kinase"],correct:[0,1,2],explanation:"Three irreversible steps mark important regulatory points: glucose entry, glycolysis commitment, and final ATP-producing step."},
+            {question:"Pyruvate kinase is activated by:",options:["High ATP levels","High glucose and high insulin levels","Low glucose levels","ADP exclusively"],correct:1,explanation:"Fed state signals (glucose, insulin) activate pyruvate kinase to accelerate glycolysis."},
+            {question:"Pyruvate kinase activity decreases when:",options:["ATP levels are high","Glucose levels are high","Insulin levels increase","AMP levels are high"],correct:0,explanation:"High ATP inhibits pyruvate kinase—signals energy is abundant, slow down glycolysis."},
+            {question:"Why is the conversion of Phosphoenolpyruvate to Pyruvate irreversible?",options:["It requires ATP","It releases such a large amount of free energy that it drives the entire series of reactions forward","It only occurs in mitochondria","It produces NADH"],correct:1,explanation:"PEP → pyruvate releases ~-62 kJ/mol, massively exergonic, impossible to reverse directly."},
+            {question:"Pyruvate kinase regulation is important because:",options:["It controls the final and rate-determining step of glycolysis","It ensures ATP production matches cellular energy needs","It responds to energy status signals","All of the above"],correct:3,explanation:"PK is the final control point—integrating energy signals (ATP/AMP) and fed state (glucose/insulin)."},
+            {question:"How many molecules of Pyruvate result from one Phosphoenolpyruvate?",options:["None (it's a forward reaction)","One","Two","Three"],correct:1,explanation:"1 PEP → 1 pyruvate per molecule (but 2 PEP per glucose = 2 pyruvate)."},
+            {question:"Glycolysis requires which carrier to proceed?",options:["NADH","NAD⁺","FADH₂","Acetyl-CoA"],correct:1,explanation:"NAD⁺ oxidizes G3P → 1,3-bisphosphoglycerate. Without NAD⁺, glycolysis halts."},
+            {question:"If NAD⁺ is depleted in a cell under anaerobic conditions, what occurs?",options:["Glycolysis continues normally","Glycolysis stops because NAD⁺ is required to oxidize glyceraldehyde-3-phosphate","Mitochondrial respiration accelerates","ATP production increases"],correct:1,explanation:"Without NAD⁺, G3P dehydrogenase cannot function—glycolysis stalls. Cells regenerate NAD⁺ via lactate fermentation."},
+            {question:"Gluconeogenesis is best defined as:",options:["Breakdown of glucose for energy","Re-synthesis of glucose from noncarbohydrate precursors","Storage of glucose as glycogen","Oxidation of pyruvate to Acetyl-CoA"],correct:1,explanation:"Gluconeogenesis builds glucose from pyruvate, lactate, amino acids, and glycerol."},
+            {question:"Gluconeogenesis is NOT a simple reversal of glycolysis because:",options:["It occurs in a different cell","It requires different enzymes to bypass the irreversible steps of glycolysis","It produces different products","It always requires oxygen"],correct:1,explanation:"Glycolysis has 3 irreversible steps; gluconeogenesis requires different enzymes to bypass them."},
+            {question:"The major site of gluconeogenesis is:",options:["Skeletal muscle exclusively","The cytoplasm of liver cells","The inner mitochondrial membrane","The blood plasma"],correct:1,explanation:"Liver is the primary gluconeogenic organ (~90%), kidney ~10%."},
+            {question:"Important exceptions to the 'cytoplasm' location of gluconeogenesis include: (SELECT ALL THAT APPLY)",options:["Pyruvate carboxylase reaction occurs in mitochondria","Glucose-6-phosphatase reaction occurs on ER membrane","All gluconeogenesis occurs strictly in cytoplasm"],correct:[0,1],explanation:"Different steps occur in different compartments: mitochondria (pyruvate → oxaloacetate), cytosol (continued synthesis), ER (G6P → glucose)."},
+            {question:"When does gluconeogenesis occur?",options:["During the fed state when glucose is abundant","During fasting and starvation to maintain blood glucose to supply the brain","Only at night","Continuously at constant rates"],correct:1,explanation:"Gluconeogenesis is essential during fasting—maintains blood glucose for brain and RBCs."},
+            {question:"The primary purpose of gluconeogenesis during fasting is to:",options:["Decrease ATP production","Maintain blood glucose levels to supply the brain","Store energy as fat","Break down proteins"],correct:1,explanation:"Fasting triggers gluconeogenesis to prevent hypoglycemia and support CNS metabolism."},
+            {question:"Noncarbohydrate precursors used for gluconeogenesis include: (SELECT ALL THAT APPLY)",options:["Lactate (from muscle)","Amino acids (diet/breakdown of muscle)","Glycerol (hydrolysis of triglycerides)"],correct:[0,1,2],explanation:"The three main gluconeogenic substrates: lactate (Cori cycle), amino acids (protein breakdown), glycerol (fat breakdown)."},
+            {question:"During prolonged fasting, which precursor becomes the primary source for gluconeogenesis?",options:["Lactate exclusively","Glycerol exclusively","Amino acids (from muscle breakdown)","Glucose from diet"],correct:2,explanation:"In prolonged fasting, muscle proteolysis provides amino acids—the major gluconeogenic substrate."},
+            {question:"Why must gluconeogenesis use different enzymes than glycolysis?",options:["Gluconeogenesis occurs in different organelles","To bypass the three irreversible steps of glycolysis and reverse the process","The glycolytic enzymes are denatured during fasting","Different substrates require different enzyme cofactors"],correct:1,explanation:"Glycolysis's irreversible steps (hexokinase, PFK, pyruvate kinase) must be bypassed with different enzymes."},
+            {question:"The first step of gluconeogenesis involves converting Pyruvate to:",options:["Phosphoenolpyruvate directly","Oxaloacetate first, then to Phosphoenolpyruvate","Glucose-6-phosphate","Alanine"],correct:1,explanation:"Pyruvate → Oxaloacetate (mitochondria, pyruvate carboxylase), then → PEP (cytosol, PEPCK)."},
+            {question:"Pyruvate carboxylase catalyzes:",options:["The conversion of Pyruvate into Phosphoenolpyruvate in the cytosol","The conversion of Pyruvate into Oxaloacetate in the mitochondria (first step of gluconeogenesis)","The final formation of glucose","The breakdown of oxaloacetate"],correct:1,explanation:"Pyruvate carboxylase: pyruvate + CO₂ + ATP → oxaloacetate (first gluconeogenic step)."},
+            {question:"Pyruvate carboxylase requires which cofactor?",options:["NAD⁺","FAD","Biotin (to incorporate CO₂)","Coenzyme A"],correct:2,explanation:"Biotin carries the CO₂ group—essential for carboxylation reaction."},
+            {question:"After Oxaloacetate is formed by pyruvate carboxylase, it is converted to Phosphoenolpyruvate by:",options:["Pyruvate kinase","Phosphoglycerate kinase","Phosphoenolpyruvate carboxykinase (PEPCK), which decarboxylates and phosphorylates oxaloacetate","Hexokinase"],correct:2,explanation:"PEPCK: oxaloacetate → PEP (removes CO₂, adds PO₄³⁻)."},
+            {question:"Phosphoenolpyruvate carboxykinase (PEPCK) catalyzes:",options:["Oxaloacetate → Phosphoenolpyruvate (a key gluconeogenic step)","Pyruvate → Oxaloacetate","Glucose-6-phosphate → Glucose","Phosphoenolpyruvate → Pyruvate"],correct:0,explanation:"PEPCK: oxaloacetate + GTP → PEP + GDP + CO₂ (couples decarboxylation to phosphorylation)."},
+            {question:"To form Phosphoenolpyruvate from Pyruvate, which group must be added?",options:["An amino group","A hydroxyl group","A carboxyl group (requires ATP to donate phosphate)","A sulfhydryl group"],correct:2,explanation:"Pyruvate carboxylase adds CO₂ (carboxyl); PEPCK adds phosphate using GTP energy."},
+            {question:"The pyruvate to phosphoenolpyruvate reaction in gluconeogenesis involves:",options:["Simple reversal of the pyruvate kinase reaction","Coupled carboxylation/decarboxylation that drives endergonic reactions","Direct ATP transfer only","No energy requirement"],correct:1,explanation:"Pyruvate carboxylase (carboxylation) + PEPCK (phosphorylation) couple to make PEP synthesis favorable."},
+            {question:"Phosphoenolpyruvate is converted to Fructose-1,6-bisphosphate by:",options:["Reversal of glycolytic enzymes","Gluconeogenesis-specific enzymes","Reversal of the same glycolytic enzymes (which catalyze reversible steps)","A single irreversible step"],correct:2,explanation:"PEP → G3P → 1,3-BPG → 3-PG → 2-PG → PEP reverses the glycolytic reversible steps."},
+            {question:"The irreversible step of gluconeogenesis that bypasses Phosphofructokinase-1 involves:",options:["Conversion of Glucose-6-phosphate to Glucose","Conversion of Fructose-1,6-bisphosphate to Fructose-6-phosphate by fructose-1,6-bisphosphatase","Conversion of Pyruvate to Oxaloacetate","Conversion of Phosphoenolpyruvate to Pyruvate"],correct:1,explanation:"Fructose-1,6-bisphosphatase bypasses PFK-1—removes phosphate to form F6P."},
+            {question:"Fructose-1,6-bisphosphatase catalyzes:",options:["Fructose-1,6-bisphosphate → Fructose-6-phosphate (irreversible gluconeogenic step)","Fructose-6-phosphate → Fructose-1,6-bisphosphate","Glucose-6-phosphate → Glucose","Glucose → Glucose-6-phosphate"],correct:0,explanation:"F1,6-phosphatase: F1,6BP + H₂O → F6P + Pi (bypasses PFK-1, irreversible)."},
+            {question:"Why is fructose-1,6-bisphosphatase inhibited during the fed state?",options:["To prevent gluconeogenesis and allow glucose to be used for energy/storage","To increase blood glucose","To accelerate glycolysis","To increase ATP production"],correct:0,explanation:"Inhibiting F1,6-phosphatase stops gluconeogenesis when glucose is abundant."},
+            {question:"Generation of glucose from Glucose-6-phosphate occurs in:",options:["All cells equally","Muscle cells exclusively","Liver and kidney only (highly regulated)","The brain"],correct:2,explanation:"Only liver and kidney express glucose-6-phosphatase, enabling free glucose release."},
+            {question:"Glucose-6-phosphatase catalyzes:",options:["Glucose → Glucose-6-phosphate","Glucose-6-phosphate + H₂O → Glucose + Pi (final step of gluconeogenesis)","Fructose-1,6-bisphosphate → Glucose","Pyruvate → Glucose-6-phosphate"],correct:1,explanation:"G6P phosphatase: final step of gluconeogenesis, releases free glucose to bloodstream."},
+            {question:"During gluconeogenesis, Glucose-6-phosphate is: (SELECT ALL THAT APPLY)",options:["Transported into the lumen of the ER","Converted to Glucose by glucose-6-phosphatase","Transported back into the cytosol as free glucose via membrane-bound enzyme"],correct:[0,1,2],explanation:"G6P moves into ER lumen, is converted to glucose, then transports back to cytosol and exits cell."},
+            {question:"Why is the ER location of glucose-6-phosphatase functionally important?",options:["It isolates the enzyme from cytoplasmic enzymes","It allows glucose to enter the ER lumen, where it is converted to free glucose","It prevents glucose from re-entering glycolysis","It increases enzyme efficiency"],correct:1,explanation:"ER location protects free glucose from being recycled back into glycolysis."},
+            {question:"Glucose-6-phosphatase is found primarily in:",options:["Liver and kidney cells","Muscle cells","Red blood cells","Neurons"],correct:0,explanation:"Liver (~90%) and kidney (~10%) release free glucose; other tissues cannot."},
+            {question:"The final product of gluconeogenesis is:",options:["Glucose-6-phosphate","Pyruvate","Free glucose (released from cells to maintain blood glucose)","Oxaloacetate"],correct:2,explanation:"Gluconeogenesis goal: release free glucose from liver/kidney into bloodstream."},
+            {question:"How many ATP equivalents are required to synthesize one glucose molecule via gluconeogenesis?",options:["2 ATP equivalents","4 ATP equivalents (or GTP)","6 ATP equivalents (or GTP)","10 ATP equivalents"],correct:2,explanation:"Gluconeogenesis costs 6 GTP/ATP: 2 for pyruvate carboxylase, 2 for PEPCK, 2 for other steps."},
+            {question:"Why does gluconeogenesis require more energy than glycolysis produces?",options:["It must reverse three irreversible steps using different, energy-expensive enzymes","Gluconeogenesis is less efficient than glycolysis","Energy is lost as heat during the process","It requires continuous ATP regeneration"],correct:0,explanation:"Reversing glycolysis's irreversible steps costs energy, making gluconeogenesis more expensive than glycolysis is rewarding."},
+            {question:"Glycolysis and gluconeogenesis are reciprocally regulated, meaning:",options:["Both pathways are equally active all the time","Activity of one pathway inhibits the other to maintain metabolic balance","They occur in different cells","Only one is active under all conditions"],correct:1,explanation:"Reciprocal regulation ensures no futile cycling—when one is active, the other is inhibited."},
+            {question:"During the fed state (high glucose, high insulin), what occurs?",options:["Glycolysis is activated; gluconeogenesis is inhibited","Gluconeogenesis is activated; glycolysis is inhibited","Both pathways are equally active","Neither pathway is active"],correct:0,explanation:"Fed state: insulin signals glucose abundance → activate glycolysis, inhibit gluconeogenesis."},
+            {question:"During the fasting state (low glucose, low insulin, high glucagon), what occurs?",options:["Glycolysis is activated; gluconeogenesis is inhibited","Gluconeogenesis is activated; glycolysis is inhibited","Both pathways are equally active","Neither pathway is active"],correct:1,explanation:"Fasting state: glucagon signals need for glucose → activate gluconeogenesis, inhibit glycolysis."},
+            {question:"Insulin signals the fed state by:",options:["Activating glycolysis and inhibiting gluconeogenesis","Activating gluconeogenesis and inhibiting glycolysis","Inhibiting both pathways","Activating both pathways equally"],correct:0,explanation:"High insulin (fed state) = glucose is available, use it (glycolysis). Don't make new glucose (inhibit gluconeogenesis)."},
+            {question:"Glucagon signals the fasting state by:",options:["Inhibiting gluconeogenesis and activating glycolysis","Activating gluconeogenesis and inhibiting glycolysis","Activating both pathways","Inhibiting both pathways"],correct:1,explanation:"High glucagon (fasting) = glucose is scarce, make new glucose (gluconeogenesis). Spare glucose for brain (inhibit glycolysis)."},
+            {question:"Phosphofructokinase-1 (PFK-1) is inhibited when:",options:["Blood glucose is low","Energy is abundant (high ATP, high citrate)","The body is in a fed state","Glucagon levels are high"],correct:1,explanation:"High ATP/citrate = energy abundant, slow glycolysis. PFK-1 is the main glycolysis control point."},
+            {question:"Fructose-1,6-bisphosphatase (which bypasses PFK-1) is inhibited when:",options:["Energy is abundant","The body is in a fasting state","Energy is deficient (high AMP, high ADP)","Glucagon levels are high"],correct:2,explanation:"High AMP/ADP = energy deficient, don't make new glucose (inhibit fructose-1,6-bisphosphatase)."},
+            {question:"The regulation of glycolysis at Phosphofructokinase-1 and gluconeogenesis at fructose-1,6-bisphosphatase ensures:",options:["Both pathways run simultaneously","Only one pathway is active at any given time","Glucose is always broken down for energy","Glucose production always exceeds glucose utilization"],correct:1,explanation:"This reciprocal regulation prevents futile cycling and ensures metabolic efficiency."},
+            {question:"If Phosphofructokinase-1 is inhibited and fructose-1,6-bisphosphatase is active simultaneously, what occurs?",options:["Glycolysis proceeds normally","Glucose is synthesized via gluconeogenesis","ATP production decreases","The cell would waste energy cycling between pathways"],correct:1,explanation:"One inhibited, one active → glucose synthesis (gluconeogenesis), not breakdown."},
+            {question:"This reciprocal regulation prevents:",options:["ATP synthesis","Futile cycling where glucose is simultaneously broken down and synthesized","Gluconeogenesis during fasting","Glycolysis during the fed state"],correct:1,explanation:"Futile cycling would waste ATP—reciprocal control prevents simultaneous activation."},
+            {question:"High levels of which molecule inhibit glycolysis and activate gluconeogenesis?",options:["AMP","ADP","ATP and Citrate","Glucose"],correct:2,explanation:"ATP (energy abundant) and citrate (enough intermediates) signal: stop glycolysis, don't need more pyruvate."},
+            {question:"Low levels of which molecules inhibit gluconeogenesis and activate glycolysis?",options:["ATP","Citrate","AMP and ADP","Glucose-6-phosphate"],correct:2,explanation:"AMP/ADP (energy deficient) signal: make ATP (activate glycolysis), don't waste it making glucose."},
+            {question:"Phosphofructokinase-2 (PFK-2) is different from Phosphofructokinase-1 (PFK-1) in that:",options:["It catalyzes the same reaction as PFK-1","It is regulated by insulin and glucagon to control fructose-2,6-bisphosphate levels","It only occurs in gluconeogenesis","It has no regulatory role"],correct:1,explanation:"PFK-2 makes fructose-2,6-bisphosphate, a potent regulator of PFK-1 and fructose-1,6-bisphosphatase."},
+            {question:"Fructose-2,6-bisphosphate functions to:",options:["Serve as a substrate in glycolysis","Act as a regulatory molecule that activates PFK-1 and inhibits fructose-1,6-bisphosphatase","Provide energy directly","Transport glucose"],correct:1,explanation:"F2,6BP is a master regulatory molecule—high F2,6BP means activate glycolysis, inhibit gluconeogenesis."},
+            {question:"When insulin levels are high (fed state), Phosphofructokinase-2 activity results in:",options:["Decreased fructose-2,6-bisphosphate levels","Increased fructose-2,6-bisphosphate levels, activating glycolysis and inhibiting gluconeogenesis","No change in fructose-2,6-bisphosphate","Complete inhibition of glycolysis"],correct:1,explanation:"High insulin → high F2,6BP → glycolysis ON, gluconeogenesis OFF."},
+            {question:"When glucagon levels are high (fasting state), Phosphofructokinase-2 activity results in:",options:["Increased fructose-2,6-bisphosphate levels","Decreased fructose-2,6-bisphosphate levels, inhibiting glycolysis and activating gluconeogenesis","Unchanged fructose-2,6-bisphosphate levels","Activation of both pathways equally"],correct:1,explanation:"High glucagon → low F2,6BP (via phosphorylation of PFK-2) → glycolysis OFF, gluconeogenesis ON."},
+            {question:"Fructose-2,6-bisphosphate is an important regulatory molecule because:",options:["It coordinates the reciprocal regulation of glycolysis and gluconeogenesis","It responds to hormonal signals (insulin/glucagon)","It fine-tunes metabolic flux based on energy status","All of the above"],correct:3,explanation:"F2,6BP is the master switch—hormones regulate its levels, coordinating fed/fasting metabolism."},
+            {question:"The regulation of Phosphofructokinase-2 by insulin and glucagon ensures:",options:["Glycolysis and gluconeogenesis always run together","Metabolic flexibility to respond to fed/fasting states","Constant ATP production regardless of energy needs","No regulation of metabolic pathways"],correct:1,explanation:"PFK-2 regulation by insulin/glucagon enables rapid metabolic switching between fed and fasting states."}
+        ];
+
+        // =====================================================================
+        // FISHER-YATES SHUFFLE & STATE MANAGEMENT
+        // =====================================================================
+
+        function shuffleQuestions(questions) {
+            return questions.map(q => {
+                const shuffled = { ...q, options: [...q.options] };
+                const correct = shuffled.correct;
+                let correctOption = Array.isArray(correct)
+                    ? shuffled.options.filter((_, i) => correct.includes(i))
+                    : shuffled.options[correct];
+
+                for (let i = shuffled.options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled.options[i], shuffled.options[j]] = [shuffled.options[j], shuffled.options[i]];
+                }
+
+                if (Array.isArray(correct)) {
+                    shuffled.correct = shuffled.options.map((opt, i) =>
+                        (Array.isArray(correctOption) ? correctOption : [correctOption]).some(c => c === opt) ? i : -1
+                    ).filter(i => i !== -1);
+                } else {
+                    shuffled.correct = shuffled.options.indexOf(correctOption);
+                }
+                return shuffled;
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // =====================================================================
+        // STATE & INITIALIZATION
+        // =====================================================================
+
+        let currentMode = 'ordered';
+        let questionsOrdered = shuffleQuestions([...questionsBase]);
+        let questionsShuffled = shuffleArray(questionsOrdered).map(q => ({ ...q }));
+        let questions = [...questionsOrdered];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let retryQueue = [];
+        let answered = false;
+        let selectedIndex = [];
+        let lastKeyPressed = null;
+        let lastKeyTime = 0;
+
+        // =====================================================================
+        // MODE & CONTROL FUNCTIONS
+        // =====================================================================
+
+        function setMode(mode) {
+            currentMode = mode;
+            resetQuiz();
+
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'ordered') {
+                questions = [...questionsOrdered];
+            } else {
+                questions = [...questionsShuffled];
+            }
+            displayQuestion();
+        }
+
+        function resetQuiz() {
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = false;
+            selectedIndex = [];
+            document.getElementById('quizSection').classList.add('active');
+            document.getElementById('resultsScreen').classList.remove('show');
+        }
+
+        // =====================================================================
+        // DISPLAY & INTERACTION
+        // =====================================================================
+
+        function displayQuestion() {
+            if (currentIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            selectedIndex = [];
+            const q = questions[currentIndex];
+            document.getElementById('questionText').textContent = q.question;
+
+            const optionsContainer = document.getElementById('answerOptions');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.id = 'answer-' + index;
+                btn.textContent = String.fromCharCode(65 + index) + ') ' + option;
+                if (answered) {
+                    btn.classList.add('disabled');
+                }
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('explanationSection').classList.remove('show');
+            document.getElementById('feedbackMessage').classList.remove('show');
+
+            if (!answered) {
+                document.getElementById('advancePrompt').innerHTML = '<strong>Press 1, 2, 3, or 4 to select</strong> → <strong>Press same key again to submit</strong>';
+            } else {
+                document.getElementById('advancePrompt').innerHTML = '<strong>Press any number (1-4) to continue</strong>';
+                document.getElementById('advancePrompt').style.display = 'block';
+            }
+
+            updateProgress();
+            updateScore();
+        }
+
+        function selectAnswer() {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const correctIndices = Array.isArray(q.correct) ? q.correct : [q.correct];
+
+            let isCorrect;
+            if (Array.isArray(q.correct)) {
+                isCorrect = selectedIndex.length === correctIndices.length &&
+                            selectedIndex.every(i => correctIndices.includes(i));
+            } else {
+                isCorrect = selectedIndex.length === 1 && correctIndices.includes(selectedIndex[0]);
+            }
+
+            buttons.forEach((btn, i) => {
+                if (correctIndices.includes(i)) {
+                    btn.classList.add('correct');
+                } else if (selectedIndex.includes(i) && !correctIndices.includes(i)) {
+                    btn.classList.add('incorrect');
+                }
+                btn.classList.add('disabled');
+            });
+
+            if (isCorrect) {
+                correctCount++;
+                document.getElementById('feedbackMessage').textContent = '✓ Correct!';
+                document.getElementById('feedbackMessage').className = 'feedback-message show correct';
+            } else {
+                incorrectCount++;
+                retryQueue.push(q);
+                document.getElementById('feedbackMessage').textContent = '✗ Incorrect';
+                document.getElementById('feedbackMessage').className = 'feedback-message show incorrect';
+            }
+
+            document.getElementById('explanationSection').classList.add('show');
+            document.getElementById('explanationText').textContent = q.explanation;
+            document.getElementById('advancePrompt').innerHTML = '<strong>Press any number (1-4) to continue</strong>';
+            document.getElementById('advancePrompt').style.display = 'block';
+
+            updateScore();
+        }
+
+        function nextQuestion() {
+            if (!answered) return;
+            currentIndex++;
+            answered = false;
+            selectedIndex = [];
+
+            if (currentIndex >= questions.length && retryQueue.length > 0) {
+                questions = retryQueue;
+                retryQueue = [];
+                currentIndex = 0;
+            }
+
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const total = questionsOrdered.length;
+            const current = currentIndex + 1;
+            document.getElementById('currentQuestion').textContent = current;
+            document.getElementById('totalQuestions').textContent = total;
+
+            const progress = (currentIndex / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            if (retryQueue.length > 0) {
+                document.getElementById('retryLabel').textContent = '🔄 Retry: ' + retryQueue.length;
+            } else {
+                document.getElementById('retryLabel').textContent = '';
+            }
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentageScore').textContent = percentage + '%';
+        }
+
+        function showResults() {
+            document.getElementById('quizSection').classList.remove('active');
+            document.getElementById('resultsScreen').classList.add('show');
+
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('resultsStats').innerHTML =
+                `<strong>${correctCount}</strong> Correct<br>` +
+                `<strong>${incorrectCount}</strong> Incorrect<br>` +
+                `<strong>${total}</strong> Total Questions`;
+
+            let message, emoji;
+            if (percentage === 100) {
+                message = '🌟 Perfect!';
+                emoji = '🌟';
+            } else if (percentage >= 90) {
+                message = '🎉 Excellent!';
+                emoji = '🎉';
+            } else if (percentage >= 80) {
+                message = '👍 Great Work!';
+                emoji = '👍';
+            } else if (percentage >= 70) {
+                message = '📚 Good Effort';
+                emoji = '📚';
+            } else if (percentage >= 60) {
+                message = '💪 Keep Studying';
+                emoji = '💪';
+            } else {
+                message = '📖 Review More';
+                emoji = '📖';
+            }
+
+            document.getElementById('resultsMessage').textContent = message;
+            document.getElementById('resultEmoji').textContent = emoji;
+        }
+
+        // =====================================================================
+        // KEYBOARD CONTROLS - DOUBLE-PRESS SYSTEM WITH MULTI-SELECT TOGGLE
+        // =====================================================================
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            const keyNum = parseInt(key);
+
+            if (![1, 2, 3, 4].includes(keyNum)) return;
+
+            const q = questions[currentIndex];
+            const isMultiSelect = Array.isArray(q.correct);
+
+            const now = Date.now();
+            const timeSinceLastKey = now - lastKeyTime;
+            const isDoublePress = (lastKeyPressed === keyNum && timeSinceLastKey < 500);
+
+            if (!answered) {
+                if (isMultiSelect) {
+                    const index = keyNum - 1;
+                    if (!selectedIndex.includes(index)) {
+                        selectedIndex.push(index);
+                    } else {
+                        selectedIndex = selectedIndex.filter(i => i !== index);
+                    }
+
+                    document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+                        btn.classList.remove('selected');
+                        if (selectedIndex.includes(i)) {
+                            btn.classList.add('selected');
+                        }
+                    });
+
+                    if (isDoublePress && selectedIndex.includes(keyNum - 1)) {
+                        selectAnswer();
+                    }
+                } else {
+                    if (isDoublePress) {
+                        selectedIndex = [keyNum - 1];
+                        selectAnswer();
+                    } else {
+                        selectedIndex = [keyNum - 1];
+                        document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+                            btn.classList.remove('selected');
+                            if (i === selectedIndex[0]) {
+                                btn.classList.add('selected');
+                            }
+                        });
+                    }
+                }
+            } else {
+                nextQuestion();
+            }
+
+            lastKeyPressed = keyNum;
+            lastKeyTime = now;
+        });
+
+        // =====================================================================
+        // INITIALIZATION
+        // =====================================================================
+
+        document.addEventListener('DOMContentLoaded', () => {
+            displayQuestion();
+        });
+    </script>
+</body>
+</html>
