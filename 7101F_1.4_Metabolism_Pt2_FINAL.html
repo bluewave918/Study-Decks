@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7101F 1.4 Metabolism Pt2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 900px; width: 100%; padding: 40px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #667eea; font-size: 28px; margin-bottom: 10px; }
+        .mode-buttons { display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; }
+        .mode-btn { padding: 12px 30px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .mode-btn.learning { background: #667eea; color: white; }
+        .mode-btn.testing { background: #764ba2; color: white; }
+        .mode-btn.active { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .progress-container { margin-bottom: 25px; }
+        .progress-bar { background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); width: 0%; transition: width 0.3s ease; }
+        .progress-text { font-size: 14px; color: #666; text-align: center; }
+        .score-display { display: flex; gap: 30px; justify-content: center; margin: 15px 0; font-weight: bold; font-size: 16px; }
+        .score-item { display: flex; align-items: center; gap: 8px; }
+        .score-correct { color: #4caf50; }
+        .score-incorrect { color: #f44336; }
+        .score-percentage { color: #667eea; }
+        .question-section { margin: 20px 0; }
+        .question-number { font-size: 14px; color: #999; margin-bottom: 8px; }
+        .question-text { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 20px; line-height: 1.5; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option { padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 16px; }
+        .option:hover { border-color: #667eea; background: #f5f7ff; }
+        .option.selected { background: #e8eef7; border-color: #667eea; }
+        .option.correct { background: #c8e6c9; border-color: #4caf50; }
+        .option.incorrect { background: #ffcdd2; border-color: #f44336; }
+        .feedback { margin-top: 20px; padding: 20px; border-radius: 8px; }
+        .feedback.correct { background: #c8e6c9; border-left: 4px solid #4caf50; }
+        .feedback.incorrect { background: #ffcdd2; border-left: 4px solid #f44336; }
+        .feedback-title { font-weight: bold; margin-bottom: 10px; font-size: 16px; }
+        .feedback-text { font-size: 14px; line-height: 1.6; }
+        .submit-btn { background: #667eea; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; font-weight: bold; transition: all 0.3s ease; }
+        .submit-btn:hover { background: #764ba2; transform: translateY(-2px); }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .advance-btn { background: #4caf50; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; font-weight: bold; }
+        .advance-btn:hover { background: #45a049; }
+        .keyboard-hint { font-size: 12px; color: #999; margin-top: 10px; text-align: center; }
+        .results-screen { text-align: center; padding: 40px; }
+        .results-screen h2 { color: #667eea; font-size: 32px; margin-bottom: 20px; }
+        .results-stats { font-size: 18px; margin: 30px 0; line-height: 2; }
+        .restart-btn { background: #667eea; color: white; border: none; padding: 15px 40px; font-size: 18px; border-radius: 8px; cursor: pointer; margin-top: 30px; font-weight: bold; }
+        .restart-btn:hover { background: #764ba2; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 7101F 1.4 Metabolism Pt2</h1>
+            <p style="color: #666; font-size: 14px;">Glycogenolysis through ETC & Uncoupling Proteins</p>
+        </div>
+
+        <div class="mode-buttons">
+            <button class="mode-btn learning active" onclick="setMode('learning')">📖 LEARNING MODE: Questions in order</button>
+            <button class="mode-btn testing" onclick="setMode('testing')">🔀 TESTING MODE: Questions randomized</button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">139</span></div>
+        </div>
+
+        <div class="score-display">
+            <div class="score-item score-correct">✓ <span id="correctCount">0</span> Correct</div>
+            <div class="score-item score-incorrect">✗ <span id="incorrectCount">0</span> Incorrect</div>
+            <div class="score-item score-percentage"><span id="percentageDisplay">0</span>%</div>
+        </div>
+
+        <div id="quizContent"></div>
+        <div id="resultsScreen" class="results-screen hidden"></div>
+
+        <div class="keyboard-hint" id="keyboardHint">
+            💡 Press 1/2/3/4 to select • Double-press same key within 500ms to submit • Press any key to advance
+        </div>
+    </div>
+
+    <script>
+        const questionsData = [
+            // CHUNK 1: Glycogenolysis through Amino Acid Metabolism (75 questions)
+            {q: "Which of the following best describes glycogenolysis?", o: ["The breakdown of glycogen into glucose-1-phosphate for mobilization", "The synthesis of glycogen from glucose-6-phosphate", "The conversion of glucose into pyruvate during anaerobic exercise", "The storage of glucose as branched polysaccharides in the liver"], a: 0, e: "Glycogenolysis is the enzymatic breakdown of glycogen that produces glucose-1-phosphate, the primary mechanism for glucose mobilization during periods of energy demand."},
+            {q: "Glycogen is a branched polysaccharide composed of which two types of glycosidic linkages?", o: ["β-1,4 and α-1,6 linkages", "α-1,3 and β-1,6 linkages", "α-1,4 and α-1,6 linkages", "α-1,4 and β-1,6 linkages"], a: 2, e: "Glycogen is structured with α-1,4 glycosidic linkages forming the main chains and α-1,6 glycosidic linkages creating the branch points, allowing for rapid glucose mobilization."},
+            {q: "What is the primary physiological purpose of liver glycogen?", o: ["To regulate the release of free fatty acids", "To serve as the main energy reserve for the brain", "To maintain blood glucose levels between meals", "To provide local energy for liver metabolism"], a: 2, e: "Liver glycogen functions specifically to maintain blood glucose homeostasis during fasting periods, releasing glucose to support whole-body energy needs."},
+            {q: "Muscle glycogen serves which primary role during exercise?", o: ["To provide a local energy reservoir for the muscle during high energy demand", "To provide a backup energy source for the liver", "To supply glucose to the brain", "To maintain blood glucose in the circulating blood"], a: 0, e: "Muscle glycogen is compartmentalized and serves as an individual muscle's energy store, used locally during periods of intense activity rather than contributing to blood glucose."},
+            {q: "Which THREE fates can glucose-6-phosphate pursue? (Select all that apply)", o: ["Direct conversion to glucose in all tissues", "Oxidation to generate ATP through glycolysis", "Entry into the pentose phosphate pathway to generate NADPH and ribose", "Degradation to fatty acids in lipogenic tissues"], a: [1, 2], e: "Glucose-6-phosphate can be (1) oxidized for ATP production, (2) enter the PPP for NADPH/ribose synthesis, and (3) be converted to glucose only in liver via glucose-6-phosphatase. Direct conversion in all tissues is incorrect."},
+            {q: "At which structural location does glycogen degradation occur?", o: ["At the non-reducing ends where there is no anomeric hydroxyl", "At the anomeric hydroxyl of the branch points", "Within the interior of the glycogen molecule at random", "At the reducing end of the glycogen chains"], a: 0, e: "Glycogenolysis proceeds from the non-reducing ends of glycogen chains, which lack the anomeric hydroxyl group, allowing sequential removal of glucose residues."},
+            {q: "Glycogen phosphorylase catalyzes the breakdown of glycogen into glucose-1-phosphate. During this reaction, the phosphate group originates from:", o: ["Pyridoxal phosphate (PLP) cofactor", "The alpha-1,4 glycosidic bond itself", "Hydrogen phosphate (Pi) in the solution", "The high-energy phosphate bond of ATP"], a: 2, e: "Glycogen phosphorylase uses inorganic phosphate (hydrogen phosphate) directly in a phosphorolysis reaction, NOT the phosphoryl group from ATP, which is a key distinction from kinase reactions."},
+            {q: "What is the essential cofactor required for glycogen phosphorylase catalytic activity?", o: ["Pyridoxal phosphate (PLP), a derivative of vitamin B6", "Flavin adenine dinucleotide (FAD)", "Thiamine pyrophosphate (TPP)", "Nicotinamide adenine dinucleotide (NAD+)"], a: 0, e: "Glycogen phosphorylase requires pyridoxal phosphate (PLP), the active form of vitamin B6, as a critical cofactor for its phosphorolytic activity."},
+            {q: "Glycogen phosphorylase stops degrading glycogen when it reaches:", o: ["Four residues away from a branch point", "The reducing end of the glycogen molecule", "The alpha-1,6 glycosidic linkages", "The glucose molecules at the end of each chain"], a: 0, e: "Glycogen phosphorylase halts when it reaches four residues proximal to branch points, requiring debranching enzymes to continue the process."},
+            {q: "The debranching enzyme complex in eukaryotes consists of:", o: ["A single bifunctional enzyme with both transferase and α-1,6-glucosidase activities", "A metalloenzyme complex requiring Mg2+ and Zn2+", "Three different enzymes coordinated in sequence", "Two separate enzymes: transferase and α-1,6-glucosidase"], a: 0, e: "In eukaryotes, the debranching enzyme is a single bifunctional protein possessing both transferase activity and α-1,6-glucosidase activity, allowing complete branch point degradation."},
+            {q: "Which hormone is the primary regulator of glycogen breakdown in the liver?", o: ["Insulin and glucagon equally", "Glucagon, which phosphorylates glycogen phosphorylase", "Epinephrine through beta-adrenergic receptors", "Thyroid hormone to increase metabolic rate"], a: 1, e: "Glucagon is the primary hormone regulating hepatic glycogenolysis, activating the cAMP-PKA-phosphorylase kinase cascade to activate glycogen phosphorylase."},
+            {q: "In muscle, which hormone primarily triggers glycogen breakdown during the fight-or-flight response?", o: ["Insulin", "Glucagon", "Epinephrine (adrenaline)", "Cortisol"], a: 2, e: "Epinephrine activates the sympathetic nervous system, leading to cAMP production and activation of the phosphorylase kinase cascade in muscle glycogenolysis."},
+            {q: "Glycogen synthase is most active in which phosphorylation state?", o: ["When heavily phosphorylated by multiple kinases", "When dephosphorylated by protein phosphatase 1", "When phosphorylated at a single serine residue", "Phosphorylation state does not affect its activity"], a: 1, e: "Glycogen synthase is activated when dephosphorylated by protein phosphatase 1 (PP1), opposite to glycogen phosphorylase, creating reciprocal regulation of glycogen synthesis and breakdown."},
+            {q: "Protein phosphatase 1 (PP1) simultaneously inactivates glycogen phosphorylase and activates glycogen synthase. This represents which type of regulation?", o: ["Feedforward regulation", "Reciprocal regulation", "Allosteric activation", "Covalent modification"], a: 1, e: "This is reciprocal regulation where a single signal (PP1 activation) simultaneously suppresses one pathway (breakdown) while promoting the opposite pathway (synthesis)."},
+            {q: "Which of the following nucleotides is the major allosteric activator of glycogen phosphorylase in muscle during high-intensity exercise?", o: ["GTP", "AMP (indicating low energy status)", "GMP", "UTP"], a: 1, e: "AMP allosterically activates glycogen phosphorylase in muscle, signaling energy depletion and promoting glucose mobilization during intense contractile activity."},
+            {q: "The Pasteur effect describes the inhibition of glycolysis by aerobic respiration. Which molecule is primarily responsible for this inhibition?", o: ["ATP, which inhibits key glycolytic enzymes", "Glucose-6-phosphate accumulation", "Citrate from the TCA cycle", "NADH produced in aerobic respiration"], a: 0, e: "ATP accumulation from aerobic respiration inhibits phosphofructokinase (PFK) and pyruvate kinase, slowing glycolysis when sufficient ATP is already being produced."},
+            {q: "Glucose-1-phosphate must be converted to glucose-6-phosphate before entering glycolysis or the PPP. This conversion is catalyzed by:", o: ["Phosphoglucose isomerase", "Hexokinase", "Glucose-6-phosphatase", "Phosphoglucomutase"], a: 3, e: "Phosphoglucomutase catalyzes the isomerization of glucose-1-phosphate to glucose-6-phosphate in an equilibrium reaction using glucose-1,6-bisphosphate as a cofactor."},
+            {q: "Which of the following is NOT a fate of glucose-6-phosphate produced from glycogenolysis?", o: ["Direct oxidation in glycolysis", "Conversion to glucose in the liver for blood glucose maintenance", "Diversion to fatty acid synthesis in fed state", "Immediate excretion in urine"], a: 3, e: "Glucose-6-phosphate is not excreted directly; it either undergoes glycolysis, fatty acid synthesis, or is converted to free glucose in the liver. All other fates are physiologically relevant."},
+            {q: "The pentose phosphate pathway is particularly active in tissues requiring high levels of:", o: ["Rapidly dividing cells", "NADPH for reductive biosynthesis and antioxidant defense", "Muscle contraction", "Blood glucose sensing"], a: 1, e: "The PPP is most active in lipogenic tissues, red blood cells, and rapidly dividing cells where NADPH is needed for biosynthesis (fatty acids, nucleotides) and antioxidant defense against ROS."},
+            {q: "The oxidative phase of the pentose phosphate pathway is irreversible and generates:", o: ["NADPH and pyruvate", "NADPH and ribose-5-phosphate", "NADH and ATP", "Only ribose-5-phosphate"], a: 1, e: "The oxidative phase irreversibly converts glucose-6-phosphate to CO2 while generating NADPH (for biosynthesis) and producing ribose-5-phosphate for nucleotide synthesis."},
+            {q: "What is the primary physiological role of the Cori cycle?", o: ["To recycle lactate from peripheral tissues back to glucose in the liver during and after exercise", "To regenerate ATP in red blood cells", "To synthesize glycogen in muscle tissue", "To convert fatty acids to glucose"], a: 0, e: "The Cori cycle allows lactate produced by glycolysis in muscle and other tissues to be converted back to glucose in the liver, representing an important metabolic link between peripheral tissues and hepatic glucose production."},
+            {q: "In the Cori cycle, lactate produced in muscles is transported to the liver where it undergoes:", o: ["Oxidative decarboxylation by pyruvate dehydrogenase", "Gluconeogenesis to form glucose", "Direct conversion to acetyl-CoA", "Oxidation in the electron transport chain"], a: 1, e: "Lactate in the liver is converted to pyruvate (via lactate dehydrogenase), which then serves as a substrate for gluconeogenesis to form glucose that returns to muscles and other tissues."},
+            {q: "Which enzyme catalyzes the first committed step of gluconeogenesis?", o: ["Pyruvate carboxylase (pyruvate → oxaloacetate)", "Phosphoenolpyruvate carboxykinase (PEPCK)", "Fructose-1,6-bisphosphatase", "Glucose-6-phosphatase"], a: 0, e: "Pyruvate carboxylase catalyzes the biotin-dependent carboxylation of pyruvate to oxaloacetate, the first irreversible step of gluconeogenesis, using ATP and CO2."},
+            {q: "Gluconeogenesis is activated primarily during:", o: ["The fed state when glucose is abundant", "The postabsorptive (fasting) state when blood glucose is declining", "Immediately after a meal high in carbohydrates", "During maximal glycogen repletion"], a: 1, e: "Gluconeogenesis is activated during fasting when insulin is low and glucagon is elevated, maintaining blood glucose from non-carbohydrate sources like lactate, amino acids, and glycerol."},
+            {q: "Which of the following tissues can ONLY utilize glucose for energy and therefore cannot perform gluconeogenesis?", o: ["Liver", "Kidney", "Muscle", "Red blood cells"], a: 3, e: "Red blood cells lack mitochondria and therefore cannot perform gluconeogenesis or oxidative phosphorylation. They depend entirely on glycolysis for ATP production."},
+            {q: "The carbon skeletons of amino acids used in gluconeogenesis are primarily converted to which intermediate?", o: ["Acetyl-CoA", "Pyruvate or TCA cycle intermediates (oxaloacetate, α-ketoglutarate, succinyl-CoA)", "Fatty acids", "Ketone bodies"], a: 1, e: "Most amino acid carbon skeletons are converted to pyruvate or TCA cycle intermediates (glucogenic amino acids), not acetyl-CoA, which cannot be used for net glucose synthesis."},
+            {q: "Which is the primary reason ketogenic amino acids (leucine, lysine) cannot contribute to gluconeogenesis?", o: ["They are degraded to fatty acids", "They are converted exclusively to acetyl-CoA or acetoacetyl-CoA, which cannot form glucose", "The liver cannot metabolize them", "They are excreted before metabolism"], a: 1, e: "Ketogenic amino acids are degraded to acetyl-CoA and ketone bodies, which cannot be used for net glucose synthesis since there is no known net conversion of acetyl-CoA to oxaloacetate (pyruvate carboxylase is carboxylase, not carboxyltransferase)."},
+            {q: "The urea cycle is necessary for nitrogen disposal from amino acid metabolism because:", o: ["Amino acids cannot be reused", "The body cannot store excess amino acids", "Amino nitrogen is toxic if allowed to accumulate", "All amino acids are catabolized simultaneously"], a: 2, e: "The urea cycle converts toxic ammonia (NH3) produced from amino acid deamination into urea for safe excretion, protecting the central nervous system from ammonia neurotoxicity."},
+            {q: "Which organ is responsible for the majority of urea synthesis?", o: ["Kidney", "Muscle", "Liver", "Intestines"], a: 2, e: "The liver is the primary site of urea cycle reactions, synthesizing approximately 80-90% of total urea, with the kidneys contributing the remaining small amount."},
+            {q: "The first step of the urea cycle combines ammonia with which molecule to form carbamoyl phosphate?", o: ["Glutamate", "Aspartate", "Bicarbonate (HCO3-) and an amino group from glutamine via carbamoyl phosphate synthetase I", "Alpha-ketoglutarate"], a: 2, e: "Carbamoyl phosphate synthetase I catalyzes the condensation of ammonia, bicarbonate, and ATP to form carbamoyl phosphate (the first urea cycle intermediate) in the mitochondrial matrix."},
+            {q: "Which essential cofactor is required for carbamoyl phosphate synthetase I?", o: ["NAD+", "FAD", "N-acetylglutamate (NAG)", "Thiamine pyrophosphate"], a: 2, e: "N-acetylglutamate (NAG) is an essential allosteric activator of carbamoyl phosphate synthetase I, making it a critical regulatory molecule linking amino acid catabolism to the urea cycle."},
+            {q: "In the urea cycle, which amino acid's aspartyl group provides the nitrogen that becomes part of urea?", o: ["Glutamine", "Aspartate", "Alanine", "Asparagine"], a: 1, e: "Aspartate condenses with citrulline in the second urea cycle reaction, and its amino group ultimately becomes incorporated into urea as the second nitrogen atom."},
+            {q: "Fatty acid oxidation (β-oxidation) requires which cofactor for the initial oxidation of acyl-CoA?", o: ["NAD+", "FAD and its derivative FADH2", "NADPH", "ATP exclusively"], a: 1, e: "The first oxidation step of β-oxidation is catalyzed by acyl-CoA dehydrogenase, which requires FAD as an electron acceptor, producing FADH2 for ATP synthesis."},
+            {q: "The fatty acid with the shortest half-life and highest metabolic rate is:", o: ["Oleic acid (C18:1)", "Linoleic acid (C18:2)", "Arachidonic acid (C20:4)", "Stearic acid (C18:0)"], a: 2, e: "Arachidonic acid has the shortest half-life due to its conversion to eicosanoids (prostaglandins, leukotrienes) and other signaling molecules, making it dynamically regulated."},
+            {q: "Which of the following statements about fatty acid synthesis is correct?", o: ["It primarily occurs in the mitochondria using acetyl-CoA directly", "It is activated during the fed state when insulin is high and citrate is abundant", "Malonyl-CoA is an inhibitor of fatty acid synthesis", "It requires NADH rather than NADPH"], a: 1, e: "Fatty acid synthesis is fed-state metabolism activated by high insulin and abundance of citrate (signaling energy excess), using NADPH from the pentose phosphate pathway and glycolysis."},
+            {q: "Malonyl-CoA plays a dual regulatory role in fatty acid metabolism by:", o: ["Activating both synthesis and oxidation equally", "Inhibiting β-oxidation by blocking CPT-I while promoting fatty acid synthesis", "Promoting ketone body production", "Exporting fatty acids from the mitochondria"], a: 1, e: "Malonyl-CoA is the activated form of acetyl-CoA for synthetic reactions; it inhibits the carnitine palmitoyltransferase I (CPT-I), preventing simultaneous fatty acid synthesis and oxidation."},
+            {q: "Which hormone is the primary regulator of fatty acid oxidation during fasting or exercise?", o: ["Insulin", "Glucagon and epinephrine", "Growth hormone", "Cortisol alone"], a: 1, e: "Glucagon and epinephrine reduce malonyl-CoA levels and activate hormone-sensitive lipase, promoting fatty acid oxidation during energy deficit states (fasting, exercise)."},
+            {q: "The carnitine shuttle system is essential for β-oxidation because:", o: ["Fatty acids cannot cross the mitochondrial membrane directly; carnitine transports them via CPT-I and CPT-II", "It synthesizes carnitine from lysine", "It prevents acetyl-CoA export", "It activates fatty acid synthetase"], a: 0, e: "The carnitine shuttle is necessary because long-chain fatty acids cannot directly cross the inner mitochondrial membrane. CPT-I transfers the acyl group to carnitine (outer membrane), then CPT-II regenerates acyl-CoA inside."},
+            {q: "One round of β-oxidation (one 2-carbon removal cycle) produces:", o: ["1 Acetyl-CoA, 1 FADH2, 1 NADH", "2 Acetyl-CoA and 2 ATP", "NADPH and NADH", "Only propionyl-CoA"], a: 0, e: "Each cycle removes a 2-carbon acetyl-CoA unit and generates 1 FADH2 (from acyl-CoA dehydrogenase) and 1 NADH (from 3-hydroxyacyl-CoA dehydrogenase)."},
+            {q: "Ketone bodies are produced primarily when:", o: ["Carbohydrate intake is excessive", "Glucagon is low and insulin is high", "Acetyl-CoA production from β-oxidation exceeds the TCA cycle's capacity to oxidize it", "Only during starvation lasting weeks"], a: 2, e: "Ketone bodies (acetoacetate, β-hydroxybutyrate, acetone) are produced when fatty acid oxidation generates excessive acetyl-CoA that exceeds oxidative capacity, particularly during fasting, low-carb diet, or diabetes."},
+            {q: "Which organ is the primary site of ketone body synthesis?", o: ["Kidney", "Liver", "Muscle", "Brain"], a: 1, e: "The liver is the primary ketogenic organ, synthesizing ketone bodies during fasting or carbohydrate restriction from excess acetyl-CoA derived from fatty acid and amino acid catabolism."},
+            {q: "Brain tissue primarily relies on ketone bodies during prolonged fasting because:", o: ["It cannot use fatty acids due to the blood-brain barrier", "Ketone bodies provide an alternative fuel source when glucose is limited, reducing the need for excessive gluconeogenesis", "Ketone bodies are less toxic than glucose", "The brain's sole energy source is ketones"], a: 1, e: "During prolonged fasting, the brain adapts to use ketone bodies (up to 60% of energy) as an alternative fuel, reducing glucose requirements and thereby preserving muscle protein from excessive gluconeolysis."},
+            {q: "Which of the following metabolic states most strongly promotes ketone body production?", o: ["Fed state (high carbohydrate, high insulin)", "Uncontrolled type 2 diabetes with modest glucose elevation", "Type 1 diabetes without adequate insulin", "Immediately after a meal"], a: 2, e: "Type 1 diabetes (insulin deficiency) leads to uncontrolled lipolysis, excessive fatty acid oxidation, and ketone body overproduction, potentially resulting in diabetic ketoacidosis."},
+            {q: "Acetyl-CoA carboxylase (ACC) catalyzes which reaction?", o: ["Acetyl-CoA → Malonyl-CoA", "Pyruvate → Acetyl-CoA", "Citrate → Acetyl-CoA", "Oxaloacetate → Pyruvate"], a: 0, e: "Acetyl-CoA carboxylase catalyzes the first committed step of de novo fatty acid synthesis: acetyl-CoA + CO2 → malonyl-CoA (biotin-dependent carboxylation)."},
+            {q: "In the pyruvate dehydrogenase complex, the E3 component (dihydrolipoyl dehydrogenase) regenerates:", o: ["Acetyl-CoA", "Oxidized lipoic acid (lipoamide)", "NADH from NAD+", "Thiamine pyrophosphate"], a: 1, e: "The E3 component of PDH oxidizes dihydrolipoic acid (reduced form) back to oxidized lipoic acid (lipoamide) using NAD+ as electron acceptor, regenerating the cofactor for continued cycling."},
+            {q: "The pyruvate dehydrogenase complex is most active when:", o: ["ATP and NADH levels are high", "Energy status is high (high ADP, low ATP, low NADH)", "The ADP/ATP ratio is low", "Acetyl-CoA accumulates"], a: 1, e: "PDH is activated by high ADP (energy demand signal), low ATP, and low NADH ratios, while inhibited by high ATP, acetyl-CoA, and NADH (all energy abundance signals)."},
+            {q: "Which vitamin serves as the cofactor for the E2 component (dihydrolipoyl transacetylase) of the pyruvate dehydrogenase complex?", o: ["Vitamin B1 (thiamine)", "Vitamin B2 (riboflavin)", "Vitamin B5 (pantothenic acid)", "Vitamin B12 (cobalamin)"], a: 2, e: "Pantothenic acid is the precursor for coenzyme A (CoA), which is the essential prosthetic group of the E2 component, making it a critical vitamin for pyruvate dehydrogenase function."},
+            {q: "Which deficiency disease results from pyruvate dehydrogenase complex impairment due to inadequate cofactor availability?", o: ["Beriberi (thiamine deficiency)", "Ariboflavinosis", "Scurvy", "Pellagra"], a: 0, e: "Beriberi results from thiamine (vitamin B1) deficiency, impairing the E1 component (pyruvate dehydrogenase) of the PDH complex and causing accumulation of pyruvate and lactate."},
+            {q: "The TCA cycle intermediate that links fatty acid synthesis and oxidation with amino acid metabolism is:", o: ["Succinyl-CoA", "Fumarate", "Citrate and oxaloacetate", "Malate alone"], a: 2, e: "Citrate exits mitochondria as the transport form of acetyl-CoA for fatty acid synthesis; oxaloacetate is both a TCA intermediate and a gluconeogenesis substrate for amino acid-derived carbons."},
+            {q: "Which enzyme catalyzes the rate-limiting step of the TCA cycle under most conditions?", o: ["Isocitrate dehydrogenase (regulated by ATP, NADH, Ca2+)", "Citrate synthase", "Alpha-ketoglutarate dehydrogenase", "Succinate dehydrogenase"], a: 0, e: "Isocitrate dehydrogenase is the primary rate-limiting step, inhibited by ATP and NADH (high energy) and activated by Ca2+ and ADP (low energy), allowing flexible regulation."},
+            {q: "Alpha-ketoglutarate dehydrogenase is similar to pyruvate dehydrogenase in that both:", o: ["Use the same five cofactors (TPP, lipoic acid, CoA, FAD, NAD+)", "Catalyze the decarboxylation of alpha-keto acids coupled to CoA transfer", "Are inhibited by their products (NADH, succinyl-CoA) and ATP", "All of the above"], a: 3, e: "Both α-ketoglutarate dehydrogenase and pyruvate dehydrogenase are multi-enzyme complexes with identical cofactor requirements, mechanisms, and allosteric regulation patterns."},
+            {q: "The succinyl-CoA to succinate reaction in the TCA cycle is catalyzed by succinyl-CoA synthetase (also called succinate thiokinase) and directly generates:", o: ["ATP (or GTP)", "NADH", "FADH2", "Oxaloacetate"], a: 0, e: "Succinyl-CoA synthetase catalyzes the only substrate-level phosphorylation in the TCA cycle, directly producing one ATP (or GTP in some tissues) from the high-energy thioester bond."},
+            {q: "Succinate dehydrogenase is unique among TCA cycle enzymes in that it:", o: ["Is embedded in the inner mitochondrial membrane and transfers electrons directly to CoQ in the electron transport chain", "Catalyzes a reversible reaction between succinate and fumarate", "Functions both in the TCA cycle and the electron transport chain", "All of the above"], a: 3, e: "Succinate dehydrogenase (Complex II) is the only membrane-bound TCA enzyme, directly oxidizing succinate to fumarate while reducing FAD to FADH2, feeding directly into the ETC."},
+            {q: "Which TCA cycle intermediate is most readily converted to glucose via gluconeogenesis?", o: ["Acetyl-CoA", "Oxaloacetate", "Citrate", "Isocitrate"], a: 1, e: "Oxaloacetate is the direct gluconeogenic substrate in the liver, either directly entering gluconeogenesis or being transaminated to aspartate for the glucose-alanine cycle."},
+            {q: "NADH produced in the mitochondria during the TCA cycle cannot directly cross the mitochondrial membrane; instead, it transfers electrons via:", o: ["The carnitine shuttle (similar to fatty acids)", "The glycerol-3-phosphate shuttle or the malate-aspartate shuttle", "Direct coupling to the electron transport chain", "Reconversion to NAD+ within the mitochondria"], a: 1, e: "The malate-aspartate shuttle and glycerol-3-phosphate shuttle transfer reducing equivalents from cytoplasmic NADH into the mitochondrial electron transport chain, compensating for NADH membrane impermeability."},
+            {q: "The electron transport chain is organized into four major protein complexes (I-IV) plus ATP synthase. Which complex directly oxidizes NADH?", o: ["Complex II", "Complex III", "Complex I (NADH dehydrogenase)", "Complex IV (cytochrome oxidase)"], a: 2, e: "Complex I (NADH dehydrogenase) is the entry point for NADH-derived electrons into the electron transport chain, transferring them to ubiquinone (CoQ)."},
+            {q: "Which electron carrier in the electron transport chain acts as a diffusible shuttle between Complexes I/II and Complex III?", o: ["FAD", "NAD+", "Ubiquinone (Coenzyme Q)", "Cytochrome c"], a: 2, e: "Ubiquinone (CoQ) accepts electrons from both Complex I (from NADH) and Complex II (from FADH2), forming ubiquinol and shuttling electrons to Complex III in the inner membrane."},
+            {q: "Complex III (cytochrome bc1 complex) operates via the Q-cycle mechanism to pump protons and:", o: ["Transfer electrons from ubiquinol to cytochrome c", "Catalyze the reduction of oxygen", "Generate FADH2 from FAD", "Synthesize ATP"], a: 0, e: "Complex III catalyzes one-electron transfers via the Q-cycle, pumping 4 H+ per 2 electrons passed, and transferring electrons to cytochrome c for delivery to Complex IV."},
+            {q: "Cytochrome c oxidase (Complex IV) is the final electron acceptor complex and catalyzes:", o: ["The oxidation of NADH", "The reduction of ubiquinone", "The reduction of molecular oxygen (O2) to water using 4 electrons and 4 protons", "Proton pumping without electron transfer"], a: 2, e: "Complex IV catalyzes the four-electron reduction of O2 to H2O, the irreversible endpoint of the electron transport chain, coupling this to proton pumping."},
+            {q: "The chemiosmotic theory explains ATP synthesis by:", o: ["Direct coupling of electron transfer to ATP phosphorylation", "A proton gradient across the inner mitochondrial membrane driving ATP synthase", "CoA transferase activity", "NADH regeneration from NAD+"], a: 1, e: "Mitchell's chemiosmotic theory describes how electron transport creates a proton gradient (high [H+] in intermembrane space, low in matrix), which drives ATP synthase rotation and ATP synthesis."},
+            {q: "ATP synthase (Complex V) contains which structural features necessary for function?", o: ["F0 subunit (embedded in membrane) and F1 head (rotational ATP synthesis)", "A and B subunits for catalysis", "Heme groups for electron transfer", "Prosthetic groups for redox reactions"], a: 0, e: "ATP synthase consists of F0 (membranous proton channel) and F1 (water-soluble catalytic head with rotating γ subunit), where H+ flow through F0 drives F1 rotation and ATP synthesis."},
+            {q: "The proton-motive force (PMF) is the combined driving force for ATP synthesis created by:", o: ["The chemical gradient of H+ and the electrical potential difference across the membrane", "NADH oxidation exclusively", "Ubiquinone reduction", "Oxygen consumption"], a: 0, e: "The PMF represents both the concentration gradient (ΔpH) and the electrical gradient (Δψ) of protons across the inner mitochondrial membrane, with a total potential of approximately -220 mV."},
+            {q: "The stoichiometry of the electron transport chain shows that for each NADH oxidized:", o: ["6 protons are pumped and approximately 2.5 ATP are synthesized", "10 protons are pumped and 3 ATP are synthesized", "No protons are pumped at Complex I", "The same amount of ATP is generated as from FADH2"], a: 0, e: "NADH oxidation pumps ~10 H+ from Complexes I, III, and IV combined; the 2.5 ATP (not 3) reflects the actual cost of transporting ATP/ADP (P/O ratio ≈ 2.5)."},
+            {q: "FADH2 is oxidized by Complex II and therefore bypasses Complex I. How does this affect ATP yield?", o: ["FADH2 yields more ATP than NADH because it avoids the regulatory control of Complex I", "FADH2 yields approximately 1.5 ATP (compared to 2.5 ATP from NADH) because it enters after Complex I", "FADH2 yields the same ATP as NADH due to equivalent CoQ reduction", "FADH2 cannot be oxidized by the mitochondria"], a: 1, e: "FADH2 enters at Complex II after Complex I's proton pumping, yielding ~1.5 ATP per FADH2 oxidized (vs. ~2.5 ATP per NADH), a key difference in ATP accounting."},
+            {q: "The P/O ratio (ATP produced per oxygen atom reduced) for NADH-linked respiration is approximately:", o: ["1.0", "1.5", "2.5", "3.0"], a: 2, e: "The P/O ratio for NADH is ~2.5 ATP per NADH, reflecting the stoichiometry of proton pumping (Complexes I, III, IV) and the cost of ATP/ADP transport across the mitochondrial membrane."},
+            {q: "Uncoupling proteins (UCPs) in brown adipose tissue dissipate the proton gradient by:", o: ["Preventing ATP synthesis", "Allowing protons to pass through the inner membrane without driving ATP synthase, releasing energy as heat", "Inhibiting Complex IV", "Reducing NADH production"], a: 1, e: "UCPs permit protons to bypass ATP synthase through the inner membrane, dissipating the electrochemical gradient as heat (thermogenesis) rather than ATP production—an essential mechanism in brown fat."},
+            {q: "Which UCP (uncoupling protein) is most abundant in brown adipose tissue and plays the primary role in thermogenesis?", o: ["UCP1 (thermogenin)", "UCP2", "UCP3", "UCP4"], a: 0, e: "UCP1 (also called thermogenin) is the primary thermogenic protein in brown adipose tissue, enabling heat generation through proton leak-mediated uncoupling during cold exposure."},
+            {q: "Thermogenesis in brown adipose tissue is triggered by:", o: ["Insulin signaling", "Sympathetic activation via norepinephrine (cold exposure)", "High ATP levels", "Glucose availability"], a: 1, e: "Cold exposure activates the sympathetic nervous system, releasing norepinephrine that triggers β3-adrenergic receptors on brown adipocytes, activating lipolysis and mitochondrial uncoupling."},
+            {q: "In brown adipocytes, norepinephrine activates which key step that leads to thermogenesis?", o: ["Direct activation of UCP1", "β3-adrenergic receptor activation → cAMP → PKA activation → hormone-sensitive lipase → fatty acid oxidation → uncoupling", "Glucose oxidation exclusively", "ATP synthase inhibition"], a: 1, e: "Cold → sympathetic activation → norepinephrine → β3-receptor → cAMP-PKA cascade → HSL activation → triglyceride breakdown → fatty acid oxidation → UCP1-mediated uncoupling and heat."},
+            {q: "The phenomenon of 'diet-induced thermogenesis' (DIT) or 'thermic effect of food' refers to:", o: ["Heat produced during the digestion, absorption, and processing of food", "Only the thermic effect of protein", "Cold-induced thermogenesis in brown fat", "ATP wasted through futile cycles"], a: 0, e: "DIT represents the increased energy expenditure following food consumption (~10% of total daily expenditure), driven by digestive processes, nutrient absorption, and metabolic processing rather than brown fat."},
+            // CHUNK 2: Pyruvate Dehydrogenase through Uncoupling Proteins (64 questions)
+            {q: "The pyruvate dehydrogenase complex (PDH) catalyzes a key metabolic junction by converting:", o: ["Pyruvate → Acetyl-CoA + CO2, linking glycolysis to the TCA cycle", "Lactate → Pyruvate → Glucose", "Pyruvate → Oxaloacetate → Gluconeogenesis", "Glucose → Pyruvate in reversible fashion"], a: 0, e: "PDH irreversibly converts pyruvate to acetyl-CoA and CO2, committing carbons to oxidation in the TCA cycle and linking glycolytic and lipogenic pathways."},
+            {q: "PDH is a multi-enzyme complex composed of three main catalytic components. Which component catalyzes the initial decarboxylation of pyruvate?", o: ["E1 (pyruvate dehydrogenase) using thiamine pyrophosphate", "E2 (dihydrolipoyl transacetylase)", "E3 (dihydrolipoyl dehydrogenase)", "E4 (phosphatase)"], a: 0, e: "E1 catalyzes pyruvate decarboxylation using TPP (thiamine pyrophosphate) as a cofactor, forming a hydroxyethyl-TPP intermediate that is transferred to the lipoic acid on E2."},
+            {q: "Which of the following is NOT a cofactor for the pyruvate dehydrogenase complex?", o: ["Thiamine pyrophosphate (TPP)", "Lipoic acid", "Coenzyme A (CoA)", "NADPH"], a: 3, e: "The five essential cofactors are TPP, lipoic acid, CoA, NAD+ (not NADPH), and FAD. NADPH is used in biosynthetic reactions, not in PDH."},
+            {q: "PDH kinase phosphorylates and inactivates the E1 component of PDH when:", o: ["Energy levels are low (high ADP, low ATP)", "Energy levels are high (high ATP, high NADH, high acetyl-CoA)", "Calcium levels are high", "Insulin levels rise"], a: 1, e: "PDH kinase is activated by high ATP, NADH, and acetyl-CoA (all indicating energy abundance), leading to PDH phosphorylation and inactivation to prevent waste oxidation."},
+            {q: "PDH phosphatase (PDP) is activated by which signal, promoting PDH dephosphorylation and activation?", o: ["High ATP levels", "High NADH levels", "Ca2+ (indicating energy demand in muscle)", "Acetyl-CoA accumulation"], a: 2, e: "Ca2+ directly activates PDH phosphatase, allowing rapid PDH reactivation during muscle contraction when energy demand signals the need for glucose oxidation."},
+            {q: "Which metabolic state represents the peak activity of the pyruvate dehydrogenase complex?", o: ["Fasting state with high glucagon and low insulin", "Fed state with high carbohydrate availability and high insulin", "Rest state with low energy demand", "Anaerobic exercise with high lactate accumulation"], a: 1, e: "PDH is maximally active in the fed state when glucose is abundant, carbohydrates are being oxidized, and insulin signaling activates phosphatase while inactivating kinase."},
+            {q: "Acetyl-CoA produced by PDH can be utilized by:", o: ["The TCA cycle exclusively for energy", "The TCA cycle for energy OR fatty acid synthesis depending on metabolic state and AMPK activity", "Only for ketone body synthesis", "Conversion back to pyruvate"], a: 1, e: "Acetyl-CoA partitions between oxidation (TCA cycle, abundant energy state), fatty acid synthesis (fed state, high citrate), and ketone body production (fasting, high acetyl-CoA/CoA ratio)."},
+            {q: "Acetyl-CoA carboxylase (ACC1) catalyzes the first step of de novo fatty acid synthesis. This enzyme is:", o: ["Inhibited by high AMP/AMPK signaling during energy depletion", "Activated by high insulin and citrate (fed-state signals)", "Inhibited by high ATP", "All of the above"], a: 3, e: "ACC1 is activated during the fed state (insulin, citrate) and inhibited during energy depletion (AMP → AMPK), representing a key metabolic switch between anabolism and catabolism."},
+            {q: "Malonyl-CoA produced by ACC1 serves dual regulatory roles by:", o: ["Serving as a substrate for fatty acid synthesis AND inhibiting CPT-I to prevent simultaneous fatty acid oxidation", "Increasing ATP production", "Promoting amino acid synthesis", "Inhibiting acetyl-CoA carboxylase"], a: 0, e: "Malonyl-CoA is the activated form of acetyl-CoA for fatty acid synthesis AND acts as an allosteric inhibitor of CPT-I, preventing the simultaneous oxidation of fatty acids during synthesis."},
+            {q: "CPT-I (carnitine palmitoyltransferase I) is inhibited by malonyl-CoA, which prevents:", o: ["Long-chain fatty acids from entering the mitochondria for β-oxidation during lipogenic states", "Short-chain fatty acid entry", "Amino acid synthesis", "Glycolysis"], a: 0, e: "CPT-I inhibition by malonyl-CoA prevents long-chain fatty acid import into mitochondria, coordinating the fed-state switch to fatty acid synthesis and away from oxidation."},
+            {q: "The glucose-alanine cycle occurs primarily between:", o: ["Liver and muscle", "Brain and adipose tissue", "Kidney and intestine", "Liver and brain"], a: 0, e: "The glucose-alanine (Cori-like) cycle transfers amino-group nitrogens and carbons from muscle to liver: muscle releases alanine → liver converts to glucose → muscle oxidizes glucose."},
+            {q: "In the glucose-alanine cycle, muscle transfers nitrogen to the liver by:", o: ["Direct ammonia excretion", "Transamination of pyruvate to alanine", "Urea synthesis in muscle", "Glutathione production"], a: 1, e: "Muscle transamines pyruvate (from glucose or amino acid oxidation) to alanine using glutamate as amino donor, transporting both carbons and nitrogen to the liver for gluconeogenesis."},
+            {q: "The liver receives alanine from muscle and converts it back to glucose through:", o: ["Simple deamination and pyruvate synthesis", "Transamination to pyruvate, then gluconeogenesis, while the amino group enters the urea cycle", "Direct oxidation to CO2", "Conversion to acetyl-CoA exclusively"], a: 1, e: "Hepatic alanine → pyruvate → gluconeogenesis (producing glucose returned to muscle); the amino group undergoes transamination into the urea cycle for disposal."},
+            {q: "The citric acid cycle (Krebs cycle/TCA cycle) begins with the condensation of:", o: ["Acetyl-CoA with oxaloacetate (4C + 2C → 6C citrate)", "Pyruvate with CoA", "Malate with acetyl-CoA", "Glucose-6-phosphate with CoA"], a: 0, e: "Citrate synthase catalyzes the aldol condensation of the 2-carbon acetyl group of acetyl-CoA with the 4-carbon oxaloacetate, forming 6-carbon citrate and releasing CoA."},
+            {q: "Which enzyme catalyzes the citrate-to-isocitrate isomerization, and what is unique about its mechanism?", o: ["Aconitase, which uses a [4Fe-4S] cluster to bind citrate at three points (stereospecific binding)", "Citrate synthase with no cofactor requirement", "Isocitrate dehydrogenase via oxidation", "Phosphofructokinase via ATP hydrolysis"], a: 0, e: "Aconitase binds citrate in a stereospecific 'three-point attachment' via a [4Fe-4S] iron-sulfur cluster, isomerizing citrate to isocitrate through a cis-aconitate intermediate."},
+            {q: "Isocitrate dehydrogenase catalyzes the first oxidative step of the TCA cycle by:", o: ["Oxidizing isocitrate to α-ketoglutarate while reducing NAD+ to NADH", "Transferring electrons to FAD", "Synthesizing ATP directly", "Decarboxylating without oxidation"], a: 0, e: "Isocitrate dehydrogenase oxidatively decarboxylates isocitrate, producing CO2, NADH, and α-ketoglutarate while being the primary rate-limiting enzyme of the cycle."},
+            {q: "The α-ketoglutarate dehydrogenase complex is inhibited by:", o: ["ADP and NAD+", "ATP, NADH, and succinyl-CoA (products indicating energy abundance)", "Calcium and AMP", "Citrate and malate"], a: 1, e: "α-ketoglutarate dehydrogenase is inhibited by high ATP, NADH, and its product succinyl-CoA, representing feedback inhibition typical of rate-limiting dehydrogenases."},
+            {q: "Succinyl-CoA synthetase catalyzes a unique reaction in the TCA cycle by:", o: ["Phosphorylating GDP or ADP to form GTP or ATP directly", "Transferring the high-energy thioester bond to nucleoside diphosphate", "Generating the only substrate-level phosphorylation of the cycle", "All of the above"], a: 3, e: "Succinyl-CoA synthetase transfers the energy of the succinyl-CoA thioester bond to nucleoside diphosphate, forming the only direct ATP (or GTP) of the TCA cycle via substrate-level phosphorylation."},
+            {q: "Succinate dehydrogenase catalyzes the oxidation of succinate to fumarate and is unique because:", o: ["It is the only membrane-bound TCA enzyme (Complex II of ETC) that directly transfers electrons to ubiquinone", "It is a reversible reaction unlike other TCA enzymes", "It produces FADH2 rather than NADH", "All of the above"], a: 3, e: "Succinate dehydrogenase is integral to the inner mitochondrial membrane and directly feeds electrons into the electron transport chain at ubiquinone (bypassing Complex I)."},
+            {q: "Fumarase catalyzes the hydration of fumarate to malate using:", o: ["Water (H2O) in a stereospecific manner producing L-malate", "ATP hydrolysis energy", "NAD+ as electron acceptor", "Pyruvate carboxylase activity"], a: 0, e: "Fumarase stereospecifically hydrates fumarate across the double bond using water, forming exclusively L-malate (the natural isomer) for continued TCA cycle progression."},
+            {q: "Malate dehydrogenase catalyzes the final TCA cycle step, oxidizing malate to oxaloacetate while:", o: ["Regenerating NAD+ from NADH", "Producing NADH from NAD+ in a reversible reaction", "Reducing FAD to FADH2", "Phosphorylating ADP"], a: 1, e: "Malate dehydrogenase catalyzes a reversible oxidation, producing NADH and regenerating oxaloacetate (for citrate synthase condensation), completing the cycle."},
+            {q: "The TCA cycle produces a total of ___ molecules of reduced coenzymes and ___ substrate-level phosphorylation per acetyl-CoA oxidized:", o: ["3 NADH + 1 FADH2; 1 ATP/GTP", "2 NADH + 2 FADH2; 2 ATP", "4 NADH + 2 FADH2; 0 ATP", "5 NADH + 0 FADH2; 1 ATP"], a: 0, e: "Per acetyl-CoA, the TCA cycle produces 3 NADH (isocitrate, α-ketoglutarate, malate dehydrogenases) + 1 FADH2 (succinate dehydrogenase) + 1 ATP/GTP (succinyl-CoA synthetase)."},
+            {q: "The ATP yield from complete glucose oxidation through glycolysis, pyruvate dehydrogenase, and the TCA cycle is approximately:", o: ["2 ATP (from glycolysis only)", "10 ATP (from substrate-level phosphorylation)", "~30-32 ATP (including electron transport chain oxidation of all NADH and FADH2)", "100 ATP"], a: 2, e: "Glycolysis (2 ATP) + TCA cycle (2 ATP equivalent) + ETC (25-28 ATP from 10 NADH and 2 FADH2) = approximately 30-32 ATP per glucose, depending on shuttle efficiency."},
+            {q: "Oxaloacetate concentration in the TCA cycle is maintained by:", o: ["Direct synthesis from pyruvate via pyruvate carboxylase (anaplerotic reaction)", "Transamination of aspartate by aspartate aminotransferase", "Conversion of glutamate via transamination", "All of the above"], a: 3, e: "Oxaloacetate is maintained by anaplerotic reactions: pyruvate carboxylase (primary), aspartate transamination, and glutamate transamination, ensuring cycle continuation despite oxaloacetate withdrawal."},
+            {q: "Which amino acid deaminase reaction directly replenishes TCA cycle intermediates?", o: ["Glutamate → α-ketoglutarate (via glutamate dehydrogenase)", "Aspartate → Oxaloacetate (via aspartate aminotransferase or direct deamination)", "Alanine → Pyruvate → Oxaloacetate", "All can replenish TCA intermediates"], a: 3, e: "Multiple amino acids replenish TCA intermediates: glutamate → α-KG, aspartate → OAA, alanine → pyruvate → OAA; this anaplerosis links amino acid catabolism to the TCA cycle."},
+            {q: "During starvation or prolonged exercise, when TCA intermediates are withdrawn for gluconeogenesis, the cycle is maintained by:", o: ["Increased NADH oxidation", "Anaplerotic reactions (pyruvate carboxylase, glutamate dehydrogenase, aspartate transamination)", "Increasing acetyl-CoA production", "Fatty acid synthesis"], a: 1, e: "Anaplerotic reactions become critical when gluconeogenesis withdraws oxaloacetate, with pyruvate carboxylase providing new oxaloacetate and amino acid catabolism replenishing intermediates."},
+            {q: "The electron transport chain (ETC) is organized into:", o: ["Two main complexes (I and III)", "Three main complexes (I, III, IV)", "Four main complexes (I, II, III, IV) plus ATP synthase", "Five main complexes"], a: 2, e: "The ETC consists of four protein complexes (I: NADH dehydrogenase, II: succinate dehydrogenase, III: bc1 complex, IV: cytochrome oxidase) plus Complex V (ATP synthase)."},
+            {q: "Complex I (NADH dehydrogenase) in the ETC:", o: ["Oxidizes NADH and transfers electrons to ubiquinone while pumping 4 H+ per NADH oxidized", "Oxidizes succinate and transfers electrons to ubiquinone", "Accepts electrons from cytochrome c", "Produces water from oxygen"], a: 0, e: "Complex I catalyzes NADH → CoQ electron transfer, pumping 4 protons per NADH, establishing the proton gradient necessary for ATP synthesis."},
+            {q: "Complex II (succinate dehydrogenase) in the ETC:", o: ["Oxidizes NADH exclusively", "Oxidizes succinate to fumarate while reducing FAD to FADH2, transferring electrons to ubiquinone", "Pumps protons at equivalent rates to Complex I", "Is a reversible component of the TCA cycle"], a: 1, e: "Complex II (succinate dehydrogenase) is unique as both a TCA enzyme and ETC component, oxidizing succinate with FAD (not NAD+) and transferring electrons directly to CoQ."},
+            {q: "Which element is essential for the electron transfer in Complexes I and IV but NOT for Complex II?", o: ["Iron (Fe) in heme groups or iron-sulfur clusters", "Molybdenum (Mo)", "Copper (Cu)", "Zinc (Zn)"], a: 0, e: "Iron is essential for electron transfer in Complexes I (Fe-S clusters), III (heme, Fe), and IV (cytochrome c, Fe), but Complex II uses FAD directly without iron."},
+            {q: "Complex III (cytochrome bc1 complex) operates via the Q-cycle mechanism and:", o: ["Pumps 2 H+ per 2 electrons transferred", "Pumps 4 H+ per 2 electrons transferred, achieving higher efficiency than simple electron transfer", "Oxidizes NADH directly", "Produces water"], a: 1, e: "The Q-cycle is a sophisticated two-step mechanism where Complex III transfers electrons via semiquinone intermediates, pumping 4 H+ per 2 electrons (2 H+ per electron)."},
+            {q: "Complex IV (cytochrome oxidase) performs the final step of the electron transport chain by:", o: ["Oxidizing NADH", "Oxidizing ubiquinol", "Reducing molecular oxygen to water using 4 electrons (cytochrome c provides the electrons)", "Pumping 4 H+ per oxygen atom"], a: 2, e: "Cytochrome oxidase accepts 4 electrons from cytochrome c and 4 protons from the matrix, reducing O2 to H2O while pumping 2 H+ across the membrane."},
+            {q: "The proton-motive force (PMF) consists of two components:", o: ["Concentration gradient (ΔpH) and electrical potential (Δψ)", "NADH concentration gradient", "ATP/ADP ratio", "Acetyl-CoA levels"], a: 0, e: "The PMF = Δμ(H+) = (Δψ - (2.303RT/F) × ΔpH) where Δψ is the electrical potential (~140 mV) and ΔpH is the pH gradient (~60 mV), totaling ~180-200 mV."},
+            {q: "In healthy mitochondria, the intermembrane space is ____ acidic (lower pH) compared to the matrix due to:", o: ["More", "Less", "Equally", "Variable"], a: 0, e: "The intermembrane space is more acidic (pH ~6.5) than the matrix (pH ~8), creating a ~1.5 unit pH gradient ([H+] difference of ~30-fold) that drives ATP synthase."},
+            {q: "ATP synthase couples the flow of protons across the inner mitochondrial membrane to the synthesis of ATP by:", o: ["Direct phosphorylation via phosphoryl transfer from a substrate", "Rotational catalysis where proton flux drives F0 rotation, which rotates γ subunit in F1 causing conformational changes in catalytic sites", "Using NADH energy directly", "Electron transfer to phosphate"], a: 1, e: "ATP synthase uses rotational mechanics: proton flow through F0 drives rotation of the γ subunit within F1, inducing conformational changes in catalytic sites that bind ADP+Pi and release ATP."},
+            {q: "The F0 domain of ATP synthase is:", o: ["A water-soluble head containing catalytic sites (α3β3 hexamer with γ, δ, ε subunits)", "An integral membrane complex forming the proton channel", "Responsible for ATP hydrolysis", "Found only in prokaryotes"], a: 1, e: "F0 is the membrane-embedded domain consisting of a, b, c subunits forming the proton channel; F0 rotation directly drives F1 catalysis via the rotating γ subunit."},
+            {q: "The F1 domain of ATP synthase is:", o: ["The membrane-embedded proton channel", "A water-soluble head (α3β3 hexamer) containing three catalytic sites where ADP+Pi condense to form ATP", "Responsible for proton translocation", "Similar to Protein A"], a: 1, e: "F1 is the water-soluble catalytic head containing the α3β3 hexamer with three catalytic sites; rotation of the central γ subunit driven by F0 induces ATP synthesis."},
+            {q: "The P/O ratio (ATP synthesized per oxygen atom reduced) for NADH in a healthy mitochondrion is approximately:", o: ["1.0", "1.5", "2.5", "3.0"], a: 2, e: "The P/O ratio for NADH is ~2.5 ATP per oxygen atom reduced (or ~2.5 ATP per NADH), accounting for the cost of ATP/ADP antiporter and the proton stoichiometry of the ETC."},
+            {q: "The P/O ratio for FADH2 is approximately ____ than for NADH because:", o: ["The same", "Lower (~1.5 ATP per FADH2); FADH2 enters at Complex II after the Complex I proton pump", "Higher; FADH2 is a more efficient electron donor", "Zero; FADH2 cannot be used by the ETC"], a: 1, e: "FADH2 yields ~1.5 ATP because it enters at Complex II, bypassing the 4 H+ pumped by Complex I, reducing total H+ pumped per electron pair by ~1.6 H+."},
+            {q: "Uncoupling proteins (UCPs) dissipate the proton gradient without generating ATP, resulting in:", o: ["Energy release as heat (thermogenesis)", "Increased ATP production", "NADH accumulation", "Glucose accumulation"], a: 0, e: "UCPs allow proton leak across the inner membrane without driving ATP synthase, converting the PMF energy directly into heat through a futile proton cycle."},
+            {q: "UCP1 (thermogenin) is most abundant in:", o: ["White adipose tissue", "Liver mitochondria", "Brown adipose tissue (brown fat)", "Muscle mitochondria"], a: 2, e: "UCP1 is the primary thermogenic protein in brown adipose tissue, enabling heat generation through proton leak-mediated uncoupling for non-shivering thermogenesis and cold adaptation."},
+            {q: "Brown adipose tissue activation and thermogenesis are triggered by:", o: ["Insulin signaling", "Sympathetic nervous system activation (cold exposure) via norepinephrine → β3-adrenergic receptors", "High glucose availability", "Anabolic hormones"], a: 1, e: "Cold exposure activates the sympathetic nervous system, releasing norepinephrine that binds β3-adrenergic receptors on brown adipocytes, initiating the thermogenic cascade."},
+            {q: "The mechanism by which sympathetic activation leads to brown fat thermogenesis involves:", o: ["Norepinephrine → β3-receptor → cAMP → PKA → hormone-sensitive lipase (HSL) → triglyceride breakdown → fatty acid oxidation → UCP1 activation", "Direct activation of ATP synthase", "Inhibition of the electron transport chain", "Glucose oxidation exclusively"], a: 0, e: "Cold exposure → NE release → β3R stimulation → cAMP-PKA cascade → HSL activation → lipolysis → fatty acid β-oxidation floods mitochondria with acetyl-CoA, driving oxidation and UCP1-mediated heat dissipation."},
+            {q: "The ATP-to-ADP ratio in brown adipose tissue during maximal thermogenesis is typically:", o: ["Very high (indicating high energy status)", "Relatively low (despite high metabolic rate, fuel is oxidized for heat rather than ATP)", "Zero (no ATP is produced)", "Varies randomly"], a: 1, e: "During maximal thermogenesis, the ATP/ADP ratio remains relatively low because the proton gradient is dissipated as heat via UCP1 rather than used for ATP synthesis, creating high fuel oxidation with little ATP accumulation."},
+            {q: "UCPs in tissues other than brown fat (UCP2, UCP3) are thought to play roles in:", o: ["Fever production exclusively", "Regulation of reactive oxygen species (ROS) generation and metabolic regulation in liver, pancreas, and muscle", "Increasing ATP production", "No physiological role"], a: 1, e: "UCP2 and UCP3 are expressed in metabolically active tissues and are proposed to regulate mitochondrial ROS production and metabolic efficiency rather than generate heat like UCP1."},
+            {q: "Which vitamin deficiency would most severely impair the electron transport chain function?", o: ["Vitamin C (ascorbic acid)", "Vitamin B2 (riboflavin, precursor to FAD)", "Vitamin D", "Vitamin E"], a: 1, e: "Riboflavin deficiency impairs FAD availability, essential for multiple dehydrogenases in the ETC (Complex II, α-ketoglutarate DH, pyruvate DH), severely compromising energy metabolism."},
+            {q: "Cyanide poisoning is fatal because it:", o: ["Inhibits acetyl-CoA production", "Binds cytochrome oxidase (Complex IV) blocking electron transfer to oxygen, halting the entire ETC and ATP synthesis", "Increases ATP synthase activity", "Prevents glucose uptake"], a: 1, e: "Cyanide binds the Fe3+ in cytochrome a3 (Complex IV), preventing oxygen reduction and blocking the entire electron transport chain, leading to rapid ATP depletion and death."},
+            {q: "Carbon monoxide poisoning and cyanide poisoning both inhibit the electron transport chain by:", o: ["Different mechanisms (CO at Complex III, CN at Complex IV)", "Binding cytochrome oxidase at different sites", "Carbon monoxide competes with oxygen at Complex IV; cyanide binds to cytochrome a3 iron", "Both preventing Complex I oxidation of NADH"], a: 2, e: "Both poisons target Complex IV (cytochrome oxidase): CO competes with O2 for heme binding, while CN binds the Fe3+ of cytochrome a3, both blocking oxygen reduction."},
+            {q: "Oligomycin is an antibiotic that inhibits ATP synthase. Its use in research reveals:", o: ["That ATP synthesis is not coupled to the proton gradient", "That the proton gradient alone cannot drive ATP synthesis", "That the proton gradient is essential for ATP synthesis (oligomycin causes ATP depletion and H+ accumulation)", "That mitochondria can produce ATP without oxidative phosphorylation"], a: 2, e: "Oligomycin blocks ATP synthase, demonstrating the coupling between PMF and ATP synthesis: it causes ATP depletion (revealing ETC energy goes to H+ pumping) and H+ accumulation (proving gradient exists but cannot be used)."},
+            {q: "DNP (2,4-dinitrophenol) acts as a mitochondrial uncoupler by:", o: ["Inhibiting ATP synthase", "Directly binding and disrupting Complex IV", "Acting as a lipophilic weak acid that shuttles protons across the inner membrane, dissipating the gradient as heat", "Preventing NADH oxidation"], a: 2, e: "DNP is a lipophilic weak acid that accepts protons in the matrix, crosses the membrane, and releases them in the intermembrane space, acting as an artificial UCP and causing dangerous hyperthermia."},
+            {q: "Oxidative stress in mitochondria results primarily from:", o: ["ATP depletion", "Reactive oxygen species (ROS) generation at Complexes I and III during electron transport", "Uncoupling protein activation", "Excess ATP synthase activity"], a: 1, e: "Complexes I and III can transfer single electrons to O2, forming the superoxide anion radical (O2•−), which generates other ROS (H2O2, OH•) that damage proteins, lipids, and DNA."},
+            {q: "The antioxidant enzyme superoxide dismutase (SOD) protects mitochondria by:", o: ["Directly preventing ROS formation", "Catalyzing the conversion of superoxide anion to hydrogen peroxide (H2O2), which is further neutralized by catalase or glutathione peroxidase", "Inhibiting the electron transport chain", "Activating uncoupling proteins"], a: 1, e: "SOD catalyzes 2 O2•− + 2 H+ → H2O2 + O2, converting the highly reactive superoxide into H2O2, which is then detoxified by catalase (H2O2 → H2O + 1/2 O2) or GPx."},
+            {q: "The pentose phosphate pathway's oxidative phase produces NADPH, which is essential for:", o: ["ATP synthesis exclusively", "Fatty acid synthesis and antioxidant defense against ROS via glutathione reduction", "Amino acid degradation", "Glycolysis"], a: 1, e: "NADPH from the PPP oxidative phase drives both anabolic reactions (fatty acid, cholesterol, nucleotide synthesis) and antioxidant defense (glutathione reduction to combat ROS)."},
+            {q: "In rapidly dividing cells, the non-oxidative phase of the pentose phosphate pathway is particularly active for:", o: ["ATP production", "CO2 generation", "Ribose-5-phosphate synthesis for nucleotide production", "Glucose oxidation"], a: 2, e: "The non-oxidative PPP phase interconverts sugars to generate ribose-5-phosphate for nucleotide and nucleic acid synthesis, essential for DNA replication in rapidly dividing cells."}
+        ];
+
+        let currentMode = 'learning';
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answered = false;
+        let selectedAnswers = [];
+        let lastKeyPressed = null;
+        let lastKeyTime = 0;
+
+        function setMode(mode) {
+            currentMode = mode;
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            answered = false;
+            selectedAnswers = [];
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.mode-btn.${mode}`).classList.add('active');
+            displayQuestion();
+        }
+
+        function getQuestions() {
+            if (currentMode === 'learning') {
+                return questionsData;
+            } else {
+                let shuffled = [...questionsData];
+                Fisher_Yates_Shuffle(shuffled);
+                return shuffled;
+            }
+        }
+
+        function getTotalQuestions() {
+            return questionsData.length;
+        }
+
+        function Fisher_Yates_Shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function displayQuestion() {
+            const questions = getQuestions();
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            answered = false;
+            selectedAnswers = [];
+            let isMultiSelect = Array.isArray(question.a);
+
+            let optionsHTML = question.o.map((opt, idx) => {
+                return `<div class="option" onclick="selectOption(${idx}, ${isMultiSelect})" data-option="${idx}">
+                    <strong>${String.fromCharCode(65 + idx)})</strong> ${opt}
+                </div>`;
+            }).join('');
+
+            document.getElementById('quizContent').innerHTML = `
+                <div class="question-section">
+                    <div class="question-number">Question ${currentQuestionIndex + 1} of ${getTotalQuestions()}</div>
+                    <div class="question-text">${question.q}</div>
+                    <div class="options" id="optionsContainer">${optionsHTML}</div>
+                    <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">
+                        ${isMultiSelect ? 'Submit Selected Answers' : 'Submit Answer'}
+                    </button>
+                    <div class="keyboard-hint">💡 Press 1/2/3/4 to select • Double-press within 500ms to submit</div>
+                </div>
+            `;
+
+            updateProgress();
+        }
+
+        function selectOption(index, isMultiSelect) {
+            if (answered) return;
+
+            const options = document.querySelectorAll('.option');
+            if (isMultiSelect) {
+                selectedAnswers.includes(index) ?
+                    selectedAnswers.splice(selectedAnswers.indexOf(index), 1) :
+                    selectedAnswers.push(index);
+                options.forEach((opt, idx) => {
+                    selectedAnswers.includes(idx) ? opt.classList.add('selected') : opt.classList.remove('selected');
+                });
+            } else {
+                selectedAnswers = [index];
+                options.forEach((opt, idx) => {
+                    idx === index ? opt.classList.add('selected') : opt.classList.remove('selected');
+                });
+            }
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+
+            const questions = getQuestions();
+            const question = questions[currentQuestionIndex];
+            const correctAnswers = Array.isArray(question.a) ? question.a : [question.a];
+            const isCorrect = selectedAnswers.length === correctAnswers.length &&
+                selectedAnswers.every(idx => correctAnswers.includes(idx));
+
+            answered = true;
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, idx) => {
+                if (correctAnswers.includes(idx)) {
+                    opt.classList.add('correct');
+                } else if (selectedAnswers.includes(idx) && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            const feedbackClass = isCorrect ? 'correct' : 'incorrect';
+            const feedbackTitle = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+
+            document.querySelector('.submit-btn').innerHTML = `
+                <div class="feedback ${feedbackClass}">
+                    <div class="feedback-title">${feedbackTitle}</div>
+                    <div class="feedback-text">${question.e}</div>
+                </div>
+            `;
+
+            if (isCorrect) {
+                correctCount++;
+            } else {
+                incorrectCount++;
+            }
+            updateScore();
+        }
+
+        function nextQuestion() {
+            if (!answered) return;
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const total = getTotalQuestions();
+            const percentage = (currentQuestionIndex / total) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = total;
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const percentage = total === 0 ? 0 : Math.round(correctCount / total * 100);
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentageDisplay').textContent = percentage;
+            updateProgress();
+        }
+
+        function showResults() {
+            const total = correctCount + incorrectCount;
+            const pct = total === 0 ? 0 : Math.round(correctCount / total * 100);
+            document.getElementById('quizContent').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h2 style="color: #667eea; font-size: 32px; margin-bottom: 20px;">🎉 Quiz Complete!</h2>
+                    <div style="font-size: 18px; margin: 30px 0; line-height: 2;">
+                        <div>✓ Correct: <strong>${correctCount}</strong></div>
+                        <div>✗ Incorrect: <strong>${incorrectCount}</strong></div>
+                        <div>Score: <strong>${pct}%</strong></div>
+                    </div>
+                    <button class="restart-btn" onclick="location.reload()">Restart Quiz</button>
+                </div>
+            `;
+        }
+
+        function setupKeyboard() {
+            document.onkeydown = function(e) {
+                const keyNum = parseInt(e.key);
+                if (![1, 2, 3, 4].includes(keyNum)) return;
+
+                const isMultiSelect = Array.isArray(getQuestions()[currentQuestionIndex]?.a);
+                const now = Date.now();
+
+                if (answered) {
+                    nextQuestion();
+                } else {
+                    if (lastKeyPressed === keyNum && now - lastKeyTime < 500) {
+                        checkAnswer();
+                        lastKeyPressed = null;
+                    } else {
+                        selectOption(keyNum - 1, isMultiSelect);
+                        lastKeyPressed = keyNum;
+                        lastKeyTime = now;
+                    }
+                }
+            };
+        }
+
+        setupKeyboard();
+        setMode('learning');
+    </script>
+</body>
+</html>
