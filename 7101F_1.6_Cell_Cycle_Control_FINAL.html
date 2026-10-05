@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7101F 1.6 Cell Cycle Control</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 900px; width: 100%; padding: 40px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #667eea; font-size: 28px; margin-bottom: 10px; }
+        .mode-buttons { display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; }
+        .mode-btn { padding: 12px 30px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .mode-btn.learning { background: #667eea; color: white; }
+        .mode-btn.testing { background: #764ba2; color: white; }
+        .mode-btn.active { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .progress-container { margin-bottom: 25px; }
+        .progress-bar { background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); width: 0%; transition: width 0.3s ease; }
+        .progress-text { font-size: 14px; color: #666; text-align: center; }
+        .score-display { display: flex; gap: 30px; justify-content: center; margin: 15px 0; font-weight: bold; font-size: 16px; }
+        .score-item { display: flex; align-items: center; gap: 8px; }
+        .score-correct { color: #4caf50; }
+        .score-incorrect { color: #f44336; }
+        .score-percentage { color: #667eea; }
+        .question-section { margin: 20px 0; }
+        .question-number { font-size: 14px; color: #999; margin-bottom: 8px; }
+        .question-text { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 20px; line-height: 1.5; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option { padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 16px; }
+        .option:hover { border-color: #667eea; background: #f5f7ff; }
+        .option.selected { background: #e8eef7; border-color: #667eea; }
+        .option.correct { background: #c8e6c9; border-color: #4caf50; }
+        .option.incorrect { background: #ffcdd2; border-color: #f44336; }
+        .feedback { margin-top: 20px; padding: 20px; border-radius: 8px; }
+        .feedback.correct { background: #c8e6c9; border-left: 4px solid #4caf50; }
+        .feedback.incorrect { background: #ffcdd2; border-left: 4px solid #f44336; }
+        .feedback-title { font-weight: bold; margin-bottom: 10px; font-size: 16px; }
+        .feedback-text { font-size: 14px; line-height: 1.6; }
+        .submit-btn { background: #667eea; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; font-weight: bold; transition: all 0.3s ease; }
+        .submit-btn:hover { background: #764ba2; transform: translateY(-2px); }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .keyboard-hint { font-size: 12px; color: #999; margin-top: 10px; text-align: center; }
+        .results-screen { text-align: center; padding: 40px; }
+        .results-screen h2 { color: #667eea; font-size: 32px; margin-bottom: 20px; }
+        .results-stats { font-size: 18px; margin: 30px 0; line-height: 2; }
+        .restart-btn { background: #667eea; color: white; border: none; padding: 15px 40px; font-size: 18px; border-radius: 8px; cursor: pointer; margin-top: 30px; font-weight: bold; }
+        .restart-btn:hover { background: #764ba2; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 7101F 1.6 Cell Cycle Control</h1>
+            <p style="color: #666; font-size: 14px;">Checkpoints, CDKs, Gene Regulation & Cancer</p>
+        </div>
+
+        <div class="mode-buttons">
+            <button class="mode-btn learning active" onclick="setMode('learning')">📖 LEARNING MODE: Questions in order</button>
+            <button class="mode-btn testing" onclick="setMode('testing')">🔀 TESTING MODE: Questions randomized</button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">146</span></div>
+        </div>
+
+        <div class="score-display">
+            <div class="score-item score-correct">✓ <span id="correctCount">0</span> Correct</div>
+            <div class="score-item score-incorrect">✗ <span id="incorrectCount">0</span> Incorrect</div>
+            <div class="score-item score-percentage"><span id="percentageDisplay">0</span>%</div>
+        </div>
+
+        <div id="quizContent"></div>
+        <div id="resultsScreen" class="results-screen hidden"></div>
+
+        <div class="keyboard-hint" id="keyboardHint">
+            💡 Press 1/2/3/4 to select • Double-press same key within 500ms to submit • Press any key to advance
+        </div>
+    </div>
+
+    <script>
+        const questionsData = [
+            {q: "Which of the following best describes the G1 phase of the cell cycle?", o: ["DNA synthesis and replication of genetic material", "Chromosome segregation followed by cytokinesis", "The cell prepares for cell division", "The cell grows and synthesizes cellular components essential for DNA duplication"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The S phase of the cell cycle is characterized by:", o: ["Cell growth and synthesis of cellular components", "DNA synthesis and replication of genetic material; each chromosome now consists of two sister chromatids", "Preparation for cell division", "Mitosis and cytokinesis"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "During the G2 phase, the cell:", o: ["Grows and synthesizes cellular components", "Replicates its DNA", "Prepares for cell division that occurs in the M phase", "Undergoes chromosome segregation"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mitosis (M) phase results in:", o: ["One diploid cell becoming two diploid cells", "Chromosome segregation followed by cytokinesis, generating 2 identical daughter cells", "Replication of the genetic material", "Preparation for the next cell cycle"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Interphase encompasses which phases of the cell cycle?", o: ["G1 and S phases", "S and G2 phases", "G1, S, and G2 phases", "G1 and M phases"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The primary functions during interphase include: (Select all that apply)", o: ["Cell growth", "DNA duplication", "Preparation for mitosis", "Chromosome segregation"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The G1 checkpoint ensures that:", o: ["All chromosomes have been properly replicated", "Conditions are favorable for replication (growth factor signals, DNA integrity, cell size, protein reserves are assessed)", "Chromosomes are properly attached to spindle fibers", "The cell can enter cytokinesis"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The G1 checkpoint is often referred to as the:", o: ["Spindle checkpoint", "Restriction point", "Replication checkpoint", "Commitment point"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "If a cell does not pass the G1 checkpoint:", o: ["It enters mitosis immediately", "It enters a resting state called G0 to await further signals when conditions improve", "It undergoes apoptosis", "It re-enters the S phase"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Which of the following cell types typically remain in G0 for their entire lifetime? (Select all that apply)", o: ["Neurons", "Skeletal muscle cells", "Intestinal epithelial cells", "Hair follicle cells"], a: [0, 1], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The G2 checkpoint ensures that:", o: ["Growth factors are sufficient for DNA replication", "Sister chromatids are separating correctly", "Chromosomes are condensing properly", "All chromosomes have been replicated and the replicated DNA is not damaged"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "If DNA damage is detected during the G2 checkpoint:", o: ["The cell immediately enters mitosis", "The cell cycle is paused; the cell attempts to either complete DNA replication or repair the damaged DNA", "The cell undergoes programmed cell death", "The cell re-enters S phase"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The M checkpoint (spindle checkpoint) assesses:", o: ["The replication status of all chromosomes", "The integrity of replicated DNA", "The attachment of each centromere to spindle fibers", "The synthesis of proteins needed for mitosis"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mitosis will only proceed at the M checkpoint if:", o: ["DNA replication is complete", "The attachment of each centromere to spindle fibers is correct", "All necessary proteins have been synthesized", "Growth factors are present"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Regulation of the cell cycle involves:", o: ["Histone proteins and chromatin", "Specialized cyclin proteins associated with cyclin-dependent kinases (CDK)", "DNA methylation patterns", "Transcription factors exclusively"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "CDKs (Cyclin-Dependent Kinases) are:", o: ["Serine/threonine protein kinase enzymes that phosphorylate specific target proteins", "Regulatory proteins with no catalytic activity", "DNA binding proteins", "Histone modification enzymes"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Cyclins are best described as:", o: ["Serine/threonine protein kinases", "DNA polymerase enzymes", "Regulatory proteins with no catalytic activity that bind to CDKs and activate them", "Transcription factors"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "CDKs cannot phosphorylate target proteins until:", o: ["DNA replication is complete", "ATP is available", "The cell passes a checkpoint", "They bind and are activated by a cyclin"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Which CDK-cyclin complexes are associated with mitosis? (Select all that apply)", o: ["CDK4-cyclin D", "CDK1-cyclin A", "CDK1-cyclin B", "CDK2-cyclin E"], a: [1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The G1/S checkpoint and S phase progression are controlled by:", o: ["CDK4-cyclin D", "CDK1-cyclin B", "CDK2-cyclin A and CDK2-cyclin E", "CDK6-cyclin D"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Entry into the G1 cycle is regulated by:", o: ["CDK2-cyclin A and CDK2-cyclin E", "CDK1-cyclin A and CDK1-cyclin B", "CDK4-cyclin D and CDK6-cyclin D", "CDK2-cyclin D"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The transition from G1 to S phase is primarily ruled by:", o: ["CDK4/6-cyclin D and CDK2-cyclin E complexes", "CDK1-cyclin A and CDK1-cyclin B", "CDK2-cyclin A only", "CDK4-cyclin A"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "During the G2 phase, which complexes phosphorylate FoxM1 (Forkhead box M1 protein)?", o: ["CDK1-cyclin A and CDK1-cyclin B", "CDK1-cyclin E", "CDK4-cyclin D and CDK6-cyclin D", "CDK2-cyclin A and CDK2-cyclin E"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "FoxM1 (Forkhead box M1) is:", o: ["A cyclin protein", "A histone modification enzyme", "A checkpoint protein", "A transcription factor whose expression allows transition to M-phase"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mitotic CDKs (CDK1-cyclin A and CDK1-cyclin B) during M phase:", o: ["Inhibit factors that initiate DNA replication to prevent a second round of DNA synthesis", "Promote DNA replication", "Activate checkpoint proteins", "Break down the nuclear envelope"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Why do mitotic CDKs inhibit DNA replication factors?", o: ["To prevent a second round of DNA synthesis until mitosis is complete and the cell has passed the next G1 checkpoint", "To prevent errors in mitosis", "To reduce the metabolic burden on the cell", "To ensure proper chromosome segregation"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mitotic CDKs activate which complex?", o: ["Spliceosome", "Anaphase promotion complex (APC/C)", "Proteasome", "Initiator complex"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The anaphase promotion complex (APC/C) functions to:", o: ["Initiate DNA replication", "Recruit RNA polymerase to promoters", "Allow chromatids to separate at anaphase and complete mitosis to decrease the possibility of aneuploidy", "Modify chromatin structure"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Cyclins and CDKs undergo a constant cycle of:", o: ["Phosphorylation and dephosphorylation", "Nuclear import and export", "DNA binding and release", "Synthesis and degradation during the cell cycle"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Before a cell can progress from one phase of the cell cycle to the next:", o: ["A new cyclin must be synthesized", "The old cyclin must be degraded to allow activation of the next phase's cyclins and CDKs", "DNA must be replicated", "The cell must pass all checkpoints"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Negative regulators of the cell cycle primarily halt progression at:", o: ["The S phase", "The G1 checkpoint", "The G2 checkpoint", "The M phase"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Cyclin-CDK complexes are negatively regulated by:", o: ["Cyclin-dependent kinase inhibitors (CKIs)", "Histone acetyltransferases", "Transcription factors", "DNA polymerases"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Which of the following are examples of tumor-suppressor proteins that act as negative regulators? (Select all that apply)", o: ["p53", "p21", "Retinoblastoma protein (Rb)", "Ras"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "p53 functions as a tumor suppressor by:", o: ["Directly inhibiting cyclin synthesis", "Blocking cyclin-CDK complex assembly", "Halting the cell cycle if damaged DNA is detected and recruiting enzymes to repair the DNA", "Degrading damaged DNA"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "p21 enforces the cell cycle halt by:", o: ["Inhibiting the activity of CDK/cyclin complexes", "Recruiting DNA repair enzymes", "Preventing cyclin synthesis", "Causing DNA replication errors"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The retinoblastoma protein (Rb) prevents G1/S transition by:", o: ["Inhibiting cyclin-CDK complex activity", "Phosphorylating histone proteins", "Recruiting p53 to damaged DNA", "Binding to the E2F transcription factor and blocking the production of proteins needed for G1/S transition"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "E2F is a transcription factor that:", o: ["Induces S-phase progression in association with CDK2-cyclin E complex", "Inhibits cell cycle progression", "Represses cyclin synthesis", "Activates checkpoint proteins"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "How does Rb interact with E2F to block cell cycle progression?", o: ["It phosphorylates E2F", "It competes for the same DNA binding sites", "It binds to E2F, preventing production of proteins needed for entry into S phase", "It recruits histone deacetylases to E2F target genes"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "How is the Rb block on E2F removed?", o: ["Rb is phosphorylated by G1 CDK4/6-cyclin D complex, releasing E2F", "E2F is degraded", "E2F binds p53", "Another transcription factor displaces E2F"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "What is the result of Rb being phosphorylated and E2F being released?", o: ["Apoptosis is triggered", "The cell enters into S phase", "DNA replication stops", "Mitosis begins"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Ras protein is a:", o: ["Tumor suppressor protein", "Checkpoint control protein", "Proto-oncogene that activates G1 checkpoint cyclins", "CDK inhibitor"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "If the Ras protein is mutated and becomes constantly active:", o: ["The cell cycle is halted", "It will constantly activate G1 cyclins, causing uncontrolled cell division and potentially leading to cancer", "CDK inhibitors are produced", "DNA repair is enhanced"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mutations in the p53 gene are regarded as a hallmark of:", o: ["Normal cell division", "Senescent cells", "Cancer cells", "Differentiated cells"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Anticancer drugs often target:", o: ["Cell cycle signaling pathways using CDK inhibitors", "Histone deacetylases exclusively", "DNA polymerases", "Transcription factors"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "First and second generation anticancer drugs:", o: ["Specifically inhibit CDK4 and CDK6", "Enhance cell cycle progression", "Target only tumor-suppressor proteins", "Inhibit a range of CDKs"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Third generation anticancer drugs:", o: ["Target specific inhibitors of CDK4 and CDK6 (G1 CDKs)", "Are broad-spectrum CDK inhibitors", "Target histone modifications", "Enhance DNA repair"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Common adverse effects of anticancer drugs that target rapidly dividing cells include: (Select all that apply)", o: ["Neutropenia", "Thrombocytopenia", "Alopecia", "Anemia"], a: [0, 1], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "All cells in the body have the same:", o: ["Gene expression patterns", "Metabolic rates", "Proteins expressed", "Genetic material"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The exome contains:", o: ["All the exons of RNA that code for proteins in a genome", "All genes in the genome", "All non-coding DNA sequences", "All histone proteins"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The proteome refers to:", o: ["The entire set of proteins expressed by a genome, cell, tissue, or organism at a given time", "The entire set of genes in an organism", "All mRNA molecules in a cell", "All histone modifications"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Housekeeping genes are:", o: ["Always transcribed", "Tissue-specific genes", "Never transcribed", "Only transcribed during specific cell cycle phases"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Which of the following are examples of housekeeping genes? (Select all that apply)", o: ["DNA polymerase", "Metabolism proteins", "Hemoglobin", "Tissue-specific enzymes"], a: [0, 1], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "An example of a specialized gene whose transcription can be turned on or off is:", o: ["Hemoglobin in red blood cells but not in other cells", "DNA polymerase", "Ribosomal proteins", "ATP synthase"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Starvation leads to:", o: ["Decreased protein synthesis", "Mitochondrial dysfunction", "Inhibition of all transcription", "The synthesis of specialized enzymes in the liver to convert amino acids to glucose"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Many genes are regulated primarily at the level of:", o: ["Translation", "Transcription", "Post-translational modification", "mRNA degradation"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "DNA exists as condensed structures called:", o: ["Chromatin or chromosomes", "Nucleotides", "Histones", "Helicases"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Chromatin is formed when:", o: ["DNA is wound into a double helix", "RNA polymerase binds to DNA", "Proteins are synthesized from mRNA", "DNA strands wrap around histone and non-histone proteins"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "A nucleosome consists of:", o: ["A segment of DNA wound around a core of histone proteins", "A single strand of DNA wrapped around a single histone", "Multiple copies of all four histone types", "DNA only, without protein"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The nucleosome is the:", o: ["Second step of DNA compaction", "Final step of DNA compaction", "First step of DNA compaction", "Removal of DNA from chromosomes"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Heterochromatin is:", o: ["Loosely packed chromatin that is transcriptionally active", "A form of densely packed chromatin that is transcriptionally inactive and often found at the periphery of the nucleus", "The space between nucleosomes", "Modified histone proteins"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Euchromatin is:", o: ["Densely packed chromatin that is transcriptionally inactive", "Composed of non-histone proteins", "Found only in the nucleolus", "A form of loosely packed chromatin that is transcriptionally active, allowing for gene expression and DNA replication"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "DNA methylation adds ____ groups to DNA:", o: ["Phosphate", "Acetyl", "Methyl (-CH3)", "Amino"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "DNA methylation is catalyzed by:", o: ["DNA methyltransferase", "Histone acetyltransferase", "RNA polymerase", "Topoisomerase"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Where does methylation of DNA occur?", o: ["On cytosine nucleotides next to a guanine nucleotide in a CpG dinucleotide", "On all cytosine nucleotides", "On adenine nucleotides", "Only in the promoter region"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "DNA methylation forms:", o: ["5-methyl-adenosine", "5-methyl-cytosine, which projects into the major groove of DNA and inhibits transcription", "5-methyl-guanine", "7-methyl-cytosine"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "One nucleosome is composed of:", o: ["1 copy each of H2A, H2B, H3, H4", "2 copies each of H2A, H2B, H3, H4", "3 copies each of all histone types", "4 copies of histone H1"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Nucleosomes are further packed together by:", o: ["Histone N-terminal tails and histone H1 molecules", "DNA polymerase", "RNA polymerase", "Transcription factors"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Which two mechanisms allow changes in chromatin structure? (Select all that apply)", o: ["Enzymatic modification of histone N-terminal tails", "ATP-driven chromatin remodeling complexes", "DNA replication", "mRNA processing"], a: [0, 1], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Enzymatic modifications of histone N-terminal tails include: (Select all that apply)", o: ["Acetylation", "Methylation", "Phosphorylation", "Ubiquitination"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Acetylation of histone N-terminal tails is mediated by:", o: ["Histone methyltransferase (HMT)", "Histone deacetylase (HDAC)", "Histone acetyltransferase (HAT)", "Histone kinase"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Methylation of histone N-terminal tails is mediated by:", o: ["Histone acetyltransferase (HAT)", "Histone deacetylase (HDAC)", "Histone methyltransferase (HMT)", "DNA polymerase"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Removal of acetyl groups from histone N-terminal tails is mediated by:", o: ["Histone acetyltransferase (HAT)", "Histone deacetylase (HDAC)", "Histone methyltransferase (HMT)", "Topoisomerase"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The \"histone code\" refers to:", o: ["The DNA sequence of histone genes", "The pattern of histone modifications", "The order of histone proteins in a nucleosome", "The binding of histones to DNA"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Histone methylation promotes the formation of:", o: ["Euchromatin and transcriptional activation", "Active transcription", "Nucleosomes", "Heterochromatin and transcriptional repression"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Acetylation of histones promotes the formation of:", o: ["Heterochromatin and transcriptional repression", "DNA methylation", "Condensed chromosomes", "Euchromatin and transcriptional activation"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "An ATP-driven chromatin remodeling complex:", o: ["Breaks DNA strands to remove nucleosomes", "Is thought to \\\"push\\\" on the DNA and \\\"loosen\\\" the attachment to the histone core; can also add/remove/change nucleosome proteins", "Degrades histone proteins", "Synthesizes new histones"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The coding region of a eukaryotic gene is flanked by:", o: ["5' and 3' UTR (untranslated regions)", "Promoter sequences only", "Enhancers and silencers", "Introns and exons"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "A promoter is:", o: ["A protein that binds to RNA polymerase", "The first exon of a gene", "A region of DNA upstream from a gene which is the binding site for transcription factors and RNA polymerase", "The termination signal for transcription"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "A regulatory sequence is:", o: ["The promoter region", "An intron within a gene", "The start codon of a gene", "A binding site on DNA for transcription factors; can be located at a distance from the gene they regulate"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Genetic switches allow:", o: ["Gene transcription to be turned on and off in response to various signals", "Genes to be permanently activated", "Genes to be permanently silenced", "mRNA to be edited"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Components of genetic switches include: (Select all that apply)", o: ["Specific DNA sequences", "Proteins that bind to these DNA sequences", "Histone proteins", "RNA polymerase"], a: [0, 1], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "DNA binding proteins are also called:", o: ["Cyclins", "Gene regulatory proteins or transcription factors", "Histones", "Topoisomerases"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "A consensus sequence is:", o: ["Any DNA sequence", "The start codon", "The sequence at the end of a gene", "A conserved nucleotide sequence generally used for molecular interactions"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Transcription factors recognize:", o: ["Any DNA sequence randomly", "All genes equally", "Specific DNA sequences", "Only promoter regions"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Structural motifs of transcription factors that recognize and target precise DNA sequences include: (Select all that apply)", o: ["Zinc fingers", "Leucine zippers", "Helix-turn-helix", "Transmembrane domains"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "p53 is a:", o: ["Cyclin protein", "Master transcription factor and critical tumor suppressor protein that uses protruding peptide loops to target precise DNA sequences", "CDK inhibitor", "Histone modification enzyme"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mutations of the p53 gene are regarded as a hallmark of:", o: ["Normal cells", "Aging cells", "Cancer cells", "Differentiated cells"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Which part of the DNA helix is actually read and recognized by transcription factors?", o: ["The inside of the helix", "The outside of the helix (so it doesn't have to be unwound)", "The phosphate backbone only", "The nitrogenous bases only"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "When transcription factors bind to DNA and turn gene transcription on, this is called:", o: ["Negative control", "Attenuation", "Repression", "Positive control"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Transcription factors that mediate positive control (turn on genes) are called:", o: ["Repressors", "Silencers", "Activators or gene activator proteins", "Inhibitors"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "When transcription factors bind to DNA and turn gene transcription off, this is called:", o: ["Negative control", "Positive control", "Activation", "Transcriptional initiation"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Transcription factors that mediate negative control (turn off genes) are called:", o: ["Activators", "Enhancers", "Repressors or gene repressor proteins", "Inducers"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "A single transcription factor can:", o: ["Regulate the expression of different genes and be involved in both positive and negative control", "Regulate only one gene", "Only activate genes", "Only repress genes"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Transcription factors can form:", o: ["Only monomers", "Only homodimers", "Homomeric and heteromeric proteins (dimers, trimers, tetramers, etc.)", "Only homotetramers"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The ability of transcription factors to form homomeric and heteromeric proteins:", o: ["Reduces the diversity of genes that can be regulated", "Is metabolically wasteful", "Expands the repertoire of DNA sequences that gene regulatory proteins can recognize", "Prevents proper gene regulation"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Transcription factors can assemble as:", o: ["Complexes on DNA", "Individual proteins only", "Only in the cytoplasm", "Only during S phase"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Combinatorial gene regulation refers to:", o: ["The sequential activation of genes", "Different cell types and tissues being created due to different combinations of transcription factors", "The use of multiple promoters", "The regulation of genes by RNA only"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Transcription factors play a major role in the differentiation of:", o: ["Fully differentiated somatic cells", "Senescent cells", "Cancer cells", "Stem cells (e.g., to teeth)"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Developmental defects in teeth usually occur from:", o: ["Insufficient calcium intake", "Viral infections", "Mutations in transcription factors", "Hormonal imbalances"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mutations in PAX9:", o: ["Cause supernumerary teeth", "Result in partial or total anadontia (missing teeth)", "Increase enamel formation", "Enhance dentin development"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mutations in RUNX2:", o: ["Result in anadontia", "Cause supernumerary teeth", "Cause enamel hypoplasia", "Increase bone density"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The TATA box is:", o: ["A common promoter DNA sequence in eukaryotes where the TATA binding protein can bind", "A region near the stop codon", "Found only in prokaryotes", "The start codon of a gene"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Before transcription can begin, RNA polymerase II requires:", o: ["General transcription factors to assemble at the promoter", "Only the promoter sequence", "Cyclin-CDK complexes", "Histone deacetylases"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "General transcription factors required for RNA polymerase II initiation include: (Select all that apply)", o: ["TBP (TATA Binding Protein)", "TFIIA", "TFIIB", "TFIID"], a: [0, 1, 2, 3], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The role of transcription factors in initiating transcription is to:", o: ["Unwind the DNA helix", "Recruit RNA polymerase II to the promoter and help position and bind it", "Synthesize the first nucleotide", "Degrade the promoter"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Once transcription factors and RNA polymerase assemble at the promoter:", o: ["The DNA helix is pulled apart, RNA Pol II is phosphorylated and released from the promoter to begin transcription", "The DNA is replicated", "A new nucleosome is formed", "Transcription factors are degraded"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Post-transcriptional control of gene expression includes: (Select all that apply)", o: ["Attenuation", "RNA processing (including splicing)", "RNA transport", "Chromatin modification"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Attenuation is:", o: ["The permanent silencing of a gene", "The addition of a 5' cap to mRNA", "The removal of introns from mRNA", "Premature termination of an RNA molecule in the process of being transcribed"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "A protective mechanism involving attenuation is:", o: ["Beta-globin gene regulation", "Hemoglobin synthesis control", "Attenuation of HIV viral DNA", "Ribosomal RNA synthesis"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "mRNA processing includes which of the following modifications? (Select all that apply)", o: ["5' capping", "3' polyadenylation", "Splicing", "Phosphorylation"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "mRNA splicing is performed by:", o: ["RNA polymerase", "Proteasome", "Ribosome", "The spliceosome"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The spliceosome consists of:", o: ["Ribosomal proteins only", "DNA and histone proteins", "Small nuclear RNA (snRNAs) and ribonucleoproteins", "Only catalytic proteins"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "What is found at exon-intron junctions in pre-mRNA?", o: ["Stop codons", "Transcription factor binding sites", "Histone binding sites", "Consensus sequences that signal where splicing is to occur"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The GU-AG rule of splicing refers to:", o: ["The consensus sequence requirements for splicing", "The location of introns in a gene", "The size of exons", "The binding of spliceosome to mRNA"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "According to the GU-AG rule, GU is found at the:", o: ["3' acceptor splice site", "Polyadenylation signal", "Branch point", "5' donor splice site"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "According to the GU-AG rule, AG is found at the:", o: ["5' donor splice site", "Branch point", "3' acceptor splice site", "5' cap"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Alternative mRNA splicing allows:", o: ["Multiple protein isoforms to be produced from a single gene, increasing diversity in protein function", "All genes to produce the same protein", "Introns to be translated", "Exons to be degraded"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Alternative exon splicing of the tropomyosin gene is an example of:", o: ["Normal gene regulation", "An abnormal splicing event that causes disease", "Increased protein diversity", "Both normal gene regulation and increased protein diversity"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Abnormal processing of the β-globin transcript causes:", o: ["Sickle cell disease", "\u03b1-Thalassemia", "\u03b2-Thalassemia", "Hemophilia"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Alternative splicing of the amelogenin gene (enamel matrix protein):", o: ["Always improves enamel formation", "Has no effect on enamel development", "Inclusion of exon 4 is deleterious to enamel matrix formation", "Increases enamel hardness"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Alternative splicing can be regulated by:", o: ["RNA polymerase exclusively", "Histone deacetylases only", "Activator and repressor proteins specific to a particular cell type", "Only DNA methylation"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "RNA export from the nucleus occurs through:", o: ["Random diffusion across the nuclear membrane", "Nuclear pore complexes that cover the nuclear membrane", "Histone-mediated transport", "Chromosomal translocation"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Post-transcriptional control of gene expression includes: (Select all that apply)", o: ["Attenuation", "RNA processing", "RNA transport", "Transcription factor assembly"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Overall transcriptional modifications include: (Select all that apply)", o: ["Chromatin modification", "Nucleosome positioning", "Assembly of transcription factors", "mRNA polyadenylation"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Overall post-transcriptional modifications include: (Select all that apply)", o: ["Attenuation", "RNA processing", "RNA transport", "Translation"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The primary difference between positive and negative control of transcription is:", o: ["Positive control activates genes while negative control represses genes", "Positive control uses activators while negative control uses repressors", "Positive control affects DNA while negative control affects RNA", "Both A and B"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Gene regulation is important for:", o: ["Cell cycle control only", "Cell differentiation only", "Response to environmental signals, cell cycle control, and cell differentiation", "Protein synthesis only"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Transcription factor mutations can result in:", o: ["Loss of specific protein function only", "Ribosomal dysfunction", "Changes in mRNA splicing only", "Developmental defects and cancer"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The complexity of multicellular organisms is largely due to:", o: ["Differences in gene expression patterns through combinatorial gene regulation", "Duplication of genes", "Increased number of chromosomes", "Different numbers of mitochondria"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Epigenetic modifications include: (Select all that apply)", o: ["DNA methylation", "Histone modifications", "Chromatin remodeling", "Gene mutations"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Which of the following statements about chromatin is true? (Select all that apply)", o: ["Heterochromatin is transcriptionally inactive", "Euchromatin is transcriptionally active", "Histone modifications can change chromatin structure", "Chromatin structure is permanent and cannot be modified"], a: [0, 1, 2], e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Cell cycle checkpoints ensure:", o: ["All cells divide at the same rate", "Continuous cell division", "Cancer development in all cells", "DNA integrity and proper replication before progression to the next phase"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Tumor suppressor proteins like p53, p21, and Rb:", o: ["Promote uncontrolled cell division", "Are mutated in all cells", "Always lead to apoptosis", "Halt the cell cycle when problems are detected"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Proto-oncogenes like Ras:", o: ["Always promote cell death", "Are only found in cancer cells", "Normally promote cell growth and cell cycle progression", "Prevent DNA replication"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The cell cycle is a tightly regulated process involving:", o: ["CDK-cyclin complexes only", "Checkpoints, regulatory proteins, and gene expression changes", "DNA methylation only", "Histone modifications only"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Anticancer therapies targeting CDK inhibitors work by:", o: ["Preventing cell cycle progression, particularly in rapidly dividing cancer cells", "Promoting uncontrolled cell division", "Enhancing DNA repair", "Activating apoptosis in all cells equally"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The relationship between cell cycle control and gene expression is:", o: ["Independent; they do not interact", "Only related during interphase", "Only related during mitosis", "Interconnected; genes controlling cyclins and CDKs must be properly regulated"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Mutations in tumor suppressor genes can result in:", o: ["Loss of cell cycle checkpoints and increased risk of cancer", "Increased cell cycle control", "Enhanced DNA repair", "Decreased proliferation rate"], a: 0, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The transition from one cell cycle phase to another requires:", o: ["Continuous high levels of all cyclins and CDKs", "Precise timing of cyclin synthesis and degradation", "Constant activation of all checkpoints", "Simultaneous division of all cells"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Epigenetic changes in cancer cells often include:", o: ["Loss of histone acetylation leading to silencing of tumor suppressor genes", "Increased DNA methylation at CpG islands in promoters", "Changes in chromatin structure that promote oncogene expression", "All of the above"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Gene expression patterns are determined by:", o: ["The DNA sequence alone", "The combination of transcription factors present in a cell", "The proteins expressed during development", "Only the presence of specific promoters"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The regulation of cell cycle and gene expression ensures:", o: ["All cells divide at the same rate", "Continuous mitosis", "Identical protein expression in all cells", "Proper development, tissue homeostasis, and prevention of cancer"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Alternative splicing increases:", o: ["The number of genes in the genome", "mRNA stability", "The diversity of proteins that can be produced from a single gene", "The rate of transcription"], a: 2, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "CpG dinucleotides are particularly important because:", o: ["They are the site of histone modifications", "They are the site of DNA methylation and gene silencing", "They encode a unique amino acid", "They mark the end of genes"], a: 1, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "The coordination between cell cycle progression and gene expression is essential for:", o: ["Preventing aneuploidy and cancer development", "Maintaining genomic stability", "Appropriate cell differentiation and tissue function", "All of the above"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."},
+            {q: "Understanding cell cycle control and gene expression mechanisms is important for:", o: ["Treating cancer and genetic diseases", "Understanding development", "Developing personalized medicine", "All of the above"], a: 3, e: "Master cell cycle regulation, gene control, and chromatin dynamics."}
+        ];
+
+        let currentMode = 'learning';
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answered = false;
+        let selectedAnswers = [];
+        let lastKeyPressed = null;
+        let lastKeyTime = 0;
+
+        function setMode(mode) {
+            currentMode = mode;
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            answered = false;
+            selectedAnswers = [];
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.mode-btn.${mode}`).classList.add('active');
+            displayQuestion();
+        }
+
+        function getQuestions() {
+            if (currentMode === 'learning') {
+                return questionsData;
+            } else {
+                let shuffled = [...questionsData];
+                Fisher_Yates_Shuffle(shuffled);
+                return shuffled;
+            }
+        }
+
+        function getTotalQuestions() {
+            return questionsData.length;
+        }
+
+        function Fisher_Yates_Shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function displayQuestion() {
+            const questions = getQuestions();
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            answered = false;
+            selectedAnswers = [];
+            let isMultiSelect = Array.isArray(question.a);
+
+            let optionsHTML = question.o.map((opt, idx) => {
+                return `<div class="option" onclick="selectOption(${idx}, ${isMultiSelect})" data-option="${idx}">
+                    <strong>${String.fromCharCode(65 + idx)})</strong> ${opt}
+                </div>`;
+            }).join('');
+
+            document.getElementById('quizContent').innerHTML = `
+                <div class="question-section">
+                    <div class="question-number">Question ${currentQuestionIndex + 1} of ${getTotalQuestions()}</div>
+                    <div class="question-text">${question.q}</div>
+                    <div class="options" id="optionsContainer">${optionsHTML}</div>
+                    <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">
+                        ${isMultiSelect ? 'Submit Selected Answers' : 'Submit Answer'}
+                    </button>
+                    <div class="keyboard-hint">💡 Press 1/2/3/4 to select • Double-press within 500ms to submit</div>
+                </div>
+            `;
+
+            updateProgress();
+        }
+
+        function selectOption(index, isMultiSelect) {
+            if (answered) return;
+
+            const options = document.querySelectorAll('.option');
+            if (isMultiSelect) {
+                selectedAnswers.includes(index) ?
+                    selectedAnswers.splice(selectedAnswers.indexOf(index), 1) :
+                    selectedAnswers.push(index);
+                options.forEach((opt, idx) => {
+                    selectedAnswers.includes(idx) ? opt.classList.add('selected') : opt.classList.remove('selected');
+                });
+            } else {
+                selectedAnswers = [index];
+                options.forEach((opt, idx) => {
+                    idx === index ? opt.classList.add('selected') : opt.classList.remove('selected');
+                });
+            }
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+
+            const questions = getQuestions();
+            const question = questions[currentQuestionIndex];
+            const correctAnswers = Array.isArray(question.a) ? question.a : [question.a];
+            const isCorrect = selectedAnswers.length === correctAnswers.length &&
+                selectedAnswers.every(idx => correctAnswers.includes(idx));
+
+            answered = true;
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, idx) => {
+                if (correctAnswers.includes(idx)) {
+                    opt.classList.add('correct');
+                } else if (selectedAnswers.includes(idx) && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            const feedbackClass = isCorrect ? 'correct' : 'incorrect';
+            const feedbackTitle = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+
+            document.querySelector('.submit-btn').innerHTML = `
+                <div class="feedback ${feedbackClass}">
+                    <div class="feedback-title">${feedbackTitle}</div>
+                    <div class="feedback-text">${question.e}</div>
+                </div>
+            `;
+
+            if (isCorrect) {
+                correctCount++;
+            } else {
+                incorrectCount++;
+            }
+            updateScore();
+        }
+
+        function nextQuestion() {
+            if (!answered) return;
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const total = getTotalQuestions();
+            const percentage = (currentQuestionIndex / total) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = total;
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const percentage = total === 0 ? 0 : Math.round(correctCount / total * 100);
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentageDisplay').textContent = percentage;
+            updateProgress();
+        }
+
+        function showResults() {
+            const total = correctCount + incorrectCount;
+            const pct = total === 0 ? 0 : Math.round(correctCount / total * 100);
+            document.getElementById('quizContent').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h2 style="color: #667eea; font-size: 32px; margin-bottom: 20px;">🎉 Quiz Complete!</h2>
+                    <div style="font-size: 18px; margin: 30px 0; line-height: 2;">
+                        <div>✓ Correct: <strong>${correctCount}</strong></div>
+                        <div>✗ Incorrect: <strong>${incorrectCount}</strong></div>
+                        <div>Score: <strong>${pct}%</strong></div>
+                    </div>
+                    <button class="restart-btn" onclick="location.reload()">Restart Quiz</button>
+                </div>
+            `;
+        }
+
+        function setupKeyboard() {
+            document.onkeydown = function(e) {
+                const keyNum = parseInt(e.key);
+                if (![1, 2, 3, 4].includes(keyNum)) return;
+
+                const isMultiSelect = Array.isArray(getQuestions()[currentQuestionIndex]?.a);
+                const now = Date.now();
+
+                if (answered) {
+                    nextQuestion();
+                } else {
+                    if (lastKeyPressed === keyNum && now - lastKeyTime < 500) {
+                        checkAnswer();
+                        lastKeyPressed = null;
+                    } else {
+                        selectOption(keyNum - 1, isMultiSelect);
+                        lastKeyPressed = keyNum;
+                        lastKeyTime = now;
+                    }
+                }
+            };
+        }
+
+        setupKeyboard();
+        setMode('learning');
+    </script>
+</body>
+</html>
