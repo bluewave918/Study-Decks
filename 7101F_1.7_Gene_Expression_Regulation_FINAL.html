@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7101F 1.7 Gene Expression Regulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .score-value.correct { color: #4caf50; }
+        .score-value.incorrect { color: #f44336; }
+        .score-value.percentage { color: #667eea; }
+        
+        .question-container {
+            margin: 30px 0;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            user-select: none;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        .option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .keyboard-hints {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-submit {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: #5568d3;
+        }
+        
+        .btn-next {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-next:hover {
+            background: #45a049;
+        }
+        
+        .btn-reset {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background: #e68900;
+        }
+        
+        .quiz-complete {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .complete-message {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .final-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .final-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+            
+            .option {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🧬 7101F Section 1.7: Gene Expression Regulation</div>
+            
+            <div class="mode-toggle">
+                <button class="mode-btn active" onclick="setMode('learning')">📚 Learning Mode</button>
+                <button class="mode-btn" onclick="setMode('testing')">🎯 Testing Mode</button>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Question 1 of 105</div>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-label">✓ Correct</div>
+                    <div class="score-value correct" id="correctCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">✗ Incorrect</div>
+                    <div class="score-value incorrect" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Percentage</div>
+                    <div class="score-value percentage" id="percentageCount">0%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="quizContainer">
+            <div class="question-container">
+                <div class="question-text" id="questionText">Question will appear here...</div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="feedback" id="feedback"></div>
+                <div class="keyboard-hints">
+                    <strong>⌨️ Keyboard Controls:</strong><br>
+                    1️⃣ / 2️⃣ / 3️⃣ / 4️⃣ = Select answer<br>
+                    Press same number TWICE within 500ms to submit<br>
+                    ↓ = Next question | R = Reset quiz
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-submit" onclick="submitAnswer()">Submit Answer</button>
+                    <button class="btn btn-next" onclick="nextQuestion()">Next Question</button>
+                    <button class="btn btn-reset" onclick="resetQuiz()">Reset Quiz</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="completeContainer" style="display: none;">
+            <div class="quiz-complete">
+                <div class="complete-message">🎉 Quiz Complete!</div>
+                <div class="final-score" id="finalScore">0%</div>
+                <div class="final-stats">
+                    <div class="stat">
+                        <div class="stat-label">Total Correct</div>
+                        <div class="stat-value" id="finalCorrect">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Total Questions</div>
+                        <div class="stat-value">105</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Accuracy</div>
+                        <div class="stat-value" id="finalAccuracy">0%</div>
+                    </div>
+                </div>
+                <button class="btn btn-reset" onclick="resetQuiz()" style="width: 200px; margin: 0 auto; display: block;">Start Over</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const questionsData = [
+  {
+    "question": "mRNA stability refers to:",
+    "options": [
+      "The lifespan of a mRNA molecule, which is tightly regulated",
+      "The strength of base pairing in the mRNA molecule",
+      "The ability of mRNA to bind to ribosomes",
+      "The methylation of the 5' cap"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Which of the following is NOT a significance of mRNA stability?",
+    "options": [
+      "Direct determination of protein mass",
+      "Cellular adaptation",
+      "Gene expression regulation",
+      "Disease risk"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The lifespan of an mRNA directly influences:",
+    "options": [
+      "How much protein is produced from a given gene",
+      "The number of ribosomes available",
+      "The speed of translation",
+      "The location of transcription"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Cells can rapidly adjust protein levels by:",
+    "options": [
+      "Altering the DNA sequence",
+      "Blocking transcription initiation",
+      "Increasing ribosome production",
+      "Altering mRNA stability in response to changing environmental conditions"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The rate at which mRNA degrades is linked to:",
+    "options": [
+      "Disease risk",
+      "Protein folding efficiency",
+      "Chromosome number",
+      "Cell size"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Deadenylation-dependent mRNA decay is a mechanism that:",
+    "options": [
+      "Regulates mRNA stability by shortening the poly(A) tail, leading to degradation",
+      "Strengthens the poly(A) tail for stability",
+      "Adds nucleotides to the mRNA",
+      "Prevents mRNA translation"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Which enzyme is involved in deadenylation-dependent mRNA decay?",
+    "options": [
+      "DAN (deadenylation nuclease)",
+      "Ligase",
+      "Polymerase",
+      "Kinase"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "DAN (deadenylation nuclease):",
+    "options": [
+      "Associates with mRNA 5' methyl cap and degrades mRNA in the 3' to 5' direction",
+      "Adds nucleotides to the 3' end",
+      "Requires ATP for function",
+      "Only works on double-stranded RNA"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Direct competition exists between mRNA translation and DAN-dependent decay because:",
+    "options": [
+      "Both mRNA degradation by DAN and translation initiation use the mRNA 5' cap",
+      "Both require ATP hydrolysis",
+      "Both require the same ribosomal proteins",
+      "They occur in different cellular compartments"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "microRNA (miRNA) are:",
+    "options": [
+      "Short (~22 nucleotides), single-stranded RNA molecules that negatively regulate gene expression",
+      "Long, double-stranded RNA molecules",
+      "Proteins that regulate gene expression",
+      "DNA molecules in the nucleus"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "miRNAs find their target mRNA transcripts through:",
+    "options": [
+      "Random binding",
+      "Protein cofactors exclusively",
+      "Enzymatic cleavage",
+      "Perfect (or near perfect) complementary base-pairing"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "When miRNA bind to specific sequences in a target mRNA, this:",
+    "options": [
+      "Promotes cleavage of target mRNA and inhibits protein translation",
+      "Strengthens the mRNA",
+      "Increases protein translation",
+      "Activates transcription"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "miRNAs are:",
+    "options": [
+      "Encoded in our genome and then transcribed but NOT translated",
+      "Synthesized directly from amino acids",
+      "Imported from the cytoplasm",
+      "Created by ribosomes"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Following transcription, the primary miRNA forms a:",
+    "options": [
+      "Hairpin loop structure (double-stranded region)",
+      "Triple helix",
+      "Linear single-stranded structure",
+      "Random coil"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Primary miRNA transcripts are processed into ~22-nucleotide mature miRNAs by:",
+    "options": [
+      "Drosha and Dicer complexes",
+      "RNA polymerase",
+      "Ribosomes",
+      "tRNA synthetases"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Mature miRNA associates with:",
+    "options": [
+      "Argonaute protein within RISC (RNA Induced Silencing Complex)",
+      "Ribosomal proteins exclusively",
+      "Histone proteins",
+      "DNA polymerase"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The function of RISC is to:",
+    "options": [
+      "Guide miRNA to target mRNA",
+      "Synthesize proteins",
+      "Replicate DNA",
+      "Process transcripts"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Complementary binding of miRNA causes:",
+    "options": [
+      "Gene silencing through translational repression or mRNA degradation",
+      "Gene activation",
+      "Increased protein synthesis",
+      "mRNA elongation"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Protein synthesis involves interactions between which three types of RNA molecules? (Select all that apply)",
+    "options": [
+      "Ribosomes",
+      "tRNAs",
+      "mRNA template",
+      "DNA template"
+    ],
+    "correctAnswer": [
+      0,
+      1,
+      2
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Ribosomes are found:",
+    "options": [
+      "Free in the cytosol, or associated with the endoplasmic reticulum (ER)",
+      "Exclusively in the nucleus",
+      "Only attached to the Golgi apparatus",
+      "Inside mitochondria exclusively"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "mRNA is associated with which ribosomal subunit during translation initiation?",
+    "options": [
+      "The larger subunit",
+      "Neither subunit initially",
+      "Both subunits equally",
+      "The smaller subunit"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Each ribosome subunit consists of:",
+    "options": [
+      "Proteins only",
+      "DNA and RNA",
+      "Lipids and carbohydrates",
+      "One or more ribosomal RNA (rRNA) molecule, and several ribosomal proteins"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The A site of the ribosome is:",
+    "options": [
+      "The location where aminoacyl-tRNA binds during protein synthesis",
+      "The site where the peptidyl-tRNA is located",
+      "The exit site for deacylated tRNA",
+      "The binding site for mRNA"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The P site of the ribosome:",
+    "options": [
+      "Is the location where aminoacyl-tRNA binds",
+      "Binds to the 5' cap",
+      "Is the exit site for deacylated tRNA",
+      "Is the site where the peptidyl-tRNA is located during protein synthesis, facilitating peptide chain transfer"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The E site of the ribosome:",
+    "options": [
+      "Is the entry site for tRNA",
+      "Is where the peptidyl-tRNA binds",
+      "Is the exit site for the deacylated tRNA after it has transferred the peptide",
+      "Is where mRNA binds"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "What molecule sets the reading frame for protein translation?",
+    "options": [
+      "The poly(A) tail",
+      "The 5' cap",
+      "The start codon, typically AUG",
+      "The first nucleotide"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "How many possible codons are there?",
+    "options": [
+      "20",
+      "61",
+      "64",
+      "128"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Of the 64 triplet codons, 61 code for:",
+    "options": [
+      "64 amino acids",
+      "Regulatory proteins",
+      "3 stop signals",
+      "20 amino acids"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Of the 64 codons, how many are stop codons?",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Stop codons do NOT represent:",
+    "options": [
+      "Start signals",
+      "Regulatory sequences",
+      "Translation termination signals",
+      "Amino acids"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The degeneracy of the genetic code means:",
+    "options": [
+      "Most codons code for different amino acids",
+      "Some codons do not code for anything",
+      "Most amino acids are represented by more than one codon",
+      "The genetic code varies by organism"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The anticodon site of tRNA:",
+    "options": [
+      "Attaches to amino acids",
+      "Interacts with the 5' cap",
+      "Binds to the ribosome",
+      "Pairs with the corresponding codon on mRNA, ensuring correct amino acid addition"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The amino acid attachment site of tRNA is located at:",
+    "options": [
+      "The 5' region",
+      "The anticodon region",
+      "The 3' region where it attaches to a specific amino acid",
+      "The center loop"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Despite 64 possible codons, there are NOT 64 tRNA types because:",
+    "options": [
+      "Some tRNAs are broken down quickly",
+      "Some codons are never used",
+      "The anticodon of one tRNA can bind with several different codons due to wobble in the 3rd position",
+      "Some tRNAs carry multiple amino acids"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Two ways translation accuracy is maintained include: (Select all that apply)",
+    "options": [
+      "Enzymatic selection",
+      "Proofreading and editing",
+      "Random checking",
+      "mRNA backup copies"
+    ],
+    "correctAnswer": [
+      0,
+      1
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Enzymatic selection of translation involves:",
+    "options": [
+      "Random pairing of codons and anticodons",
+      "Multiple rounds of translation",
+      "Ribosomal proofreading",
+      "Specific aminoacyl-tRNA synthetases (aa-tRNA synthetases) that recognize and link a particular amino acid to its corresponding tRNA"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Proofreading and editing during translation:",
+    "options": [
+      "Prevents any mispairing",
+      "Is mediated by the ribosome alone",
+      "The enzyme cleaves incorrectly paired amino acids before or after transfer to the tRNA",
+      "Occurs only after translation is complete"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Initiation of translation requires:",
+    "options": [
+      "Only mRNA and ribosomes",
+      "ATP exclusively",
+      "High temperatures",
+      "The ribosome to bind to the mRNA, forming an initiation complex with the 1st aa-tRNA"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Translation initiation is regulated by: (Select all that apply)",
+    "options": [
+      "Kozak sequence presence",
+      "Eukaryotic initiation factors",
+      "Random ribosomal scanning",
+      "The 3' poly(A) tail only"
+    ],
+    "correctAnswer": [
+      0,
+      1
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "The Kozak sequence:",
+    "options": [
+      "Is located at the stop codon",
+      "Is found only in prokaryotes",
+      "Codes for methionine exclusively",
+      "Is usually the first AUG codon from the 5' cap site, marking the optimal start site"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Translation initiation can be blocked by: (Select all that apply)",
+    "options": [
+      "Translation repressor proteins",
+      "miRNA",
+      "Elongation factors",
+      "The 5' cap structure"
+    ],
+    "correctAnswer": [
+      0,
+      1
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Translation repressor proteins block:",
+    "options": [
+      "The 3' poly(A) tail",
+      "The ribosome exit site",
+      "Aminoacyl-tRNA synthetases",
+      "The Kozak sequence to stop initiation"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Eukaryotic initiation factor 4 (eIF-4):",
+    "options": [
+      "Binds the initiator tRNA",
+      "Mediates ribosome translocation",
+      "Promotes peptide bond formation",
+      "Associates with mRNA transcript at the 5' cap and 3' polyA tail, ensuring only processed mRNA is translated"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Once eIF-4 associates with the mRNA:",
+    "options": [
+      "Translation immediately begins",
+      "The large ribosomal subunit binds",
+      "The 5' cap is removed",
+      "The mRNA is then correctly positioned in the small ribosomal subunit (control step)"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Eukaryotic initiation factor 2 (eIF-2):",
+    "options": [
+      "Binds only to the ribosome",
+      "Mediates elongation",
+      "Is only found in prokaryotes",
+      "Binds the initiator tRNA (Met-tRNA) to the small ribosomal subunit and promotes translation start"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Met-tRNA can only bind:",
+    "options": [
+      "With the large ribosomal subunit attached",
+      "At the ribosomal E site",
+      "After peptide bonds form",
+      "Without the large ribosomal subunit attached"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Once eIF-2 brings Met-tRNA to the small subunit:",
+    "options": [
+      "Translation immediately begins",
+      "The 3' poly(A) tail is removed",
+      "The ribosome moves to the next codon",
+      "Met-tRNA scans to find the Kozak (AUG), then eIF-2,4 dissociate and the large subunit binds"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "eIF-2 activity is controlled by: (Select all that apply)",
+    "options": [
+      "Association with guanine nucleotide exchange factor (eIF-2B)",
+      "Phosphorylation",
+      "mRNA stability",
+      "The 5' cap"
+    ],
+    "correctAnswer": [
+      0,
+      1
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Conversion between active (GTP bound) eIF-2 and inactive (GDP) eIF-2 occurs through:",
+    "options": [
+      "Direct hydrolysis only",
+      "mRNA sequences",
+      "Ribosomal activity",
+      "Association with eIF-2B (guanine nucleotide exchange factor)"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "If eIF-2 is phosphorylated:",
+    "options": [
+      "Protein synthesis accelerates",
+      "The ribosome dissociates",
+      "Translation initiation is completed faster",
+      "eIF-2B cannot function in GTP exchange, eIF-2 remains inactive, and protein synthesis is slowed"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The elongation phase of translation:",
+    "options": [
+      "Initiates protein synthesis",
+      "Folds the protein",
+      "Terminates protein synthesis",
+      "Extends the polypeptide chain by sequential addition of amino acids"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Regulation of translational elongation is mediated by:",
+    "options": [
+      "mRNA sequence alone",
+      "Stop codons exclusively",
+      "The 5' cap",
+      "Elongation factors EF-1 and EF-2"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Elongation factors EF-1 and EF-2:",
+    "options": [
+      "Initiate translation only",
+      "Fold proteins",
+      "Degrade mRNA",
+      "Control the accuracy and forward drive (speed) of translation"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "EF-1:",
+    "options": [
+      "Mediates ribosome translocation",
+      "Binds to the 3' end",
+      "Terminates translation",
+      "Transports aa-tRNAs into the A site"
+    ],
+    "correctAnswer": 3,
+    "isMultiSelect": false
+  },
+  {
+    "question": "EF-2:",
+    "options": [
+      "Transports aa-tRNAs into the A site",
+      "Mediates ribosome translocation after peptide bond formation",
+      "Initiates translation",
+      "Binds stop codons"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Both EF-1 and EF-2 use hydrolysis of GTP to GDP to: (Select all that apply)",
+    "options": [
+      "Displace any incorrectly base-paired tRNA",
+      "Eject the spent tRNA",
+      "Reset the ribosome",
+      "Initiate translation"
+    ],
+    "correctAnswer": [
+      0,
+      1,
+      2
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Termination of translation involves:",
+    "options": [
+      "Stopping the addition of amino acids, releasing the completed protein, and ribosome dissociation",
+      "Continuing indefinitely",
+      "Starting a new ribosome",
+      "Activating transcription"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Post-translational control includes: (Select all that apply)",
+    "options": [
+      "Protein folding",
+      "Structural changes",
+      "Protein processing and cleavage",
+      "Gene transcription"
+    ],
+    "correctAnswer": [
+      0,
+      1,
+      2
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "An alpha helix is characterized by:",
+    "options": [
+      "Zigzag patterns",
+      "Slinky-like formations",
+      "Random coiling",
+      "Extended linear structure"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "A beta sheet is characterized by:",
+    "options": [
+      "Slinky-like formations",
+      "Zigzag patterns which resemble folds of a paper fan",
+      "Random coiling",
+      "Helical structure"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Protein folding is important in post-translational control because:",
+    "options": [
+      "It determines the DNA sequence",
+      "A protein's function depends on its shape",
+      "It is irreversible",
+      "It occurs in the nucleus"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Misfolded proteins cause several known diseases including: (Select all that apply)",
+    "options": [
+      "Sickle cell anemia",
+      "Cystic fibrosis",
+      "Protein deficiency",
+      "Transcription errors"
+    ],
+    "correctAnswer": [
+      0,
+      1
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Formation of disulfide bridges:",
+    "options": [
+      "Links sugar residues",
+      "Links sulphur residues between 2 cysteine amino acids to create structure",
+      "Breaks down proteins",
+      "Initiates translation"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "An example of protein processing and cleavage is:",
+    "options": [
+      "Pre-proinsulin → Insulin",
+      "Ribosomal assembly",
+      "mRNA degradation",
+      "DNA replication"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Pre-proinsulin is converted to insulin by:",
+    "options": [
+      "Removing the A chain",
+      "Removing the B chain",
+      "Removing the C chain (intervening sequence)",
+      "Adding a D chain"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Post-translational modifications (PTM) involve:",
+    "options": [
+      "Changing the DNA sequence",
+      "Attaching biochemical functional groups to proteins (methyl, phosphate, hydroxyl, ubiquitin, etc.)",
+      "Breaking down the ribosome",
+      "Transcription of new genes"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Protein phosphorylation:",
+    "options": [
+      "Is permanent and irreversible",
+      "Is a key regulation of proteins since it is reversible, mediated by kinases and phosphatases",
+      "Only occurs during transcription",
+      "Is rare in cells"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Ubiquitination:",
+    "options": [
+      "Activates proteins permanently",
+      "Marks proteins for degradation via the proteasome",
+      "Adds phosphate groups",
+      "Removes amino acids"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The 1st enzymatic step of ubiquitination is:",
+    "options": [
+      "Conjugation by ubiquitin-E2",
+      "Ligation by ubiquitin-E3",
+      "Activation by ubiquitin-E1",
+      "Deactivation"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The 2nd enzymatic step of ubiquitination is:",
+    "options": [
+      "Activation by ubiquitin-E1",
+      "Conjugation by ubiquitin-E2",
+      "Ligation by ubiquitin-E3",
+      "Proteasomal degradation"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The 3rd enzymatic step of ubiquitination is:",
+    "options": [
+      "Activation by ubiquitin-E1",
+      "Conjugation by ubiquitin-E2",
+      "Ligation by ubiquitin-E3",
+      "Protein folding"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Two modes of protein transport are: (Select all that apply)",
+    "options": [
+      "Cotranslational",
+      "Post-translational",
+      "Concurrent",
+      "Backward"
+    ],
+    "correctAnswer": [
+      0,
+      1
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Post-translational transport involves:",
+    "options": [
+      "Ribosomal attachment to the ER during translation",
+      "Translation of mRNA on free ribosomes in the cytosol, then transport to functional location",
+      "Immediate protein folding",
+      "No transport required"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Cotranslational transport involves:",
+    "options": [
+      "Ribosomes with mRNA attached being targeted to the endoplasmic reticulum (ER)",
+      "Translation occurring in association with the ER",
+      "Both A and B",
+      "Neither A nor B"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Ribosomes are targeted to the Rough ER by:",
+    "options": [
+      "Random diffusion",
+      "Signal sequence at the N-terminal of the translated protein",
+      "The 3' poly(A) tail",
+      "Histone proteins"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "A signal sequence is:",
+    "options": [
+      "The start codon",
+      "The stop codon",
+      "A short stretch of amino acids that interact with the signal-recognition particle (SRP)",
+      "The ribosomal binding site"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Once the signal sequence of a protein (still attached to ribosome) is bound to the SRP complex:",
+    "options": [
+      "Translation stops permanently",
+      "The protein is degraded",
+      "SRP binds to receptor on rough ER, protein is synthesized INTO the rough ER, then signal is removed",
+      "The ribosome dissociates"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Once cotranslation occurs in the rough ER, proteins go to:",
+    "options": [
+      "The cytosol immediately",
+      "The nucleus",
+      "Vesicles that are sent to the Golgi apparatus for further processing",
+      "The cell membrane directly"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The Golgi is:",
+    "options": [
+      "The site of protein synthesis",
+      "A major site for protein modification and packaging, e.g., glycosylation",
+      "Only found in prokaryotes",
+      "The site of transcription"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Glycosylation in the Golgi involves:",
+    "options": [
+      "Addition of oligosaccharides to membrane proteins",
+      "Removal of amino acids",
+      "Breaking down proteins",
+      "DNA synthesis"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Proteins destined for secretion or membrane insertion go from Golgi to:",
+    "options": [
+      "The nucleus",
+      "The cytosol",
+      "Secretory vesicles",
+      "Lysosomes"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Examples of proteins going from Golgi to secretory vesicles include: (Select all that apply)",
+    "options": [
+      "Peptide hormones",
+      "Neurotransmitters",
+      "Metabolic enzymes",
+      "Receptors"
+    ],
+    "correctAnswer": [
+      0,
+      1
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Proteins incorporated into the plasma membrane (such as receptors and transporters) go from Golgi to:",
+    "options": [
+      "Secretory vesicles",
+      "Lysosomes",
+      "The plasma membrane",
+      "Mitochondria"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Examples of proteins going from Golgi to plasma membrane include: (Select all that apply)",
+    "options": [
+      "Ion channels",
+      "Cell junction proteins",
+      "Hydrolases",
+      "Receptors"
+    ],
+    "correctAnswer": [
+      0,
+      1,
+      3
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Hydrolases and integral lysosomal membrane proteins go from Golgi to:",
+    "options": [
+      "The plasma membrane",
+      "Secretory vesicles",
+      "Lysosomes",
+      "Mitochondria"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Two types of secretion pathways after Golgi are:",
+    "options": [
+      "Constitutive and regulated secretion",
+      "Internal and external secretion",
+      "Rapid and slow secretion",
+      "Nuclear and cytoplasmic secretion"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Constitutive secretion involves:",
+    "options": [
+      "Secretion only when specific signals are detected",
+      "Proteins being secreted continuously, regardless of external factors or signals",
+      "No secretion occurring",
+      "Storage in vesicles indefinitely"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Regulated secretion involves:",
+    "options": [
+      "Continuous, uncontrolled release",
+      "Proteins being secreted only when a specific signal is detected by the cell",
+      "No protein export",
+      "Immediate degradation"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "An example of regulated secretion is:",
+    "options": [
+      "Constitutive leakage",
+      "Random protein export",
+      "Insulin secretion",
+      "Non-specific protein degradation"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Proteins are transported from organelle to organelle via:",
+    "options": [
+      "Direct diffusion through membranes",
+      "Coated vesicles",
+      "Nuclear pores",
+      "Simple passive transport"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Different coats of vesicles help determine:",
+    "options": [
+      "The color of the vesicle",
+      "The size of the vesicle",
+      "The destination of the protein cargo during transport between organelles",
+      "The timing of vesicle formation"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Examples of vesicle coats include: (Select all that apply)",
+    "options": [
+      "Clathrin",
+      "COPI",
+      "COPII",
+      "Histone"
+    ],
+    "correctAnswer": [
+      0,
+      1,
+      2
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Exocytosis of secretory vesicles:",
+    "options": [
+      "Is the process by which secretory vesicles merge with the target membrane to release their contents",
+      "Prevents protein release",
+      "Occurs in the nucleus",
+      "Is irreversible and cannot be regulated"
+    ],
+    "correctAnswer": 0,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The role of SNARE proteins in exocytosis is to:",
+    "options": [
+      "Synthesize neurotransmitters",
+      "Mediate the fusion of secretory vesicles with the target membrane, facilitating release",
+      "Degrade vesicles",
+      "Initiate transcription"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "SNAREs are transmembrane proteins that exist as:",
+    "options": [
+      "Individual isolated proteins",
+      "Transmembrane complementary sets (vesicle SNARE → target membrane SNARE)",
+      "Intracellular proteins exclusively",
+      "RNA molecules"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "v-SNARE is:",
+    "options": [
+      "A soluble protein in the vesicle",
+      "A type of SNARE protein located on the target membrane",
+      "A type of SNARE protein located on the vesicle membrane that forms a complex with t-SNAREs",
+      "A regulatory protein"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "t-SNARE is:",
+    "options": [
+      "A type of SNARE protein located on the vesicle membrane",
+      "A type of SNARE protein located on the target membrane that pairs with v-SNAREs",
+      "A temporary protein",
+      "A transcriptional regulator"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Each complementary SNARE set is associated with:",
+    "options": [
+      "A random organelle",
+      "A particular organelle involved in the secretory pathway",
+      "The nucleus",
+      "The cell membrane exclusively"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Botulinum toxin (Botox) produced by Clostridium botulinum:",
+    "options": [
+      "Enhances SNARE protein function",
+      "Degrades SNARE proteins involved with docking of synaptic vesicles at axon terminals, preventing ACh release",
+      "Promotes exocytosis",
+      "Increases neurotransmitter production"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The mechanism by which Botox causes paralysis is through:",
+    "options": [
+      "Blocking the 5' cap",
+      "Preventing protein synthesis",
+      "Degrading SNARE proteins, preventing neurotransmitter release",
+      "Activating muscle contraction"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Exosomes are:",
+    "options": [
+      "Waste products of protein synthesis",
+      "Small extracellular vesicles that transport proteins, lipids, and RNA between cells via membrane vesicle trafficking",
+      "Only found in the nucleus",
+      "Degradation products"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The primary cargo of exosomes includes: (Select all that apply)",
+    "options": [
+      "Proteins",
+      "Lipids",
+      "RNA",
+      "DNA"
+    ],
+    "correctAnswer": [
+      0,
+      1,
+      2
+    ],
+    "isMultiSelect": true
+  },
+  {
+    "question": "Exosomes function in:",
+    "options": [
+      "Intracellular communication only",
+      "Intercellular communication between cells",
+      "Nuclear membrane transport",
+      "mRNA degradation exclusively"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "The biogenesis of exosomes involves:",
+    "options": [
+      "Direct secretion from ribosomes",
+      "Formation from multivesicular bodies (MVBs)",
+      "Synthesis in the nucleus",
+      "Random aggregation"
+    ],
+    "correctAnswer": 1,
+    "isMultiSelect": false
+  },
+  {
+    "question": "Exosomes differ from other secretory vesicles in that they:",
+    "options": [
+      "Cannot cross membranes",
+      "Are larger in size",
+      "Can be taken up by recipient cells and deliver their cargo",
+      "Only contain proteins"
+    ],
+    "correctAnswer": 2,
+    "isMultiSelect": false
+  }
+];
+        
+        let currentMode = 'learning';
+        let currentIndex = 0;
+        let scores = { correct: 0, incorrect: 0 };
+        let answered = new Set();
+        let selectedAnswers = [];
+        let questionOrder = [];
+        let answered_correctly = new Set();
+        
+        // Keyboard state
+        let lastKeyPressed = null;
+        let lastKeyTime = 0;
+        const KEY_PRESS_WINDOW = 500;
+        
+        function fisherYates(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            resetQuiz();
+        }
+        
+        function initializeQuiz() {
+            if (currentMode === 'learning') {
+                questionOrder = Array.from({length: questionsData.length}, (_, i) => i);
+            } else {
+                questionOrder = fisherYates(Array.from({length: questionsData.length}, (_, i) => i));
+            }
+            currentIndex = 0;
+            scores = { correct: 0, incorrect: 0 };
+            answered = new Set();
+            answered_correctly = new Set();
+            displayQuestion();
+        }
+        
+        function displayQuestion() {
+            if (currentIndex >= questionOrder.length) {
+                showCompletion();
+                return;
+            }
+            
+            const qIndex = questionOrder[currentIndex];
+            const q = questionsData[qIndex];
+            
+            document.getElementById('questionText').textContent = q.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            selectedAnswers = [];
+            
+            q.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = String.fromCharCode(65 + index) + ') ' + option;
+                optionDiv.dataset.index = index;
+                optionDiv.onclick = () => selectAnswer(index, q.isMultiSelect);
+                optionDiv.id = 'option-' + index;
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('feedback').style.display = 'none';
+            updateProgress();
+            updateScore();
+            document.getElementById('optionsContainer').focus();
+        }
+        
+        function selectAnswer(index, isMulti) {
+            if (answered.has(currentIndex)) return;
+            
+            const optionEl = document.getElementById('option-' + index);
+            
+            if (isMulti) {
+                const idx = selectedAnswers.indexOf(index);
+                if (idx > -1) {
+                    selectedAnswers.splice(idx, 1);
+                    optionEl.classList.remove('selected');
+                } else {
+                    selectedAnswers.push(index);
+                    optionEl.classList.add('selected');
+                }
+            } else {
+                document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                selectedAnswers = [index];
+                optionEl.classList.add('selected');
+            }
+        }
+        
+        function submitAnswer() {
+            if (answered.has(currentIndex)) {
+                nextQuestion();
+                return;
+            }
+            
+            if (selectedAnswers.length === 0) {
+                alert('Please select an answer');
+                return;
+            }
+            
+            const qIndex = questionOrder[currentIndex];
+            const q = questionsData[qIndex];
+            const correct = q.correctAnswer;
+            
+            let isCorrect = false;
+            if (q.isMultiSelect) {
+                isCorrect = selectedAnswers.length === correct.length &&
+                    selectedAnswers.every(i => correct.includes(i));
+            } else {
+                isCorrect = selectedAnswers[0] === correct;
+            }
+            
+            answered.add(currentIndex);
+            
+            if (isCorrect) {
+                scores.correct++;
+                answered_correctly.add(currentIndex);
+                document.getElementById('feedback').textContent = '✅ Correct!';
+                document.getElementById('feedback').className = 'feedback correct';
+                document.getElementById('feedback').style.display = 'block';
+                
+                selectedAnswers.forEach(i => {
+                    document.getElementById('option-' + i).classList.add('correct');
+                });
+            } else {
+                scores.incorrect++;
+                document.getElementById('feedback').textContent = '❌ Incorrect. Try again!';
+                document.getElementById('feedback').className = 'feedback incorrect';
+                document.getElementById('feedback').style.display = 'block';
+                
+                selectedAnswers.forEach(i => {
+                    document.getElementById('option-' + i).classList.add('incorrect');
+                });
+                
+                if (q.isMultiSelect) {
+                    correct.forEach(i => {
+                        document.getElementById('option-' + i).classList.add('correct');
+                    });
+                } else {
+                    document.getElementById('option-' + correct).classList.add('correct');
+                }
+                
+                // Immediate re-test: show same question again
+                answered.delete(currentIndex);
+                selectedAnswers = [];
+                setTimeout(() => {
+                    displayQuestion();
+                }, 1500);
+                return;
+            }
+            
+            updateScore();
+        }
+        
+        function nextQuestion() {
+            currentIndex++;
+            displayQuestion();
+        }
+        
+        function updateProgress() {
+            const total = questionOrder.length;
+            const progress = ((currentIndex) / total) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = 
+                'Question ' + (currentIndex + 1) + ' of ' + total;
+        }
+        
+        function updateScore() {
+            const total = scores.correct + scores.incorrect;
+            const percentage = total === 0 ? 0 : Math.round((scores.correct / total) * 100);
+            
+            document.getElementById('correctCount').textContent = scores.correct;
+            document.getElementById('incorrectCount').textContent = scores.incorrect;
+            document.getElementById('percentageCount').textContent = percentage + '%';
+        }
+        
+        function showCompletion() {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('completeContainer').style.display = 'block';
+            
+            const total = scores.correct + scores.incorrect;
+            const percentage = total === 0 ? 0 : Math.round((scores.correct / total) * 100);
+            
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = scores.correct;
+            document.getElementById('finalAccuracy').textContent = percentage + '%';
+        }
+        
+        function resetQuiz() {
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('completeContainer').style.display = 'none';
+            initializeQuiz();
+        }
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            const key = e.key;
+            const now = Date.now();
+            
+            // Number keys 1-4
+            if (['1', '2', '3', '4'].includes(key)) {
+                const index = parseInt(key) - 1;
+                const qIndex = questionOrder[currentIndex];
+                const q = questionsData[qIndex];
+                
+                // Check for double-press
+                if (lastKeyPressed === key && now - lastKeyTime < KEY_PRESS_WINDOW) {
+                    submitAnswer();
+                    lastKeyPressed = null;
+                } else {
+                    selectAnswer(index, q.isMultiSelect);
+                    lastKeyPressed = key;
+                    lastKeyTime = now;
+                }
+                e.preventDefault();
+            }
+            
+            // Down arrow = next question
+            if (key === 'ArrowDown') {
+                nextQuestion();
+                e.preventDefault();
+            }
+            
+            // R = reset
+            if (key.toLowerCase() === 'r') {
+                resetQuiz();
+                e.preventDefault();
+            }
+        });
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initializeQuiz();
+        });
+    </script>
+</body>
+</html>
