@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7101F 1.5 Signaling Molecules</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 900px; width: 100%; padding: 40px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #667eea; font-size: 28px; margin-bottom: 10px; }
+        .mode-buttons { display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; }
+        .mode-btn { padding: 12px 30px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .mode-btn.learning { background: #667eea; color: white; }
+        .mode-btn.testing { background: #764ba2; color: white; }
+        .mode-btn.active { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .progress-container { margin-bottom: 25px; }
+        .progress-bar { background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); width: 0%; transition: width 0.3s ease; }
+        .progress-text { font-size: 14px; color: #666; text-align: center; }
+        .score-display { display: flex; gap: 30px; justify-content: center; margin: 15px 0; font-weight: bold; font-size: 16px; }
+        .score-item { display: flex; align-items: center; gap: 8px; }
+        .score-correct { color: #4caf50; }
+        .score-incorrect { color: #f44336; }
+        .score-percentage { color: #667eea; }
+        .question-section { margin: 20px 0; }
+        .question-number { font-size: 14px; color: #999; margin-bottom: 8px; }
+        .question-text { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 20px; line-height: 1.5; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option { padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 16px; }
+        .option:hover { border-color: #667eea; background: #f5f7ff; }
+        .option.selected { background: #e8eef7; border-color: #667eea; }
+        .option.correct { background: #c8e6c9; border-color: #4caf50; }
+        .option.incorrect { background: #ffcdd2; border-color: #f44336; }
+        .feedback { margin-top: 20px; padding: 20px; border-radius: 8px; }
+        .feedback.correct { background: #c8e6c9; border-left: 4px solid #4caf50; }
+        .feedback.incorrect { background: #ffcdd2; border-left: 4px solid #f44336; }
+        .feedback-title { font-weight: bold; margin-bottom: 10px; font-size: 16px; }
+        .feedback-text { font-size: 14px; line-height: 1.6; }
+        .submit-btn { background: #667eea; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; font-weight: bold; transition: all 0.3s ease; }
+        .submit-btn:hover { background: #764ba2; transform: translateY(-2px); }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .advance-btn { background: #4caf50; color: white; border: none; padding: 12px 30px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; font-weight: bold; }
+        .advance-btn:hover { background: #45a049; }
+        .keyboard-hint { font-size: 12px; color: #999; margin-top: 10px; text-align: center; }
+        .results-screen { text-align: center; padding: 40px; }
+        .results-screen h2 { color: #667eea; font-size: 32px; margin-bottom: 20px; }
+        .results-stats { font-size: 18px; margin: 30px 0; line-height: 2; }
+        .restart-btn { background: #667eea; color: white; border: none; padding: 15px 40px; font-size: 18px; border-radius: 8px; cursor: pointer; margin-top: 30px; font-weight: bold; }
+        .restart-btn:hover { background: #764ba2; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 7101F 1.5 Signaling Molecules</h1>
+            <p style="color: #666; font-size: 14px;">Neurotransmitters, Receptors, Hormones & Cell Signaling</p>
+        </div>
+
+        <div class="mode-buttons">
+            <button class="mode-btn learning active" onclick="setMode('learning')">📖 LEARNING MODE: Questions in order</button>
+            <button class="mode-btn testing" onclick="setMode('testing')">🔀 TESTING MODE: Questions randomized</button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">138</span></div>
+        </div>
+
+        <div class="score-display">
+            <div class="score-item score-correct">✓ <span id="correctCount">0</span> Correct</div>
+            <div class="score-item score-incorrect">✗ <span id="incorrectCount">0</span> Incorrect</div>
+            <div class="score-item score-percentage"><span id="percentageDisplay">0</span>%</div>
+        </div>
+
+        <div id="quizContent"></div>
+        <div id="resultsScreen" class="results-screen hidden"></div>
+
+        <div class="keyboard-hint" id="keyboardHint">
+            💡 Press 1/2/3/4 to select • Double-press same key within 500ms to submit • Press any key to advance
+        </div>
+    </div>
+
+    <script>
+        const questionsData = [
+            {q: "Which of the following best describes a neurotransmitter?", o: ["A chemical released from nerve terminals that binds to specific receptors on target cells", "A hormone secreted by the adrenal medulla into the bloodstream", "A local mediator that acts only on distant cells", "A signaling molecule that requires carrier proteins for transport"], a: 0, e: "Neurotransmitters are released from presynaptic nerve terminals and bind to receptors on target cells, mediating rapid synaptic communication."},
+            {q: "The primary difference between hormones and neurotransmitters is:", o: ["Hormones are always excitatory while neurotransmitters are inhibitory", "Neurotransmitters act only on adjacent cells while hormones travel via bloodstream to distant targets", "Neurotransmitters are lipid-soluble while hormones are water-soluble", "Hormones are released faster than neurotransmitters"], a: 1, e: "Hormones travel throughout the body via blood circulation to act on distant target cells, while neurotransmitters act on adjacent cells at synapses."},
+            {q: "Local mediators differ from hormones in that they:", o: ["Are always amino acid-derived", "Require carrier proteins for transport", "Only function in the nervous system", "Act locally on cells in their immediate environment without entering the bloodstream"], a: 3, e: "Local mediators (cytokines, growth factors, prostaglandins) act on nearby cells without systemic circulation."},
+            {q: "Which of the following is NOT a characteristic of local mediators?", o: ["Typically composed of peptides", "Rapidly destroyed or removed from the local environment", "Travel throughout the body via the bloodstream", "Act on cells in immediate vicinity"], a: 2, e: "Local mediators act locally and are not distributed throughout the body via bloodstream."},
+            {q: "Which of the following is an example of a local mediator?", o: ["Insulin", "Growth factors and cytokines", "Epinephrine", "Testosterone"], a: 1, e: "Growth factors and cytokines are classic examples of local mediators affecting nearby cells."},
+            {q: "Interferon and interleukin are classified as:", o: ["Steroid hormones", "Neurotransmitters", "Cytokines (local mediators)", "Tropic hormones"], a: 2, e: "Interferons and interleukins are cytokines, a class of local mediators involved in immune signaling."},
+            {q: "Prostaglandins and histamine are examples of:", o: ["First messengers", "Local mediators", "Second messengers", "Steroid hormones"], a: 1, e: "Prostaglandins and histamine are local mediators that act on nearby cells."},
+            {q: "A cell secretes a signaling molecule that acts on itself. This type of signaling is called:", o: ["Paracrine signaling", "Endocrine signaling", "Autocrine signaling", "Gap junction signaling"], a: 2, e: "Autocrine signaling occurs when a cell produces signals that act on receptors on its own cell surface."},
+            {q: "Gap junction signaling involves:", o: ["Hormones traveling through the bloodstream", "Direct communication between adjacent cells through specialized channels allowing ion and small molecule transfer", "Neurotransmitter release at synapses", "Intracellular receptor activation"], a: 1, e: "Gap junctions form direct channels between adjacent cells, allowing passage of ions and small molecules."},
+            {q: "Paracrine signaling is mediated by:", o: ["Neurotransmitters exclusively", "Both local mediators and neurotransmitters", "Hormones exclusively", "Only growth factors"], a: 1, e: "Paracrine signaling can involve both local mediators and neurotransmitters acting on nearby cells."},
+            {q: "Endocrine signaling is best described as:", o: ["Direct communication between adjacent cells", "A cell acting on itself via secreted signals", "Hormones secreted into the bloodstream targeting distant cells", "Communication via electrical synapses"], a: 2, e: "Endocrine signaling is the long-range signaling mediated by hormones distributed through the bloodstream."},
+            {q: "Which type of cell signaling has the LONGEST range of target cell effects?", o: ["Autocrine", "Paracrine", "Gap junction", "Endocrine"], a: 3, e: "Endocrine signaling affects cells throughout the body, while other forms affect only local or adjacent cells."},
+            {q: "Which of the following is a characteristic of paracrine signaling? (Select all that apply)", o: ["Affects only the secreting cell", "Affects nearby cells in the local environment", "Can involve neurotransmitters", "Requires transport through the bloodstream"], a: [1, 2], e: "Paracrine signaling affects nearby cells in the local environment and can involve both neurotransmitters and local mediators."},
+            {q: "A receptor is best defined as:", o: ["Any signaling molecule in the body", "A molecule with affinity for a specific ligand, whose activation is coupled to cellular response", "A neurotransmitter storage vesicle", "A mitochondrial protein"], a: 1, e: "Receptors are molecules that specifically bind ligands and transduce signals into cellular responses."},
+            {q: "The signaling molecule that binds to a receptor is called:", o: ["A ligand", "A first messenger", "An effector enzyme", "An agonist exclusively"], a: 0, e: "A ligand is any molecule that binds to a receptor with specificity."},
+            {q: "Which of the following describes a ligand?", o: ["A signaling molecule that binds to a receptor", "A protein enzyme that breaks down neurotransmitters", "A carrier protein in the bloodstream", "A neurotransmitter receptor"], a: 0, e: "Ligands are signaling molecules that bind to specific receptors."},
+            {q: "Intracellular receptors are typically located in:", o: ["The cell membrane exclusively", "The cytoplasm or nucleus", "Synaptic vesicles", "The mitochondrial membrane"], a: 1, e: "Intracellular receptors are found in the cytoplasm or nucleus, binding lipid-soluble ligands."},
+            {q: "Ligands for intracellular receptors must be:", o: ["Hydrophilic (water-soluble) to cross the cell membrane", "Large peptide molecules", "Lipid-soluble/hydrophobic to diffuse across the cell membrane", "Attached to carrier proteins to enter the cell"], a: 2, e: "Intracellular receptor ligands must be lipid-soluble to cross the hydrophobic cell membrane."},
+            {q: "Most intracellular receptor ligands function as:", o: ["Transcription factors", "Ion channels", "Neurotransmitter transporters", "Membrane pumps"], a: 0, e: "Intracellular receptors typically act as ligand-activated transcription factors regulating gene expression."},
+            {q: "Which of the following is an example of an intracellular receptor ligand? (Select all that apply)", o: ["Steroid hormones (cortisol, testosterone, progesterone)", "Vitamin D", "Retinoic acid", "Acetylcholine"], a: [0, 1, 2], e: "Steroid hormones, vitamin D, and retinoic acid are lipid-soluble molecules that bind intracellular receptors."},
+            {q: "Cell surface receptors are characterized by:", o: ["Being located inside the nucleus exclusively", "Requiring nuclear import of the ligand", "Binding lipid-soluble ligands that diffuse across membranes", "Being located on the cell membrane and binding hydrophilic ligands"], a: 3, e: "Cell surface receptors are located on the plasma membrane and bind hydrophilic ligands that cannot cross the membrane."},
+            {q: "Cell surface receptor ligands are hydrophilic because:", o: ["They must dissolve in the lipid bilayer", "They cannot cross the plasma membrane and must bind at the cell surface", "They are derived from cholesterol", "They require special transport proteins to enter cells"], a: 1, e: "Hydrophilic ligands cannot cross the lipid bilayer and must bind to surface receptors."},
+            {q: "The three main types of cell surface receptors are:", o: ["Ion-channel receptors, G-protein coupled receptors, and enzyme-linked receptors", "G-protein coupled, tyrosine kinase, and steroid receptors", "Nicotinic, muscarinic, and adrenergic receptors", "Ligand-gated, voltage-gated, and leak channels"], a: 0, e: "The three main cell surface receptor types are ion-channel, GPCR, and enzyme-linked receptors."},
+            {q: "Ion-channel receptors are also called:", o: ["Metabotropic receptors", "Receptor tyrosine kinases", "Seven-transmembrane receptors", "Ligand-gated ion channels or Ionotropic receptors"], a: 3, e: "Ion-channel receptors are ligand-gated ion channels (ionotropic) that open directly upon ligand binding."},
+            {q: "Ion-channel receptors function by:", o: ["Activating G-proteins to produce second messengers", "Increasing intracellular cAMP directly", "Autophosphorylating upon ligand binding", "Having an ion channel whose open/closed state is gated by ligand binding"], a: 3, e: "Ion-channel receptors contain an integral ion channel whose conformation is directly controlled by ligand binding."},
+            {q: "The signaling ligand for ion-channel-linked receptors is typically:", o: ["A steroid hormone", "A growth factor", "A neurotransmitter", "A cytokine"], a: 2, e: "Neurotransmitters typically bind ion-channel receptors, causing rapid ion flux and fast synaptic transmission."},
+            {q: "The nicotinic acetylcholine receptor (nAChR) is an example of:", o: ["An ion-channel linked receptor", "A G-protein coupled receptor", "An enzyme-linked receptor", "An intracellular receptor"], a: 0, e: "The nicotinic acetylcholine receptor is a ligand-gated ion channel (ion-channel receptor)."},
+            {q: "The ligand for nicotinic receptors is:", o: ["Norepinephrine", "Acetylcholine", "Serotonin", "Glutamate"], a: 1, e: "Acetylcholine is the natural ligand for nicotinic acetylcholine receptors."},
+            {q: "Activation of nicotinic acetylcholine receptors requires:", o: ["Two ACh molecules binding to the receptor", "One ACh molecule binding to the receptor", "ATP hydrolysis", "G-protein activation"], a: 0, e: "Two acetylcholine molecules must bind to open the nicotinic channel."},
+            {q: "When two ACh molecules bind to the nicotinic receptor, the ion channel pore opens, allowing:", o: ["Na+ to move intracellularly exclusively", "K+ to move intracellularly while Na+ moves out", "Na+ to move intracellularly while K+ moves out", "Only Cl- to move across the membrane"], a: 2, e: "Nicotinic receptor opening allows Na+ influx and K+ efflux, causing net depolarization."},
+            {q: "The overall result of nicotinic receptor activation is:", o: ["Hyperpolarization of the postsynaptic membrane", "Inhibition of the target neuron or muscle", "Depolarization of the postsynaptic membrane, leading to excitation", "No change in membrane potential"], a: 2, e: "Nicotinic receptor activation causes depolarization, making the postsynaptic cell more excitable."},
+            {q: "Nicotinic receptors are found in which of the following locations? (Select all that apply)", o: ["Neuromuscular junction", "Autonomic nerve ganglia", "Central nervous system", "Adrenal medulla"], a: [0, 1, 2, 3], e: "Nicotinic receptors are found at the NMJ, ganglia, CNS, and adrenal medulla."},
+            {q: "At the neuromuscular junction, nicotinic receptor activation causes:", o: ["Muscle relaxation and hyperpolarization", "Depolarization and muscle contraction", "Inhibition of acetylcholinesterase", "Release of additional acetylcholine vesicles"], a: 1, e: "Nicotinic receptor activation at the NMJ causes depolarization and contraction of skeletal muscle."},
+            {q: "G-protein coupled receptors are characterized by:", o: ["Having 7 transmembrane segments associated with G proteins", "Being monomeric transmembrane proteins", "Directly activating tyrosine kinases", "Operating as ion channels"], a: 0, e: "GPCRs have seven transmembrane domains and associate with heterotrimeric G proteins."},
+            {q: "GPCRs are also known as:", o: ["Ligand-gated ion channels", "Intracellular receptors", "Receptor tyrosine kinases", "G-protein-linked receptors, Trimeric G-protein-coupled receptors, or Metabotropic receptors"], a: 3, e: "GPCRs have multiple alternative names reflecting their structure and function."},
+            {q: "Which of the following is an example of a G-protein coupled receptor?", o: ["Nicotinic acetylcholine receptor", "Receptor for epidermal growth factor", "Muscarinic acetylcholine receptor", "Insulin receptor"], a: 2, e: "The muscarinic acetylcholine receptor is a classic GPCR."},
+            {q: "The first step of GPCR activation involves:", o: ["Direct activation of second messengers", "Phosphorylation of tyrosine residues", "GDP-GTP exchange on the receptor itself", "The signaling molecule binding to the extracellular segment, altering conformation"], a: 3, e: "Ligand binding to the extracellular domain causes conformational change that enables G-protein interaction."},
+            {q: "After ligand binding to a GPCR, GDP is exchanged for GTP on:", o: ["The α-subunit of the G-protein", "The receptor itself", "The β-subunit of the G-protein", "The effector enzyme"], a: 0, e: "The GPCR acts as a guanine nucleotide exchange factor (GEF) promoting GTP binding to the α-subunit."},
+            {q: "Once GTP binds to the G-protein α-subunit:", o: ["The G-protein is inactivated and dissociates from the receptor", "The trimeric G-protein remains associated with the receptor", "The GTP-bound α-subunit and the βγ complex can interact with other molecules to mediate signaling", "The receptor is degraded"], a: 2, e: "GTP-bound α-subunit and free βγ complex can both activate downstream effectors."},
+            {q: "GPCR signaling is terminated when:", o: ["The ligand dissociates from the receptor", "The second messenger is degraded", "The receptor is internalized", "The GTP-bound α-subunit is hydrolyzed back to GDP, and the trimeric G protein reassociates"], a: 3, e: "Intrinsic GTPase activity of the α-subunit hydrolyzes GTP to GDP, terminating signaling."},
+            {q: "Which subunit of the G-protein has intrinsic GTPase activity?", o: ["The β-subunit", "The α-subunit", "The γ-subunit", "The βγ complex"], a: 1, e: "The α-subunit possesses GTPase activity, hydrolyzed GTP to GDP."},
+            {q: "G-protein activation can lead to which of the following? (Select all that apply)", o: ["Activation of effector enzymes", "Activation of second messengers", "Direct opening of ion channels", "Direct inhibition of transcription"], a: [0, 1, 2], e: "G-proteins activate effector enzymes and second messengers, and can directly interact with ion channels."},
+            {q: "Which of the following are examples of G-protein-activated effector enzymes?", o: ["Adenylate cyclase and phospholipase C", "Tyrosine kinase and serine/threonine kinase", "Acetylcholinesterase and monoamine oxidase", "Protease and lipase"], a: 0, e: "Adenylate cyclase (cAMP pathway) and phospholipase C (IP3/DAG pathway) are major G-protein effectors."},
+            {q: "Adenylate cyclase catalyzes the production of:", o: ["Cyclic AMP (cAMP)", "IP3 and DAG", "Cyclic GMP (cGMP)", "Inositol triphosphate"], a: 0, e: "Adenylate cyclase produces cAMP from ATP."},
+            {q: "Phospholipase C catalyzes the production of:", o: ["cAMP", "cGMP", "IP3 and DAG", "Cyclic nucleotides"], a: 2, e: "Phospholipase C cleaves PIP2 to produce both IP3 and DAG."},
+            {q: "Second messengers are best defined as:", o: ["Signaling molecules that bind to receptors outside the cell", "Intracellular signaling molecules released by the cell in response to extracellular signaling molecules", "Neurotransmitters that cross synaptic clefts", "Hormones transported in the bloodstream"], a: 1, e: "Second messengers are intracellular molecules produced in response to extracellular first messengers."},
+            {q: "Which of the following are examples of second messengers? (Select all that apply)", o: ["Cyclic AMP (cAMP)", "Cyclic GMP (cGMP)", "Inositol triphosphate (IP3)", "Diacylglycerol (DAG)"], a: [0, 1, 2, 3], e: "cAMP, cGMP, IP3, and DAG are all important intracellular second messengers."},
+            {q: "The second messenger cAMP is produced by:", o: ["Phospholipase C", "Protein kinase A", "Guanylate cyclase", "Adenylate cyclase"], a: 3, e: "Adenylate cyclase synthesizes cAMP from ATP."},
+            {q: "The second messenger IP3 is produced by:", o: ["Adenylate cyclase", "Acetylcholinesterase", "Tyrosine kinase", "Phospholipase C"], a: 3, e: "Phospholipase C cleaves PIP2 to produce IP3."},
+            {q: "Calcium ions (Ca2+) function as second messengers by:", o: ["Initiating various cellular responses including muscle contraction, enzyme activation, and gene transcription", "Only depolarizing the membrane", "Blocking other second messengers", "Only participating in neurotransmitter release"], a: 0, e: "Ca2+ is a versatile second messenger with roles in contraction, enzyme activation, and transcription."},
+            {q: "The G-protein complex is often categorized by:", o: ["The ligand bound to the receptor", "The speed of response", "The location in the cell", "The type of α-subunit present"], a: 3, e: "Different α-subunit types (s, i, o, t, q) determine G-protein specificity and function."},
+            {q: "Gαs proteins:", o: ["Inhibit adenylyl cyclase activity", "Stimulate adenylyl cyclase, increasing cAMP production", "Close calcium channels", "Activate phospholipase C"], a: 1, e: "Gαs (stimulatory) activates adenylate cyclase to increase cAMP."},
+            {q: "Gαi proteins:", o: ["Stimulate adenylyl cyclase", "Stimulate phospholipase C", "Open calcium channels", "Inhibit adenylyl cyclase, decreasing cAMP production"], a: 3, e: "Gαi (inhibitory) inhibits adenylate cyclase, decreasing cAMP."},
+            {q: "Gαo proteins:", o: ["Open potassium channels", "Stimulate adenylyl cyclase", "Close calcium channels", "Activate phospholipase C"], a: 2, e: "Gαo proteins inhibit calcium channels."},
+            {q: "Gαt proteins are involved in:", o: ["Taste transduction", "Visual phototransduction", "Olfactory signaling", "Auditory signaling"], a: 1, e: "Gαt (transducin) is the G-protein in visual phototransduction."},
+            {q: "Gαq proteins:", o: ["Inhibit adenylyl cyclase", "Activate phospholipase C", "Close calcium channels", "Inhibit phospholipase C"], a: 1, e: "Gαq activates phospholipase C to produce IP3 and DAG."},
+            {q: "The classic example of a GPCR is the:", o: ["Nicotinic acetylcholine receptor", "Muscarinic acetylcholine receptor", "Glutamate receptor", "GABA receptor"], a: 1, e: "The muscarinic acetylcholine receptor is a prototypical GPCR."},
+            {q: "The ligand for muscarinic receptors is:", o: ["Norepinephrine", "Serotonin", "Dopamine", "Acetylcholine"], a: 3, e: "Acetylcholine is the ligand for muscarinic receptors."},
+            {q: "Muscarinic receptors function to:", o: ["Mediate parasympathetic nerve control in different tissues and organs", "Mediate somatic nervous system control exclusively", "Only increase heart rate", "Block acetylcholinesterase activity"], a: 0, e: "Muscarinic receptors mediate parasympathetic effects throughout the body."},
+            {q: "Does acetylcholine always produce excitatory effects when binding to muscarinic receptors?", o: ["Yes, acetylcholine is always excitatory", "Only in muscle tissue", "Only in the nervous system", "No, acetylcholine can produce both excitatory and inhibitory effects depending on the G-protein type (Gs, Gq, Gi) or receptor subtype"], a: 3, e: "ACh effects depend on which G-protein is coupled to the receptor and the tissues involved."},
+            {q: "When muscarinic receptors are coupled to Gs proteins, the effect is:", o: ["Excitatory, increasing cAMP and cellular activity", "Inhibitory, decreasing cAMP", "No change in membrane potential", "Closure of calcium channels"], a: 0, e: "Gs coupling increases cAMP, producing excitatory effects."},
+            {q: "When muscarinic receptors are coupled to Gi proteins, the effect is:", o: ["Excitatory", "Activation of adenylyl cyclase", "Inhibitory, decreasing cAMP and cellular activity", "Opening of potassium channels"], a: 2, e: "Gi coupling decreases cAMP, producing inhibitory effects."},
+            {q: "Muscarinic receptor activation coupled to Gq proteins causes:", o: ["Activation of phospholipase C, producing IP3 and DAG", "Decreased cAMP levels", "Inhibition of calcium signaling", "Decreased gene transcription"], a: 0, e: "Gq coupling activates phospholipase C, producing second messengers for intracellular signaling."},
+            {q: "Enzyme-linked receptors possess:", o: ["Only an extracellular ligand-binding domain", "Multiple transmembrane segments like GPCRs", "Only intracellular kinase activity", "Both enzymatic (catalytic) and receptor functions"], a: 3, e: "Enzyme-linked receptors combine ligand-binding and catalytic functions."},
+            {q: "The ligand-binding domain of enzyme-linked receptors is located:", o: ["Intracellularly in the cytoplasm", "On intracellular organelles", "Within the transmembrane region", "On the extracellular surface, generally binding growth factors and cytokines"], a: 3, e: "The extracellular domain binds ligands like growth factors."},
+            {q: "The transmembrane domain of enzyme-linked receptors is composed of:", o: ["Hydrophilic amino acids that allow water passage", "Charged amino acids for signal transduction", "Hydrophobic amino acids that span the cell membrane", "Carbohydrate polymers"], a: 2, e: "The transmembrane domain is hydrophobic, anchoring the receptor in the membrane."},
+            {q: "The enzymatic (catalytic) domain of enzyme-linked receptors is located:", o: ["On the extracellular surface", "Within the transmembrane region", "On the intracellular surface with intrinsic enzymatic activity (usually kinase)", "In the nucleus"], a: 2, e: "The intracellular domain contains the catalytic activity, usually kinase function."},
+            {q: "Which of the following are examples of enzyme-linked receptors? (Select all that apply)", o: ["Receptor tyrosine kinases", "Serine/threonine kinases", "Receptor guanylyl cyclases", "Tyrosine phosphatases"], a: [0, 1, 2, 3], e: "All listed are types of enzyme-linked receptors."},
+            {q: "When a ligand binds to the extracellular domain of an enzyme-linked receptor:", o: ["A conformational change occurs (often dimerization) of transmembrane proteins", "The receptor is immediately internalized", "The signal is transmitted directly to the nucleus", "cAMP levels increase"], a: 0, e: "Ligand binding causes dimerization, activating the intracellular catalytic domain."},
+            {q: "The conformational change of transmembrane enzyme-linked receptors results in:", o: ["Degradation of the receptor", "Inhibition of intracellular signaling", "Intrinsic enzymatic activity (often phosphorylation) leading to second messengers and signaling cascades", "Release of the ligand back to the extracellular space"], a: 2, e: "Conformational change activates the kinase domain, phosphorylating substrate proteins."},
+            {q: "The response speed of enzyme-linked receptors compared to ion-channel receptors is:", o: ["Faster, with immediate effects", "The same speed", "Typically slower and usually requires many intracellular signaling steps", "Speed varies unpredictably"], a: 2, e: "Enzyme-linked receptors have slower responses requiring multiple signaling steps vs. direct ion channel opening."},
+            {q: "Neurotransmitters are best defined as:", o: ["Hormones secreted into the bloodstream", "Intracellular proteins", "Local mediators that act on distant cells", "Signaling molecules released by neurons stimulated by electrical signals (action potentials)"], a: 3, e: "Neurotransmitters are released by neurons in response to action potentials."},
+            {q: "Since neurotransmitters are hydrophilic, they bind to:", o: ["Intracellular receptors", "Cell surface receptors (ion-channel linked or G-protein coupled)", "Nuclear receptors", "Mitochondrial receptors"], a: 1, e: "Hydrophilic neurotransmitters bind to cell surface receptors."},
+            {q: "The primary chemical signals in the autonomic nervous system are:", o: ["Dopamine and serotonin", "Endorphins and enkephalins", "Glutamate and GABA", "Acetylcholine and norepinephrine"], a: 3, e: "ACh and NE are the main autonomic neurotransmitters."},
+            {q: "Which of the following are common examples of neurotransmitters? (Select all that apply)", o: ["Norepinephrine and epinephrine", "Dopamine and acetylcholine", "Serotonin and histamine", "Glutamate, GABA, and opioids"], a: [0, 1, 2, 3], e: "All listed are important neurotransmitters in the nervous system."},
+            {q: "Neuropeptides are synthesized via:", o: ["Direct translation in synaptic vesicles", "Transcription and translation in the ER of the nerve cell body, packaged into secretory granules, then transported to nerve terminals by fast axonal transport", "Spontaneous assembly in synaptic vesicles", "Degradation of larger proteins"], a: 1, e: "Neuropeptides are synthesized in the ER and transported via fast axonal transport."},
+            {q: "Which of the following are examples of neuropeptides? (Select all that apply)", o: ["Endogenous opioids", "Endorphins", "Enkephalins", "Acetylcholine"], a: [0, 1, 2], e: "Endogenous opioids, endorphins, and enkephalins are all neuropeptides."},
+            {q: "Neurotransmitters are synthesized and packaged into:", o: ["Lysosomes", "Mitochondria", "Golgi apparatus", "Synaptic vesicles in presynaptic nerve terminals"], a: 3, e: "Neurotransmitters are packaged into synaptic vesicles for release."},
+            {q: "Acetylcholine synthesis occurs in:", o: ["The neuronal cell body", "Mitochondria", "The presynaptic nerve terminal by choline acetyltransferase", "The synaptic cleft"], a: 2, e: "ACh is synthesized in the terminal by choline acetyltransferase."},
+            {q: "The reaction catalyzed by choline acetyltransferase is:", o: ["Acetyl-CoA + Choline → ACh + CoA", "ACh → Acetate + Choline", "ATP + Acetate → Acetyl-CoA", "ACh + Water → Acetate + Choline"], a: 0, e: "Choline acetyltransferase condenses acetyl-CoA with choline to form ACh."},
+            {q: "Acetylcholine is degraded by:", o: ["Monoamine oxidase", "Catechol-O-methyltransferase", "Acetylcholinesterase in the synaptic cleft", "Protein phosphatase"], a: 2, e: "Acetylcholinesterase rapidly hydrolyzes ACh in the synaptic cleft."},
+            {q: "Acetylcholinesterase catalyzes the hydrolysis of acetylcholine into:", o: ["Acetate and choline", "Acetyl-CoA and choline", "Acetone and alcohol", "Acetate and ethanolamine"], a: 0, e: "Acetylcholinesterase hydrolyzes ACh into acetate and choline."},
+            {q: "Catecholamines are:", o: ["Neurotransmitters derived from tyrosine", "Neurotransmitters derived from tryptophan", "Steroid hormones", "Peptide hormones"], a: 0, e: "Catecholamines are derived from the amino acid tyrosine."},
+            {q: "Which of the following are catecholamines? (Select all that apply)", o: ["Dopamine", "DOPA", "Norepinephrine", "Epinephrine"], a: [0, 1, 2, 3], e: "All are catecholamine molecules in the synthesis pathway."},
+            {q: "The biosynthetic pathway of catecholamines is:", o: ["Tyrosine → DOPA → Dopamine → Norepinephrine → Epinephrine", "Tyrosine → Dopamine → Norepinephrine → Epinephrine", "DOPA → Tyrosine → Dopamine → Epinephrine", "Phenylalanine → Tyrosine → Dopamine → Norepinephrine"], a: 0, e: "The complete catecholamine synthesis pathway begins with tyrosine."},
+            {q: "Catecholamines (neurotransmitter version) are produced, stored, and released from:", o: ["The adrenal medulla", "Nerve terminals", "The pancreas", "The liver"], a: 1, e: "As neurotransmitters, catecholamines are synthesized and released from nerve terminals."},
+            {q: "Catecholamines (hormone version) are produced, stored, and released from:", o: ["The adrenal medulla", "Nerve terminals", "The adrenal cortex", "The anterior pituitary"], a: 0, e: "The adrenal medulla synthesizes catecholamines as hormones."},
+            {q: "Serotonin (5-HT) is synthesized from:", o: ["Tryptophan", "Tyrosine", "DOPA", "Choline"], a: 0, e: "Serotonin is synthesized from the amino acid tryptophan."},
+            {q: "Serotonin synthesis occurs in:", o: ["The synaptic cleft", "Mitochondria exclusively", "The presynaptic nerve terminal", "The postsynaptic membrane"], a: 2, e: "Serotonin is synthesized in presynaptic nerve terminals."},
+            {q: "Serotonin receptors are primarily:", o: ["Ion-channel linked receptors", "Intracellular receptors", "Enzyme-linked receptors", "G-protein coupled receptors"], a: 3, e: "Serotonin receptors are mostly GPCRs."},
+            {q: "A CNS synapse is:", o: ["The junction between two neurons in the central nervous system where neurotransmitters facilitate communication", "The junction between a neuron and muscle", "A gap between nerve terminals", "An area of the cerebral cortex"], a: 0, e: "A CNS synapse is the junction where neurons communicate via neurotransmitters."},
+            {q: "The major excitatory neurotransmitter of the CNS is:", o: ["GABA", "Acetylcholine", "Glycine", "Glutamate"], a: 3, e: "Glutamate is the primary excitatory neurotransmitter in the CNS."},
+            {q: "Glutamate can bind to which two types of glutamate receptors?", o: ["Nicotinic and muscarinic receptors", "Enzyme-linked and intracellular receptors", "Alpha and beta adrenergic receptors", "Ionotropic (producing excitatory electrical signals) and GPCR (producing second messenger cascades)"], a: 3, e: "Glutamate binds both ionotropic (fast) and metabotropic (G-protein coupled) receptors."},
+            {q: "The major inhibitory neurotransmitter of the CNS is:", o: ["GABA (γ-aminobutyric acid)", "Glutamate", "Acetylcholine", "Serotonin"], a: 0, e: "GABA is the primary inhibitory neurotransmitter in the CNS."},
+            {q: "The neuromuscular junction is:", o: ["A synapse between a somatic motor neuron and a skeletal muscle fiber", "A synapse between two neurons", "A junction between sympathetic and parasympathetic nerves", "A connection between muscle and bone"], a: 0, e: "The NMJ is where motor neurons synapse on skeletal muscle."},
+            {q: "The neurotransmitter at the neuromuscular junction is:", o: ["Always acetylcholine", "Norepinephrine", "Dopamine", "Glutamate"], a: 0, e: "Acetylcholine is the sole neurotransmitter at the NMJ."},
+            {q: "Activation of acetylcholine receptors at the NMJ causes:", o: ["Muscle relaxation", "Depolarization and muscle contraction", "Hyperpolarization of the muscle membrane", "Inhibition of muscle contraction"], a: 1, e: "ACh receptor activation depolarizes the muscle membrane, causing contraction."},
+            {q: "Neurotransmitters of the autonomic nervous system act on:", o: ["Only skeletal muscle", "Only smooth muscle", "Only the heart", "Autonomic nerves in various organs and tissues"], a: 3, e: "Autonomic neurotransmitters affect various organs and tissues."},
+            {q: "Autonomic nerves are divided into two groups based on which factor?", o: ["The neurotransmitter used", "The organ system they innervate", "The speed of response", "The location in the body"], a: 0, e: "Autonomic nerves are classified by neurotransmitter (adrenergic vs. cholinergic)."},
+            {q: "The two divisions of autonomic nerves based on neurotransmitter are:", o: ["Sympathetic and parasympathetic", "Central and peripheral", "Excitatory and inhibitory", "Adrenergic and cholinergic"], a: 3, e: "Adrenergic (NE/E) and cholinergic (ACh) classify autonomic nerves."},
+            {q: "Adrenergic nerves are characterized by:", o: ["Transmission mediated by acetylcholine", "Transmission mediated by norepinephrine and epinephrine", "Transmission mediated by GABA", "Direct electrical coupling"], a: 1, e: "Adrenergic nerves use NE or E as neurotransmitters."},
+            {q: "Adrenergic receptors are all which type of receptor?", o: ["Ligand-gated ion channels", "Intracellular receptors", "G-protein coupled receptors", "Enzyme-linked receptors"], a: 2, e: "All adrenergic receptors are GPCRs."},
+            {q: "Which statement best describes cholinergic autonomic nerves?", o: ["They use norepinephrine for neurotransmission", "They only affect the heart", "They use only nicotinic receptors", "They use acetylcholine for neurotransmission in the autonomic nervous system"], a: 3, e: "Cholinergic nerves use ACh as the neurotransmitter."},
+            {q: "Cholinergic nerve receptor types in the autonomic nervous system are: (Select all that apply)", o: ["Nicotinic receptors", "Muscarinic receptors", "Adrenergic receptors", "Glutamate receptors"], a: [0, 1], e: "Cholinergic nerves signal through both nicotinic and muscarinic receptors."},
+            {q: "Alpha1 adrenergic receptors are predominantly found in:", o: ["Cardiac muscle", "Skeletal muscle", "Vascular smooth muscle", "Adipose tissue"], a: 2, e: "Alpha1 receptors mediate vascular smooth muscle contraction."},
+            {q: "The net effect of alpha1 adrenergic receptor activation is:", o: ["Arteriolar dilation", "Decreased heart rate", "Arteriolar smooth muscle contraction", "Decreased blood pressure"], a: 2, e: "Alpha1 activation causes vasoconstriction."},
+            {q: "NE or E binding to alpha1 receptors (GPCR) activates:", o: ["Adenylate cyclase pathway", "Inhibition of muscle contraction", "Direct opening of potassium channels", "The phospholipase C pathway, leading to increased intracellular calcium and muscle contraction"], a: 3, e: "Alpha1 receptors couple to Gq, activating phospholipase C."},
+            {q: "Alpha2 adrenergic receptors activate:", o: ["Gs-proteins, increasing cAMP", "Directly opening calcium channels", "Gq-proteins, activating phospholipase C", "Gi-proteins, decreasing adenylate cyclase activity and cAMP"], a: 3, e: "Alpha2 receptors couple to Gi, decreasing cAMP."},
+            {q: "The net effect of NE signaling at alpha2 receptors is:", o: ["Excitatory", "Inhibitory", "No change in activity", "Only at synapses"], a: 1, e: "Alpha2 signaling is generally inhibitory."},
+            {q: "Beta1 adrenergic receptors activate:", o: ["Gi-proteins, inhibiting adenylate cyclase", "Gs-proteins, increasing adenylate cyclase activity and cAMP", "Gq-proteins, activating phospholipase C", "Direct opening of calcium channels"], a: 1, e: "Beta1 receptors couple to Gs, increasing cAMP."},
+            {q: "NE signaling at beta1 adrenergic receptors increases:", o: ["cGMP and hyperpolarization", "cAMP, leading to excitatory effects on heart rate and contractility", "IP3 and DAG", "Potassium ion flux"], a: 1, e: "Beta1 receptors increase cAMP, enhancing cardiac function."},
+            {q: "The net effect of beta1 receptor activation is:", o: ["Inhibition of cardiac function", "Decreased heart rate", "Excitatory, leading to increased heart rate and contractility", "Dilation of blood vessels"], a: 2, e: "Beta1 activation increases heart rate and contractility."},
+            {q: "Beta2 adrenergic receptors are found primarily in:", o: ["Blood vessels and cardiac muscle", "Vascular and bronchial smooth muscle", "Skeletal muscle exclusively", "The kidneys"], a: 1, e: "Beta2 receptors are found in smooth muscle of bronchi and blood vessels."},
+            {q: "Activation of beta2 receptors in bronchial smooth muscle causes:", o: ["Bronchoconstriction", "Increased mucus production", "Bronchodilation", "Decreased airway diameter"], a: 2, e: "Beta2 activation causes bronchial smooth muscle relaxation."},
+            {q: "The three main types of hormones are:", o: ["Neurotransmitters, local mediators, and cytokines", "Agonists, antagonists, and modulators", "First messengers, second messengers, and third messengers", "Peptide hormones, steroid hormones, and amino acid-derived hormones"], a: 3, e: "Hormones are classified into three main types by structure."},
+            {q: "Peptide hormones are characterized by:", o: ["Being lipid-soluble and crossing the cell membrane", "Requiring carrier proteins for transport", "Being derived from cholesterol", "Being synthesized by transcription and translation, processed in ER, then packaged and released in response to stimulus"], a: 3, e: "Peptide hormones are water-soluble proteins synthesized via transcription/translation."},
+            {q: "Which of the following are examples of peptide hormones? (Select all that apply)", o: ["Insulin", "Antidiuretic hormone (ADH/vasopressin)", "Oxytocin", "Follicle-stimulating hormone (FSH)"], a: [0, 1, 2, 3], e: "All are peptide/protein hormones."},
+            {q: "Amino acid-derived hormones are:", o: ["Large complex molecules always requiring carrier proteins", "Small hormones made from amino acid tyrosine or tryptophan and stored in endocrine cells until needed", "Synthesized in the liver", "Directly cross the cell membrane like steroids"], a: 1, e: "Amino acid-derived hormones are small molecules from tyrosine or tryptophan."},
+            {q: "Which of the following are examples of amino acid-derived hormones? (Select all that apply)", o: ["Catecholamines (epinephrine and norepinephrine from adrenal medulla)", "Thyroxine (T4) from the thyroid gland", "Melatonin from the pineal gland", "Insulin"], a: [0, 1, 2], e: "Catecholamines, thyroxine, and melatonin are amino acid-derived hormones."},
+            {q: "Where are catecholamines synthesized as hormones?", o: ["Nerve terminals", "The thyroid gland", "The adrenal medulla", "The pancreas"], a: 2, e: "The adrenal medulla synthesizes catecholamines as hormones."},
+            {q: "Steroid hormones are derived from:", o: ["Amino acids", "Carbohydrate metabolism", "Lipid peroxides", "Modification of cholesterol in the adrenal cortex, gonads, and placenta"], a: 3, e: "Steroid hormones are synthesized from cholesterol."},
+            {q: "Steroid hormone synthesis occurs in:", o: ["The smooth ER exclusively", "Mitochondria and smooth ER", "The rough ER exclusively", "The golgi apparatus"], a: 1, e: "Steroid synthesis occurs in both mitochondria (first step) and smooth ER."},
+            {q: "Steroid hormones are transported in the blood via:", o: ["Direct dissolution in plasma water", "Direct diffusion without assistance", "Carrier proteins (since they are water insoluble)", "Synaptic vesicles"], a: 2, e: "Steroid hormones are lipid-soluble and require carrier proteins."},
+            {q: "Which of the following are examples of hormone carrier proteins? (Select all that apply)", o: ["Corticosteroid binding globulin", "Sex hormone binding globulin", "Thyroxine-binding globulin", "Albumin (non-specific)"], a: [0, 1, 2, 3], e: "All are hormone transport proteins."},
+            {q: "Steroid hormones remain in circulation longer than peptide/protein hormones because:", o: ["They remain bound to carrier proteins", "They are larger molecules", "They have longer half-lives in the bloodstream", "They are not degraded by enzymes"], a: 0, e: "Carrier protein binding protects steroid hormones from degradation."},
+            {q: "Which of the following hormones does NOT require a binding protein for transport in blood?", o: ["Testosterone", "Aldosterone", "Insulin", "Cortisol"], a: 2, e: "Insulin is water-soluble and doesn't require carrier proteins."},
+            {q: "Why can insulin transport without a carrier protein while steroid hormones need one?", o: ["Insulin is a peptide (water-soluble) while steroid hormones are lipid-soluble", "Insulin is smaller", "Insulin is produced in larger quantities", "Steroid hormones are permanently bound"], a: 0, e: "Insulin is hydrophilic and dissolves in plasma; steroids are lipid-soluble."},
+            {q: "Tropic hormones are hormones that:", o: ["Target other endocrine glands and stimulate them to release other/additional hormones using feedback loops", "Directly cause tissue responses without involving other hormones", "Only regulate metabolism", "Act on the hypothalamus exclusively"], a: 0, e: "Tropic hormones regulate other endocrine glands via feedback loops."},
+            {q: "Most tropic hormones are released by:", o: ["The hypothalamus", "The posterior pituitary", "The anterior pituitary gland", "The thyroid gland"], a: 2, e: "The anterior pituitary releases most tropic hormones."},
+            {q: "Hormonal regulation of hormone release occurs when:", o: ["Hormones directly act on muscle cells", "The brain is stimulated", "Only during exercise", "Changing levels of a particular substance in the blood trigger hormone release (e.g., glucose triggers insulin, Ca2+ triggers PTH)"], a: 3, e: "Blood levels of nutrients/ions regulate hormone secretion."},
+            {q: "Which of the following hormones is released in response to elevated blood glucose?", o: ["Glucagon", "Insulin", "Epinephrine", "Cortisol"], a: 1, e: "Elevated blood glucose triggers insulin release from pancreatic beta cells."},
+            {q: "Which of the following hormones is released in response to elevated blood calcium?", o: ["Parathyroid hormone", "Calcitonin", "Vitamin D", "Cortisol"], a: 1, e: "Elevated blood calcium triggers calcitonin release from thyroid C cells."},
+            {q: "Neural regulation of hormones involves:", o: ["Only hormonal secretion from endocrine glands", "Direct electrical coupling to endocrine cells", "Only parasympathetic nervous system activation", "The stimulation of hormone release by the nervous system, often via direct nerve impulses or neurotransmitter release"], a: 3, e: "The nervous system directly stimulates hormone release via innervation and neurotransmitters."},
+            {q: "A classic example of neural regulation of hormone release is:", o: ["Glucose triggering insulin release", "Low blood calcium triggering parathyroid hormone", "The adrenal medulla releasing catecholamines (NE and E) when stimulated by sympathetic ANS nerves", "High blood potassium triggering aldosterone"], a: 2, e: "The sympathetic nervous system directly innervates the adrenal medulla."},
+            {q: "Circadian rhythms are examples of:", o: ["Paracrine signaling", "Neural regulation causing cyclic release of hormones based on light and dark cycles", "Only occurring during sleep", "Direct hormonal regulation without neural involvement"], a: 1, e: "Circadian rhythms are neural/neuroendocrine control of hormone secretion patterns."},
+            {q: "Diurnal rhythms are those that:", o: ["Only occur during the day", "Cycle once a day (like gonadotropin and cortisol release)", "Occur randomly throughout the day and night", "Only occur at night"], a: 1, e: "Diurnal rhythms have a 24-hour cycle."},
+            {q: "Cortisol is released in a ____ pattern, with highest levels in the morning:", o: ["Random", "Constant", "Circadian/diurnal", "Weekly"], a: 2, e: "Cortisol follows a circadian rhythm with peak levels at dawn."},
+            {q: "The anterior pituitary releases many tropic hormones under the control of:", o: ["The hypothalamus via releasing hormones", "Direct blood glucose measurement", "Sympathetic nerve impulses exclusively", "Circulating steroid hormones only"], a: 0, e: "Hypothalamic releasing hormones regulate anterior pituitary hormone secretion."}
+        ];
+
+        let currentMode = 'learning';
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answered = false;
+        let selectedAnswers = [];
+        let lastKeyPressed = null;
+        let lastKeyTime = 0;
+
+        function setMode(mode) {
+            currentMode = mode;
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            answered = false;
+            selectedAnswers = [];
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.mode-btn.${mode}`).classList.add('active');
+            displayQuestion();
+        }
+
+        function getQuestions() {
+            if (currentMode === 'learning') {
+                return questionsData;
+            } else {
+                let shuffled = [...questionsData];
+                Fisher_Yates_Shuffle(shuffled);
+                return shuffled;
+            }
+        }
+
+        function getTotalQuestions() {
+            return questionsData.length;
+        }
+
+        function Fisher_Yates_Shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function displayQuestion() {
+            const questions = getQuestions();
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            answered = false;
+            selectedAnswers = [];
+            let isMultiSelect = Array.isArray(question.a);
+
+            let optionsHTML = question.o.map((opt, idx) => {
+                return `<div class="option" onclick="selectOption(${idx}, ${isMultiSelect})" data-option="${idx}">
+                    <strong>${String.fromCharCode(65 + idx)})</strong> ${opt}
+                </div>`;
+            }).join('');
+
+            document.getElementById('quizContent').innerHTML = `
+                <div class="question-section">
+                    <div class="question-number">Question ${currentQuestionIndex + 1} of ${getTotalQuestions()}</div>
+                    <div class="question-text">${question.q}</div>
+                    <div class="options" id="optionsContainer">${optionsHTML}</div>
+                    <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">
+                        ${isMultiSelect ? 'Submit Selected Answers' : 'Submit Answer'}
+                    </button>
+                    <div class="keyboard-hint">💡 Press 1/2/3/4 to select • Double-press within 500ms to submit</div>
+                </div>
+            `;
+
+            updateProgress();
+        }
+
+        function selectOption(index, isMultiSelect) {
+            if (answered) return;
+
+            const options = document.querySelectorAll('.option');
+            if (isMultiSelect) {
+                selectedAnswers.includes(index) ?
+                    selectedAnswers.splice(selectedAnswers.indexOf(index), 1) :
+                    selectedAnswers.push(index);
+                options.forEach((opt, idx) => {
+                    selectedAnswers.includes(idx) ? opt.classList.add('selected') : opt.classList.remove('selected');
+                });
+            } else {
+                selectedAnswers = [index];
+                options.forEach((opt, idx) => {
+                    idx === index ? opt.classList.add('selected') : opt.classList.remove('selected');
+                });
+            }
+        }
+
+        function checkAnswer() {
+            if (answered) return;
+
+            const questions = getQuestions();
+            const question = questions[currentQuestionIndex];
+            const correctAnswers = Array.isArray(question.a) ? question.a : [question.a];
+            const isCorrect = selectedAnswers.length === correctAnswers.length &&
+                selectedAnswers.every(idx => correctAnswers.includes(idx));
+
+            answered = true;
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, idx) => {
+                if (correctAnswers.includes(idx)) {
+                    opt.classList.add('correct');
+                } else if (selectedAnswers.includes(idx) && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            const feedbackClass = isCorrect ? 'correct' : 'incorrect';
+            const feedbackTitle = isCorrect ? '✓ Correct!' : '✗ Incorrect';
+
+            document.querySelector('.submit-btn').innerHTML = `
+                <div class="feedback ${feedbackClass}">
+                    <div class="feedback-title">${feedbackTitle}</div>
+                    <div class="feedback-text">${question.e}</div>
+                </div>
+            `;
+
+            if (isCorrect) {
+                correctCount++;
+            } else {
+                incorrectCount++;
+            }
+            updateScore();
+        }
+
+        function nextQuestion() {
+            if (!answered) return;
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function updateProgress() {
+            const total = getTotalQuestions();
+            const percentage = (currentQuestionIndex / total) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = total;
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const percentage = total === 0 ? 0 : Math.round(correctCount / total * 100);
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentageDisplay').textContent = percentage;
+            updateProgress();
+        }
+
+        function showResults() {
+            const total = correctCount + incorrectCount;
+            const pct = total === 0 ? 0 : Math.round(correctCount / total * 100);
+            document.getElementById('quizContent').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h2 style="color: #667eea; font-size: 32px; margin-bottom: 20px;">🎉 Quiz Complete!</h2>
+                    <div style="font-size: 18px; margin: 30px 0; line-height: 2;">
+                        <div>✓ Correct: <strong>${correctCount}</strong></div>
+                        <div>✗ Incorrect: <strong>${incorrectCount}</strong></div>
+                        <div>Score: <strong>${pct}%</strong></div>
+                    </div>
+                    <button class="restart-btn" onclick="location.reload()">Restart Quiz</button>
+                </div>
+            `;
+        }
+
+        function setupKeyboard() {
+            document.onkeydown = function(e) {
+                const keyNum = parseInt(e.key);
+                if (![1, 2, 3, 4].includes(keyNum)) return;
+
+                const isMultiSelect = Array.isArray(getQuestions()[currentQuestionIndex]?.a);
+                const now = Date.now();
+
+                if (answered) {
+                    nextQuestion();
+                } else {
+                    if (lastKeyPressed === keyNum && now - lastKeyTime < 500) {
+                        checkAnswer();
+                        lastKeyPressed = null;
+                    } else {
+                        selectOption(keyNum - 1, isMultiSelect);
+                        lastKeyPressed = keyNum;
+                        lastKeyTime = now;
+                    }
+                }
+            };
+        }
+
+        setupKeyboard();
+        setMode('learning');
+    </script>
+</body>
+</html>
