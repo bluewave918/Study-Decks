@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 2: Dental Specialties</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .mode-label {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .question-container {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 1em;
+            position: relative;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .score-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .results-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            color: #333;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .results-details {
+            font-size: 1.1em;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .explanation strong {
+            color: #667eea;
+        }
+
+        .keyboard-hint {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.05em;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .score-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦷 Unit 2: Dental Specialties</h1>
+            <p>Comprehensive Learning Deck for Midterm Preparation</p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('ordered')">📖 Learning Mode</button>
+            <button class="mode-btn" onclick="setMode('shuffled')">🔀 Testing Mode</button>
+        </div>
+
+        <div class="mode-label" id="modeLabel">📖 LEARNING MODE: Questions in original order (content builds logically)</div>
+
+        <div class="card" id="mainCard">
+            <div class="progress-container">
+                <div class="progress-text" id="progressText">Question 1 of 45</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-label">✓ Correct</div>
+                    <div class="score-value" id="correctCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">✗ Incorrect</div>
+                    <div class="score-value" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Percentage</div>
+                    <div class="score-value" id="percentage">0%</div>
+                </div>
+            </div>
+
+            <div id="quizContainer">
+                <div class="question-container">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="answers" id="answersContainer"></div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="keyboard-hint">💡 Press 1, 2, 3, or 4 to select | Press any key to continue</div>
+                </div>
+            </div>
+
+            <div class="results-screen" id="resultsScreen">
+                <h2>Quiz Complete!</h2>
+                <div class="final-score" id="finalScore">0%</div>
+                <div class="results-message" id="resultsMessage">Great effort!</div>
+                <div class="results-details">
+                    <p>You got <span id="finalCorrect">0</span> out of <span id="finalTotal">0</span> questions correct</p>
+                </div>
+                <button class="restart-btn" onclick="resetQuiz()">🔄 Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // QUESTIONS DATABASE - COMPREHENSIVE UNIT 2 CONTENT
+        // ============================================================================
+
+        const questionsBase = [
+            {
+                question: "What is a dental specialty?",
+                answers: [
+                    "Any type of dentistry that a general dentist performs",
+                    "A formally recognized branch of dentistry with advanced training beyond dental school",
+                    "A different name for general dentistry",
+                    "A type of dental insurance plan"
+                ],
+                correct: 1,
+                explanation: "<strong>A dental specialty is a formally recognized branch of dentistry requiring additional years of education beyond dental school</strong>. Specialties are recognized and regulated by the ADA and CODA."
+            },
+            {
+                question: "How many ADA-recognized dental specialties are there?",
+                answers: [
+                    "8 specialties",
+                    "10 specialties",
+                    "12 specialties",
+                    "15 specialties"
+                ],
+                correct: 2,
+                explanation: "There are <strong>12 ADA-recognized dental specialties</strong>: Endodontics, Periodontics, Prosthodontics, OMFS, Orthodontics, Pediatric Dentistry, Dental Anesthesiology, Dental Public Health, Oral Medicine, Orofacial Pain, Oral Pathology, and Oral Radiology."
+            },
+            {
+                question: "What organization formally recognizes dental specialties?",
+                answers: [
+                    "The state dental board only",
+                    "The ADA and CODA",
+                    "Insurance companies",
+                    "University programs only"
+                ],
+                correct: 1,
+                explanation: "<strong>The ADA (American Dental Association) and CODA (Commission on Dental Accreditation)</strong> formally recognize dental specialties and regulate specialty training programs."
+            },
+            {
+                question: "Why do dentists specialize?",
+                answers: [
+                    "To limit the number of patients they see",
+                    "To manage complex or specific oral health conditions, advance skills, and support collaborative patient care",
+                    "To avoid difficult cases",
+                    "Only for financial reasons"
+                ],
+                correct: 1,
+                explanation: "Dentists specialize to <strong>manage complex conditions, advance focused skills, support collaborative care, and enhance professional growth and research opportunities</strong>."
+            },
+            {
+                question: "What is endodontics primarily concerned with?",
+                answers: [
+                    "The restoration of missing teeth",
+                    "The treatment of gum disease",
+                    "The morphology, biology, and pathology of the dental pulp and periradicular tissues",
+                    "Correcting tooth alignment"
+                ],
+                correct: 2,
+                explanation: "<strong>Endodontics focuses on the dental pulp and periradicular tissues</strong>. It encompasses the biology, etiology, diagnosis, prevention and treatment of pulp diseases and injuries."
+            },
+            {
+                question: "What are two common endodontic procedures?",
+                answers: [
+                    "Scaling and root planing",
+                    "Braces and aligners",
+                    "Root canal treatment and apicoectomy",
+                    "Bone grafting and implants"
+                ],
+                correct: 2,
+                explanation: "<strong>Endodontists perform root canal treatment and apicoectomy</strong> using specialized tools like apex locators, rotary instruments, and microscopes."
+            },
+            {
+                question: "How long is a typical endodontic residency?",
+                answers: [
+                    "1 year",
+                    "2 years",
+                    "3 years",
+                    "5 years"
+                ],
+                correct: 1,
+                explanation: "An endodontic residency is approximately <strong>2 years of advanced training</strong> beyond dental school."
+            },
+            {
+                question: "What do ADA codes in the 3000's typically indicate?",
+                answers: [
+                    "Periodontic procedures",
+                    "Endodontic procedures",
+                    "Orthodontic procedures",
+                    "Prosthodontic procedures"
+                ],
+                correct: 1,
+                explanation: "<strong>ADA codes in the 3000's are used for endodontic procedures</strong>. These codes help classify and bill for root canal treatments and related services."
+            },
+            {
+                question: "What is the primary focus of periodontics?",
+                answers: [
+                    "Filling cavities and restoring teeth",
+                    "Treating diseases of the gums and bone supporting the teeth",
+                    "Straightening teeth",
+                    "Treating dental pain"
+                ],
+                correct: 1,
+                explanation: "<strong>Periodontics focuses on the prevention, diagnosis, and treatment of diseases of the supporting and surrounding tissues of teeth</strong>, including gums and supporting bone."
+            },
+            {
+                question: "Which of the following is a periodontic procedure?",
+                answers: [
+                    "Root canal treatment",
+                    "Bone grafting and gingival grafting for ridge augmentation",
+                    "Tooth extraction",
+                    "Placing braces"
+                ],
+                correct: 1,
+                explanation: "Periodontists perform <strong>scaling, flap surgery, bone grafting, and gingival grafting</strong> to treat periodontal disease and restore supporting tissues."
+            },
+            {
+                question: "How long is a typical periodontic residency?",
+                answers: [
+                    "18 months",
+                    "24 months",
+                    "36 months",
+                    "48 months"
+                ],
+                correct: 2,
+                explanation: "A periodontic residency is <strong>36 months (3 years) of advanced training</strong> to develop expertise in periodontal treatment and implant placement."
+            },
+            {
+                question: "What do ADA codes in the 4000's represent?",
+                answers: [
+                    "Implant procedures",
+                    "Periodontic procedures",
+                    "Orthodontic procedures",
+                    "Endodontic procedures"
+                ],
+                correct: 1,
+                explanation: "<strong>ADA codes in the 4000's indicate periodontic procedures</strong>. Implant-related codes fall in the 6000's."
+            },
+            {
+                question: "What is the primary focus of prosthodontics?",
+                answers: [
+                    "Treating gum disease",
+                    "Replacing missing teeth and restoring function, comfort, and appearance",
+                    "Straightening teeth",
+                    "Treating root canal infections"
+                ],
+                correct: 1,
+                explanation: "<strong>Prosthodontics focuses on diagnosis, treatment planning, and rehabilitation of oral function, comfort, appearance, and health</strong>. It specializes in replacing missing or deficient teeth and tissues."
+            },
+            {
+                question: "Which of the following is a prosthodontic procedure?",
+                answers: [
+                    "Bone grafting",
+                    "Root canal therapy",
+                    "Full-mouth rehabilitation, crowns, bridges, dentures, and implant-supported restorations",
+                    "Teeth cleaning and scaling"
+                ],
+                correct: 2,
+                explanation: "Prosthodontists perform <strong>crowns, bridges, dentures, full-mouth rehabilitation, implants, esthetic restorations, and TMJ management</strong>."
+            },
+            {
+                question: "How long is a typical prosthodontic residency?",
+                answers: [
+                    "2 years",
+                    "2.5 years",
+                    "3 years",
+                    "4 years"
+                ],
+                correct: 2,
+                explanation: "A prosthodontic residency is a <strong>3-year program</strong> that trains dentists to manage complex restorative and esthetic cases."
+            },
+            {
+                question: "What does OMFS stand for?",
+                answers: [
+                    "Orthodontics and Maxillofacial Surgery",
+                    "Oral and Maxillofacial Surgery",
+                    "Oral and Mandibular Facial Services",
+                    "Orthodontics and Maxillofacial Specialists"
+                ],
+                correct: 1,
+                explanation: "<strong>OMFS stands for Oral and Maxillofacial Surgery</strong>, a specialty dealing with surgical treatment of oral and facial conditions."
+            },
+            {
+                question: "What is the scope of Oral and Maxillofacial Surgery?",
+                answers: [
+                    "Non-surgical treatment of jaw disorders",
+                    "Diagnosis, surgical and adjunctive treatment of diseases, injuries, and defects involving hard and soft tissues of the oral and maxillofacial region",
+                    "Only tooth extraction",
+                    "Straightening teeth and correcting bite problems"
+                ],
+                correct: 1,
+                explanation: "<strong>OMFS involves surgical treatment of facial trauma, impacted teeth, pathology, dental implants, jaw reconstruction, and orthognathic surgery</strong>. OMFS is often hospital-based and can administer IV sedation."
+            },
+            {
+                question: "Which procedure would an oral and maxillofacial surgeon perform?",
+                answers: [
+                    "Placing dental sealants",
+                    "Extracting wisdom teeth, jaw reconstruction, and orthognathic surgery",
+                    "Cleaning and polishing teeth",
+                    "Applying braces"
+                ],
+                correct: 1,
+                explanation: "OMFS specialists perform <strong>extraction of impacted teeth, wisdom tooth removal, jaw reconstruction, and orthognathic (jaw) surgery</strong>, often in hospital settings."
+            },
+            {
+                question: "How long is an OMFS residency?",
+                answers: [
+                    "2 years",
+                    "3 years",
+                    "4–6 years, and some programs include MD training",
+                    "2 years"
+                ],
+                correct: 2,
+                explanation: "An OMFS residency is <strong>4–6 years, and some programs include MD (Medical Doctor) training</strong> to expand surgical capabilities."
+            },
+            {
+                question: "What do ADA codes in the 7000's represent?",
+                answers: [
+                    "Periodontic procedures",
+                    "Prosthodontic procedures",
+                    "Oral and Maxillofacial Surgery procedures",
+                    "Pediatric procedures"
+                ],
+                correct: 2,
+                explanation: "<strong>ADA codes in the 7000's indicate OMFS procedures</strong>. Codes in the 6000's also apply to surgical and implant procedures."
+            },
+            {
+                question: "What is the primary focus of orthodontics?",
+                answers: [
+                    "Treating gum disease",
+                    "Restoring missing teeth",
+                    "Aligning teeth and correcting malocclusion and jaw discrepancies",
+                    "Treating dental infections"
+                ],
+                correct: 2,
+                explanation: "<strong>Orthodontics focuses on diagnosis, prevention, interception, and correction of malocclusion</strong>, including alignment of teeth and jaws for function and esthetics."
+            },
+            {
+                question: "Which of the following is an orthodontic procedure?",
+                answers: [
+                    "Bone grafting",
+                    "Root canal therapy",
+                    "Braces, clear aligners, growth modification, and appliances like expanders and headgear",
+                    "Tooth extraction"
+                ],
+                correct: 2,
+                explanation: "Orthodontists use <strong>braces, clear aligners, growth modification appliances, expanders, and headgear</strong> to correct malocclusion."
+            },
+            {
+                question: "How long is an orthodontic residency?",
+                answers: [
+                    "1 year",
+                    "2–3 years",
+                    "4 years",
+                    "5 years"
+                ],
+                correct: 1,
+                explanation: "An orthodontic residency is <strong>2–3 years of specialized training</strong> in tooth movement and jaw correction."
+            },
+            {
+                question: "What do ADA codes in the 8000's represent?",
+                answers: [
+                    "Periodontic procedures",
+                    "Orthodontic procedures",
+                    "Endodontic procedures",
+                    "Pediatric procedures"
+                ],
+                correct: 1,
+                explanation: "<strong>ADA codes in the 8000's indicate orthodontic procedures</strong>, including braces, aligners, and other orthodontic treatments."
+            },
+            {
+                question: "What is the age range for pediatric dentistry?",
+                answers: [
+                    "Birth to 12 years",
+                    "5 to 18 years",
+                    "Infants and children through adolescence, typically 0–18 (or 21) years",
+                    "Only young children, ages 2–10"
+                ],
+                correct: 2,
+                explanation: "<strong>Pediatric dentistry serves patients from infancy through adolescence, typically ages 0–18 or 21 years</strong>, including those with special health care needs."
+            },
+            {
+                question: "What are key skills in pediatric dentistry?",
+                answers: [
+                    "Performing root canals",
+                    "Behavior management, sedation, and understanding growth/development",
+                    "Placing implants",
+                    "Performing orthognathic surgery"
+                ],
+                correct: 1,
+                explanation: "<strong>Pediatric dentists specialize in behavior management, sedation, and understanding child growth and development</strong> to provide age-appropriate care."
+            },
+            {
+                question: "Which procedure might a pediatric dentist perform?",
+                answers: [
+                    "Orthognathic surgery",
+                    "Gingival grafting",
+                    "Pulpotomies, stainless steel crowns, space maintainers, and extractions",
+                    "Wisdom tooth extraction"
+                ],
+                correct: 2,
+                explanation: "Pediatric dentists perform <strong>pulpotomies (partial pulp removal), stainless steel crown placement, space maintainers, and primary tooth extractions</strong>."
+            },
+            {
+                question: "How long is a pediatric dentistry residency?",
+                answers: [
+                    "12 months",
+                    "24 months",
+                    "36 months",
+                    "48 months"
+                ],
+                correct: 1,
+                explanation: "A pediatric dentistry residency is <strong>24 months (2 years) of specialized training</strong> in pediatric oral health care."
+            },
+            {
+                question: "What is the primary focus of dental anesthesiology?",
+                answers: [
+                    "Diagnosing dental diseases",
+                    "Managing pain, anxiety, and overall patient health during dental procedures",
+                    "Treating gum disease",
+                    "Straightening teeth"
+                ],
+                correct: 1,
+                explanation: "<strong>Dental anesthesiology focuses on the art and science of managing pain, anxiety, and overall patient health during dental procedures</strong>. It promotes patient safety and access to care."
+            },
+            {
+                question: "Which anesthesia technique is used in dental anesthesiology?",
+                answers: [
+                    "Only local anesthesia",
+                    "Nitrous oxide, oral sedation, IV moderate sedation, deep sedation, and general anesthesia",
+                    "Only general anesthesia",
+                    "Only topical anesthesia"
+                ],
+                correct: 1,
+                explanation: "Dental anesthesiologists are trained in <strong>nitrous oxide, oral sedation, IV moderate sedation, deep sedation, and general anesthesia</strong> to manage patients appropriately."
+            },
+            {
+                question: "How long is a dental anesthesiology residency?",
+                answers: [
+                    "1 year",
+                    "2 years",
+                    "3 years",
+                    "4 years"
+                ],
+                correct: 2,
+                explanation: "A dental anesthesiology residency is <strong>3 years of specialized training</strong> in sedation and anesthesia management."
+            },
+            {
+                question: "What do ADA codes in the 9000's typically represent?",
+                answers: [
+                    "Endodontic procedures",
+                    "Orthodontic procedures",
+                    "Anesthesia and diagnostic procedures",
+                    "Pediatric procedures"
+                ],
+                correct: 2,
+                explanation: "<strong>ADA codes in the 9000's indicate anesthesia and diagnostic/adjunctive procedures</strong> used in various dental specialties."
+            },
+            {
+                question: "What is the focus of dental public health?",
+                answers: [
+                    "Treating individual patients with complex conditions",
+                    "Preventing and controlling dental diseases and promoting dental health through organized community efforts",
+                    "Performing surgical procedures",
+                    "Restoring missing teeth"
+                ],
+                correct: 1,
+                explanation: "<strong>Dental public health focuses on preventing and controlling dental diseases through organized community efforts</strong>, including fluoridation, sealants, and dental health education."
+            },
+            {
+                question: "What training does a dental public health specialist typically have?",
+                answers: [
+                    "Only dental school",
+                    "MPH (Master of Public Health) plus 1–2 year residency",
+                    "MD degree only",
+                    "DDS degree only"
+                ],
+                correct: 1,
+                explanation: "Dental public health specialists typically earn an <strong>MPH (Master of Public Health) plus 1–2 years of specialized residency training</strong>."
+            },
+            {
+                question: "What is the primary focus of oral medicine?",
+                answers: [
+                    "Treating tooth decay",
+                    "Straightening teeth",
+                    "Diagnosis and management of medically-related diseases and conditions affecting the oral and maxillofacial region",
+                    "Performing root canals"
+                ],
+                correct: 2,
+                explanation: "<strong>Oral medicine specialists are responsible for oral health care of medically complex patients</strong> and diagnose/manage diseases, disorders, and conditions related to medical conditions."
+            },
+            {
+                question: "How long is an oral medicine residency?",
+                answers: [
+                    "1 year",
+                    "2–3 years, and some include MD training",
+                    "4 years",
+                    "5 years"
+                ],
+                correct: 1,
+                explanation: "An oral medicine residency is <strong>2–3 years, and some programs include MD training</strong> to better manage medically complex patients."
+            },
+            {
+                question: "What does 'orofacial pain' encompass?",
+                answers: [
+                    "Only tooth pain from cavities",
+                    "Diagnosis and management of pain disorders of the jaw, mouth, face, head, and neck",
+                    "Only TMJ pain",
+                    "Only headaches"
+                ],
+                correct: 1,
+                explanation: "<strong>Orofacial pain encompasses diagnosis and management of neuropathic pain, TMD, headaches, sleep-breathing disorders, and musculoskeletal pain</strong>."
+            },
+            {
+                question: "Which procedure might an orofacial pain specialist use?",
+                answers: [
+                    "Root canal therapy",
+                    "Occlusal splints, neuromodulators, sleep appliances, and pharmacologic management",
+                    "Bone grafting",
+                    "Teeth whitening"
+                ],
+                correct: 1,
+                explanation: "Orofacial pain specialists use <strong>occlusal splints, neuromodulators (like Botox), sleep appliances, and pharmacotherapy</strong> to manage pain disorders."
+            },
+            {
+                question: "How long is an orofacial pain residency?",
+                answers: [
+                    "1 year",
+                    "2 years, and some include MD training",
+                    "3 years",
+                    "4 years"
+                ],
+                correct: 1,
+                explanation: "An orofacial pain residency is <strong>2 years, and some programs include MD training</strong> to manage complex pain conditions."
+            },
+            {
+                question: "What is the primary focus of oral and maxillofacial pathology?",
+                answers: [
+                    "Treating cavities",
+                    "Straightening teeth",
+                    "Diagnosis of diseases affecting oral tissues through clinical, radiographic, and microscopic examination",
+                    "Treating gum disease"
+                ],
+                correct: 2,
+                explanation: "<strong>Oral and maxillofacial pathology focuses on the nature, identification, and management of diseases affecting the oral and maxillofacial region</strong> through investigation and diagnosis."
+            },
+            {
+                question: "Which procedure would an oral pathology specialist perform?",
+                answers: [
+                    "Placing implants",
+                    "Extracting teeth",
+                    "Biopsies, cancer screening, and histology review and consultation",
+                    "Placing braces"
+                ],
+                correct: 2,
+                explanation: "Oral pathologists perform <strong>biopsies, cancer screening, and histology review</strong> to diagnose oral diseases."
+            },
+            {
+                question: "How long is an oral and maxillofacial pathology residency?",
+                answers: [
+                    "2 years",
+                    "3 years",
+                    "4 years",
+                    "5 years"
+                ],
+                correct: 1,
+                explanation: "An oral and maxillofacial pathology residency is <strong>3 years of specialized training</strong> in diagnostic pathology."
+            },
+            {
+                question: "What is the primary focus of oral and maxillofacial radiology?",
+                answers: [
+                    "Treating cavities",
+                    "Production and interpretation of images and data produced by radiographic modalities for diagnosis and management of oral and maxillofacial diseases",
+                    "Extracting teeth",
+                    "Treating gum disease"
+                ],
+                correct: 1,
+                explanation: "<strong>Oral and maxillofacial radiology focuses on the production and interpretation of images using CBCT, X-rays, MRI, and other modalities</strong> for diagnosis."
+            },
+            {
+                question: "What imaging modalities does an oral radiologist interpret?",
+                answers: [
+                    "Only traditional X-rays",
+                    "CBCT, X-rays, and MRI scans",
+                    "Only MRI scans",
+                    "Only CT scans"
+                ],
+                correct: 1,
+                explanation: "Oral radiologists interpret <strong>CBCT (Cone Beam CT), traditional X-rays, and MRI scans</strong> to diagnose oral and maxillofacial conditions."
+            },
+            {
+                question: "How long is an oral and maxillofacial radiology residency?",
+                answers: [
+                    "1 year",
+                    "2–3 years",
+                    "4 years",
+                    "5 years"
+                ],
+                correct: 1,
+                explanation: "An oral and maxillofacial radiology residency is <strong>2–3 years of specialized training</strong> in radiographic diagnosis."
+            },
+            {
+                question: "Why is collaboration between general dentists and specialists important?",
+                answers: [
+                    "It is not important; dentists should work independently",
+                    "To provide comprehensive care, support complex case management, and benefit patient outcomes through teamwork",
+                    "Only to increase costs",
+                    "To limit patient access to care"
+                ],
+                correct: 1,
+                explanation: "<strong>Collaboration between general dentists and specialists supports comprehensive care, allows appropriate case management, and improves patient outcomes through coordinated teamwork</strong>."
+            },
+            {
+                question: "What is the purpose of referring patients to specialists?",
+                answers: [
+                    "To avoid treating certain patients",
+                    "To ensure patients receive appropriate expert care for complex conditions and specialized procedures",
+                    "To increase treatment costs",
+                    "It is not necessary"
+                ],
+                correct: 1,
+                explanation: "Referrals to specialists ensure <strong>patients receive appropriate expert care for conditions requiring specialized knowledge and procedures</strong>, supporting optimal outcomes."
+            },
+            {
+                question: "How do general dentists and specialists work together in interdisciplinary care?",
+                answers: [
+                    "They never communicate",
+                    "General dentists handle all cases independently",
+                    "General dentists refer appropriate cases to specialists, receive treatment recommendations, manage overall patient care coordination",
+                    "Specialists never consult with general dentists"
+                ],
+                correct: 2,
+                explanation: "<strong>Interdisciplinary care involves general dentists making appropriate referrals, specialists providing expert treatment, and coordinated communication to manage patient care holistically</strong>."
+            },
+            {
+                question: "What is an example of a case requiring specialist referral?",
+                answers: [
+                    "A simple filling",
+                    "Professional teeth cleaning",
+                    "A severely impacted third molar requiring surgical extraction or a complex case of severe periodontal disease",
+                    "Routine patient examination"
+                ],
+                correct: 2,
+                explanation: "<strong>Cases requiring specialist referral include impacted teeth requiring surgical extraction (OMFS), severe periodontal disease (Periodontics), and complex restorative cases (Prosthodontics)</strong>."
+            },
+            {
+                question: "What key takeaway about dental specialties is most important for patient care?",
+                answers: [
+                    "Specialties exist only for the dentist's benefit",
+                    "Dental specialties support comprehensive care; each specialist has unique training and role; teamwork benefits patients",
+                    "Specialists are not necessary",
+                    "General dentists can always handle specialist cases alone"
+                ],
+                correct: 1,
+                explanation: "<strong>Dental specialties support comprehensive, coordinated patient care through each specialist's unique expertise and roles, with teamwork between general dentists and specialists benefiting patient outcomes</strong>."
+            }
+        ];
+
+        // ============================================================================
+        // STATE MANAGEMENT
+        // ============================================================================
+
+        let currentMode = 'ordered';
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let questionsOrdered = [];
+        let questionsShuffled = [];
+        let questions = [];
+        let retryQueue = [];
+        let answered = false;
+
+        // ============================================================================
+        // SHUFFLE ALGORITHMS
+        // ============================================================================
+
+        function shuffleQuestions(array) {
+            return array.map(q => {
+                const shuffledAnswers = [...q.answers];
+                let correctIndex = q.correct;
+
+                for (let i = shuffledAnswers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
+
+                    if (correctIndex === i) correctIndex = j;
+                    else if (correctIndex === j) correctIndex = i;
+                }
+
+                return {
+                    ...q,
+                    answers: shuffledAnswers,
+                    correct: correctIndex
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        function initializeQuiz() {
+            questionsOrdered = shuffleQuestions(questionsBase);
+            questionsShuffled = shuffleArray(questionsOrdered);
+            questions = [...questionsOrdered];
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = false;
+            displayQuestion();
+        }
+
+        // ============================================================================
+        // MODE SWITCHING
+        // ============================================================================
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeLabel').textContent = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeLabel').textContent = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        // ============================================================================
+        // DISPLAY & INTERACTION
+        // ============================================================================
+
+        function displayQuestion() {
+            if (currentIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const q = questions[currentIndex];
+            document.getElementById('questionText').textContent = q.question;
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = String.fromCharCode(65 + index) + '. ' + answer;
+                btn.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(btn);
+            });
+
+            updateProgress();
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            answered = false;
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const feedback = document.getElementById('feedback');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            let feedbackHTML = '';
+            if (index === q.correct) {
+                buttons[index].classList.add('correct');
+                feedbackHTML = '✓ Correct!';
+                feedback.classList.add('show', 'correct');
+                correctCount++;
+            } else {
+                buttons[index].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackHTML = '✗ Incorrect';
+                feedback.classList.add('show', 'incorrect');
+                incorrectCount++;
+                retryQueue.push(q);
+            }
+
+            if (q.explanation) {
+                feedbackHTML += `<div class="explanation">${q.explanation}</div>`;
+            }
+
+            feedback.innerHTML = feedbackHTML;
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+
+            if (currentIndex >= questions.length && retryQueue.length > 0) {
+                questions = [...shuffleQuestions(retryQueue), ...questions.slice(currentIndex)];
+                currentIndex = 0;
+                retryQueue = [];
+            }
+
+            displayQuestion();
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentage').textContent = pct + '%';
+        }
+
+        function updateProgress() {
+            const totalQuestions = questionsBase.length;
+            const progress = ((currentIndex) / totalQuestions) * 100;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${totalQuestions}`;
+        }
+
+        function showResults() {
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalTotal').textContent = total;
+
+            let message = '📖 Review more';
+            if (percentage === 100) message = '🌟 Perfect!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+
+            document.getElementById('resultsMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            document.getElementById('resultsScreen').classList.remove('show');
+            document.getElementById('quizContainer').style.display = 'block';
+            initializeQuiz();
+        }
+
+        // ============================================================================
+        // KEYBOARD CONTROLS
+        // ============================================================================
+
+        document.addEventListener('keydown', (e) => {
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 4) {
+                if (!answered) {
+                    selectAnswer(key - 1);
+                    e.preventDefault();
+                } else {
+                    nextQuestion();
+                    e.preventDefault();
+                }
+            } else if (key >= 0) {
+                if (answered) {
+                    nextQuestion();
+                    e.preventDefault();
+                } else if (document.getElementById('resultsScreen').classList.contains('show')) {
+                    resetQuiz();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // ============================================================================
+        // START THE QUIZ
+        // ============================================================================
+
+        initializeQuiz();
+    </script>
+</body>
+</html>
