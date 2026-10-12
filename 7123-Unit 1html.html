@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 1: Dental Ethics & Professionalism</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .mode-label {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .question-container {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 1em;
+            position: relative;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .score-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .results-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            color: #333;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .results-details {
+            font-size: 1.1em;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .retry-indicator {
+            display: inline-block;
+            background: #ffc107;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.05em;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .score-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        .keyboard-hint {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .explanation strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦷 Unit 1: Dental Ethics & Professionalism</h1>
+            <p>Comprehensive Learning Deck for Midterm Preparation</p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('ordered')">📖 Learning Mode</button>
+            <button class="mode-btn" onclick="setMode('shuffled')">🔀 Testing Mode</button>
+        </div>
+
+        <div class="mode-label" id="modeLabel">📖 LEARNING MODE: Questions in original order (content builds logically)</div>
+
+        <div class="card" id="mainCard">
+            <div class="progress-container">
+                <div class="progress-text" id="progressText">Question 1 of 40</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-label">✓ Correct</div>
+                    <div class="score-value" id="correctCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">✗ Incorrect</div>
+                    <div class="score-value" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Percentage</div>
+                    <div class="score-value" id="percentage">0%</div>
+                </div>
+            </div>
+
+            <div id="quizContainer">
+                <div class="question-container">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="answers" id="answersContainer"></div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="keyboard-hint">💡 Press 1, 2, 3, or 4 to select | Press any key to continue</div>
+                </div>
+            </div>
+
+            <div class="results-screen" id="resultsScreen">
+                <h2>Quiz Complete!</h2>
+                <div class="final-score" id="finalScore">0%</div>
+                <div class="results-message" id="resultsMessage">Great effort!</div>
+                <div class="results-details">
+                    <p>You got <span id="finalCorrect">0</span> out of <span id="finalTotal">0</span> questions correct</p>
+                </div>
+                <button class="restart-btn" onclick="resetQuiz()">🔄 Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // QUESTIONS DATABASE - COMPREHENSIVE UNIT 1 CONTENT
+        // ============================================================================
+
+        const questionsBase = [
+            {
+                question: "What is the primary distinction between a profession and an occupation?",
+                answers: [
+                    "A profession requires specialized education and adherence to a code of ethics, while an occupation is any job",
+                    "A profession pays more money than an occupation",
+                    "A profession requires a high school diploma, while an occupation does not",
+                    "A profession is self-regulated, while an occupation is regulated by the government"
+                ],
+                correct: 0,
+                explanation: "According to the content, there is no consensus on the definition of a profession, but all agree that there is <strong>specialized training/education and a code of ethics</strong>. This distinguishes a profession from a simple occupation. A profession also involves society assigning special social status and the professional group taking responsibility for public value."
+            },
+            {
+                question: "According to the American College of Dentists, which of the following is NOT listed as a key quality of a professional?",
+                answers: [
+                    "Integrity",
+                    "Primary concern for prestige and financial gain",
+                    "Competence",
+                    "Respecting human beings"
+                ],
+                correct: 1,
+                explanation: "The American College of Dentists identifies four qualities of professionals: <strong>Integrity, Competence, Respecting human beings, and Having a primary concern for being of service</strong>—NOT prestige or profit. This emphasis on service over financial gain is a core distinction of true professionalism."
+            },
+            {
+                question: "What are the two universal requirements that define any profession?",
+                answers: [
+                    "Specialized training/education and a code of ethics",
+                    "High income and social status",
+                    "Licensure and government oversight",
+                    "Professional organization and insurance requirements"
+                ],
+                correct: 0,
+                explanation: "Despite lack of consensus on the full definition of a profession, all agree that <strong>specialized training/education and a code of ethics</strong> are essential. These two elements distinguish professions from other occupations."
+            },
+            {
+                question: "Why does a new patient initially trust their dentist before developing a personal relationship?",
+                answers: [
+                    "They trust because they know the individual dentist personally",
+                    "Trust is automatically extended to the profession and its standards, not earned from the individual yet",
+                    "They assume all dentists have the same level of competence",
+                    "They base trust on the cost of the dental practice"
+                ],
+                correct: 1,
+                explanation: "New patients trust in <strong>the profession itself</strong> rather than the individual dentist. This trust comes from the profession's collective standards, ethics, and reputation for competence and integrity. As the individual relationship develops, trust becomes more personal."
+            },
+            {
+                question: "How does the unequal knowledge between dentist and patient affect the professional relationship?",
+                answers: [
+                    "It makes the relationship impossible to maintain ethically",
+                    "Patients must trust that their dentist is competent and will prioritize patient interests over their own",
+                    "It allows dentists to make decisions without patient input",
+                    "It makes informed consent unnecessary"
+                ],
+                correct: 1,
+                explanation: "Because dentists have <strong>unequal knowledge and skill</strong>, patients must trust that their dentist is competent and <strong>will place patient interests higher than their own</strong>. This knowledge imbalance creates a special obligation for the dentist to act in the patient's best interest."
+            },
+            {
+                question: "What does 'upholding trust and integrity' mean in the context of dental professionalism?",
+                answers: [
+                    "Being honest in all communications and honoring commitments to patients",
+                    "Charging high fees to demonstrate competence",
+                    "Avoiding interactions with difficult patients",
+                    "Prioritizing personal profit over patient welfare"
+                ],
+                correct: 0,
+                explanation: "Upholding trust and integrity means <strong>being honest in all communications and honoring commitments</strong> to patients. This is foundational to professionalism and builds the trusting relationships essential to dental care."
+            },
+            {
+                question: "How does accountability function as a component of dental professionalism?",
+                answers: [
+                    "Dentists are only responsible for their own actions, not to the profession",
+                    "Dentists must answer to patients and the profession for their actions and decisions",
+                    "Accountability is optional in dental practice",
+                    "Dentists are only accountable to themselves"
+                ],
+                correct: 1,
+                explanation: "<strong>Accountability to both patients and the profession</strong> is central to dental professionalism. Dentists must answer for their clinical decisions, ethical conduct, and adherence to professional standards."
+            },
+            {
+                question: "What is the fundamental difference between ethics and morals?",
+                answers: [
+                    "Ethics and morals are exactly the same thing with different names",
+                    "Morals are personal and shaped by individual upbringing, while ethics are established by external groups and mandatory for professional conduct",
+                    "Ethics are flexible, while morals are completely rigid",
+                    "Morals apply only to religious individuals, while ethics apply to everyone"
+                ],
+                correct: 1,
+                explanation: "<strong>Morals are deeply personal</strong>, shaped by upbringing, culture, religion, and individual experiences. <strong>Ethics are established by external organizations</strong> and are mandatory for remaining in good professional standing. Ethics are more uniform and rigid than morals."
+            },
+            {
+                question: "Which of the following best describes morals?",
+                answers: [
+                    "Rules established by professional organizations",
+                    "Deeply personal principles shaped by upbringing, culture, religion, and life experiences",
+                    "Legal standards enforced by the government",
+                    "Uniform guidelines that apply to all people equally"
+                ],
+                correct: 1,
+                explanation: "<strong>Morals are deeply personal and highly subjective</strong>, shaped by each individual's upbringing, culture, religion, and life experiences. They guide personal day-to-day choices and can be flexible depending on the individual and situation."
+            },
+            {
+                question: "Why are ethics generally more rigid than morals in a professional setting?",
+                answers: [
+                    "Because ethics are established by external groups and adherence is mandatory to remain in good standing",
+                    "Because ethics are less important than morals",
+                    "Because ethics apply only to personal life",
+                    "Because ethics are based on religious beliefs"
+                ],
+                correct: 0,
+                explanation: "<strong>Ethics are established by external groups or organizations</strong> and adherence is mandatory for professional standing. This makes them more rigid and uniform than morals, which are personal and flexible."
+            },
+            {
+                question: "What does the ethical principle of 'autonomy' support?",
+                answers: [
+                    "The dentist's right to make all treatment decisions without patient input",
+                    "Freedom to think, judge, and act independently without external influence; self-governance",
+                    "The patient's obligation to follow the dentist's recommendations without question",
+                    "The government's control over all dental treatment decisions"
+                ],
+                correct: 1,
+                explanation: "<strong>Autonomy supports freedom to think, judge, and act independently</strong> (self-governance). This principle underlies concepts like privacy rights and freedom of choice, including the right to make informed decisions about one's own dental treatment."
+            },
+            {
+                question: "In the context of autonomy, what must a dentist consider regarding the dentist-patient knowledge imbalance?",
+                answers: [
+                    "The patient's lack of knowledge justifies overriding their treatment preferences",
+                    "Autonomy applies only when the patient has professional dental knowledge",
+                    "Both patient autonomy and the dentist's responsibility to provide appropriate care must be balanced",
+                    "Patient autonomy should never be considered in clinical decisions"
+                ],
+                correct: 2,
+                explanation: "Dentists must <strong>balance patient autonomy with their professional responsibility</strong>. Even though the dentist has more knowledge, the patient's right to self-determination must be considered while ensuring treatment falls within acceptable care standards."
+            },
+            {
+                question: "Which of the following is an example of respecting patient autonomy in clinical practice?",
+                answers: [
+                    "Performing a root canal when the patient requests tooth extraction",
+                    "Pressuring a patient to accept the dentist's recommended treatment",
+                    "Allowing the patient to choose between extraction and root canal after explaining both options",
+                    "Making treatment decisions based solely on the patient's insurance coverage"
+                ],
+                correct: 2,
+                explanation: "<strong>Explaining treatment options and allowing patients to choose</strong> respects autonomy. This honors the ADA Code of Ethics principle that dentists have a duty to respect patients' rights to self-determination while providing professional guidance."
+            },
+            {
+                question: "What is the ethical principle of 'beneficence' in dental practice?",
+                answers: [
+                    "Avoiding any harm to the patient at all costs",
+                    "Taking active steps to promote and benefit the patient's health and welfare",
+                    "Providing only the most expensive treatment options",
+                    "Recommending treatment that generates maximum profit for the practice"
+                ],
+                correct: 1,
+                explanation: "<strong>Beneficence means actively promoting good</strong>—taking positive steps to benefit the patient's health and welfare. This is not passive; it requires the dentist to proactively work toward the patient's best health outcomes."
+            },
+            {
+                question: "Which of the following is a clinical example of beneficence?",
+                answers: [
+                    "Refusing to treat a patient who cannot afford care",
+                    "Placing dental sealants to prevent pit and fissure caries",
+                    "Recommending extraction of all remaining teeth to increase revenue",
+                    "Avoiding patient communication to prevent difficult conversations"
+                ],
+                correct: 1,
+                explanation: "<strong>Placing sealants to prevent caries</strong> is an active step to promote patient health. Other examples include removing caries and restoring teeth. These represent proactive beneficence toward patient welfare."
+            },
+            {
+                question: "How does beneficence differ from non-maleficence in ethical practice?",
+                answers: [
+                    "Beneficence is actively promoting good, while non-maleficence is avoiding harm",
+                    "They are exactly the same principle with different names",
+                    "Non-maleficence is actively promoting good, while beneficence is avoiding harm",
+                    "Only beneficence is important in dental practice"
+                ],
+                correct: 0,
+                explanation: "<strong>Beneficence is actively promoting good</strong>, while <strong>non-maleficence is avoiding harm</strong>. These are complementary but distinct principles. Both are essential to ethical dental practice."
+            },
+            {
+                question: "What does 'non-maleficence' mean in the dental context?",
+                answers: [
+                    "Providing the most advanced treatment available",
+                    "Above all, do no harm; avoiding actions that inflict harm on patients",
+                    "Avoiding all treatment to prevent complications",
+                    "Treating only patients who are unlikely to have complications"
+                ],
+                correct: 1,
+                explanation: "<strong>Non-maleficence means 'above all, do no harm'</strong>—it's a foundational principle holding that actions are wrong insofar as they inflict harm on others. This principle guides dentists to avoid causing injury through their treatment decisions."
+            },
+            {
+                question: "Which historical document is non-maleficence most closely associated with?",
+                answers: [
+                    "The Declaration of Independence",
+                    "The United States Constitution",
+                    "The Hippocratic Oath",
+                    "The ADA Code of Ethics only"
+                ],
+                correct: 2,
+                explanation: "<strong>Non-maleficence is a cornerstone of the Hippocratic Oath</strong>, which dates back to ancient medicine. This principle has guided healthcare professionals for centuries, including modern dentistry."
+            },
+            {
+                question: "What is a violation of non-maleficence in dental practice?",
+                answers: [
+                    "Recommending preventive sealants to a patient",
+                    "A dentist performing a procedure they are not qualified to perform based on education and training",
+                    "Referring a patient to a specialist",
+                    "Taking detailed patient health histories"
+                ],
+                correct: 1,
+                explanation: "A dentist performing a procedure <strong>without proper education and training qualifications</strong> violates non-maleficence by potentially causing patient harm. Dentists must stay within their scope of competence."
+            },
+            {
+                question: "What does the ethical principle of 'justice' require of dentists?",
+                answers: [
+                    "Treating all patients exactly the same regardless of their condition",
+                    "Fairness in dealings with patients, colleagues, and society, including treating people equitably and giving them what they deserve",
+                    "Charging the same fee to all patients regardless of treatment complexity",
+                    "Never refusing a patient for any reason"
+                ],
+                correct: 1,
+                explanation: "<strong>Justice requires fairness in dealings with patients, colleagues, and society</strong>. It involves treating people fairly, giving them what they deserve (equity), and providing access to what they are entitled to—not treating everyone identically regardless of need."
+            },
+            {
+                question: "Which of the following best describes 'distributive justice' in dental care?",
+                answers: [
+                    "Fair play in how treatment rules are applied to all patients",
+                    "Fairness in what people receive or can access, such as education, voting rights, and public services",
+                    "Equal distribution of dental practices across all geographic areas",
+                    "All patients receiving identical treatment regardless of need"
+                ],
+                correct: 1,
+                explanation: "<strong>Distributive justice concerns fairness in access and resources</strong>—who receives education, voting rights, public services, and healthcare access. In dentistry, it relates to ensuring equitable access to dental care."
+            },
+            {
+                question: "What is 'procedural justice' in dental practice?",
+                answers: [
+                    "The cost of dental procedures should be standardized",
+                    "Fair play where all people are subject to the same rules without exception",
+                    "All treatments must follow the exact same clinical steps",
+                    "Only emergency procedures should be covered by insurance"
+                ],
+                correct: 1,
+                explanation: "<strong>Procedural justice means fair play—all people subject to the same rules</strong>. In dentistry, it means consistent application of ethical standards and fair treatment protocols regardless of patient characteristics."
+            },
+            {
+                question: "According to the ADA Code of Ethics, on what grounds is it permissible to refuse a patient for your practice?",
+                answers: [
+                    "The patient's race, creed, color, or gender identity",
+                    "Reasonable discretion in selecting patients, but NOT based on race, color, gender, sexual orientation, gender identity, national origin, or disability",
+                    "Any reason the dentist chooses",
+                    "The patient's inability to speak English fluently"
+                ],
+                correct: 1,
+                explanation: "While dentists can <strong>exercise reasonable discretion in selecting patients</strong>, the ADA Code of Ethics explicitly prohibits refusal based on <strong>race, creed, color, gender, sexual orientation, gender identity, national origin, or disability</strong>. Justice requires non-discriminatory practice."
+            },
+            {
+                question: "What does the ethical principle of 'veracity' require in dental practice?",
+                answers: [
+                    "Patients must never ask questions about their treatment",
+                    "Dentists must communicate truthfully without deception; honesty is foundational to the trusting relationship",
+                    "Treatment information should be withheld to avoid confusing patients",
+                    "Dentists should only share information that the patient requests"
+                ],
+                correct: 1,
+                explanation: "<strong>Veracity requires truthful communication without deception</strong>. Honesty is foundational to the trusting relationship between dentist and patient, and patients 'deserve respect that is incompatible with dealing with them dishonestly' (ADA Code of Ethics)."
+            },
+            {
+                question: "Why is veracity essential in the dentist-patient relationship?",
+                answers: [
+                    "Because dentists need honest patient information to form proper diagnoses, and patients need truthful information to make informed decisions",
+                    "Because insurance companies require it",
+                    "Because it increases the cost of treatment",
+                    "Because it is only required by state law"
+                ],
+                correct: 0,
+                explanation: "<strong>Dentists rely on patient honesty to diagnose properly</strong>, and <strong>patients need truthful information to make informed decisions</strong> about their treatment. Veracity is mutually essential to the professional relationship."
+            },
+            {
+                question: "How does veracity relate to informed consent in dental practice?",
+                answers: [
+                    "Informed consent is not related to veracity",
+                    "Truthful communication is necessary for patients to make truly informed decisions about their treatment",
+                    "Patients should be told only partial truth about treatment risks",
+                    "Informed consent only applies to surgical procedures"
+                ],
+                correct: 1,
+                explanation: "<strong>Informed consent requires truthful, complete communication</strong>. Veracity is essential—without honest explanation of diagnosis, options, and risks/benefits, patients cannot make truly informed decisions."
+            },
+            {
+                question: "What is 'patient-centered care' in dentistry?",
+                answers: [
+                    "Care that focuses only on the most profitable treatments for the practice",
+                    "Respectful, responsive care aligned with patient preferences, involving shared decision-making, clear communication, and cultural competence",
+                    "Care provided only when the patient insists on specific treatments",
+                    "Treatment that prioritizes the dentist's preferences over the patient's needs"
+                ],
+                correct: 1,
+                explanation: "<strong>Patient-centered care is respectful and responsive</strong>, aligned with patient preferences and involving <strong>shared decision-making, clear communication, and cultural competence</strong>. It honors patient values while providing professional guidance."
+            },
+            {
+                question: "Which of the following is an element of patient-centered communication?",
+                answers: [
+                    "Interrupting patients to provide information quickly",
+                    "Active listening, using plain language, and encouraging patient questions",
+                    "Using complex dental terminology to demonstrate expertise",
+                    "Discouraging patients from asking about their treatment"
+                ],
+                correct: 1,
+                explanation: "<strong>Active listening, plain language, and encouraging questions</strong> are core elements of patient-centered communication. These practices build trust, ensure understanding, and support shared decision-making."
+            },
+            {
+                question: "What does 'cultural competence' mean in the context of dental care?",
+                answers: [
+                    "Treating all cultures exactly the same without any adaptation",
+                    "Understanding diverse values and backgrounds, avoiding stereotypes, and adapting care approaches when necessary",
+                    "Only accepting patients from specific cultural backgrounds",
+                    "Assuming all patients have the same health beliefs and practices"
+                ],
+                correct: 1,
+                explanation: "<strong>Cultural competence means understanding diverse values and backgrounds</strong>, avoiding stereotypes, and <strong>adapting care approaches when necessary</strong>. It recognizes that patients have different health beliefs and communication needs."
+            },
+            {
+                question: "When should interpreters or translated materials be used in dental practice?",
+                answers: [
+                    "Never, as it slows down the appointment",
+                    "Only for patients who speak languages the dentist personally knows",
+                    "When needed to ensure effective communication and understanding with patients of different languages",
+                    "Only when required by law, not as a matter of practice"
+                ],
+                correct: 2,
+                explanation: "<strong>Interpreters and translated materials should be used to ensure effective communication</strong> and understanding with patients of different languages. This is part of culturally competent, patient-centered care."
+            },
+            {
+                question: "What must be included in the informed consent process?",
+                answers: [
+                    "Only the diagnosis, without discussing risks or benefits",
+                    "Diagnosis, treatment options, risks/benefits, ensuring understanding and voluntary agreement, with appropriate documentation",
+                    "Written consent signatures without any verbal explanation",
+                    "Information about treatment cost only, not clinical details"
+                ],
+                correct: 1,
+                explanation: "Informed consent requires <strong>explaining diagnosis, treatment options, risks and benefits, ensuring patient understanding, obtaining voluntary agreement, and documenting appropriately</strong>. This supports veracity and patient autonomy."
+            },
+            {
+                question: "What does HIPAA (Health Insurance Portability and Accountability Act) require regarding patient information?",
+                answers: [
+                    "Patient health information can be shared freely with anyone who asks",
+                    "Protection of PHI (Patient Health Information), sharing only with authorized personnel, and securing digital/physical records",
+                    "HIPAA only applies to hospitals, not dental practices",
+                    "Patient information must be public for quality assurance purposes"
+                ],
+                correct: 1,
+                explanation: "<strong>HIPAA requires protection of PHI (Patient Health Information)</strong>, with sharing limited to authorized personnel and <strong>digital/physical records kept secure</strong>. This applies to all healthcare providers, including dental practices."
+            },
+            {
+                question: "In the case of a patient refusing local anesthetic for a filling, which two ethical principles are primarily in conflict?",
+                answers: [
+                    "Beneficence and justice",
+                    "Veracity and confidentiality",
+                    "Autonomy and beneficence",
+                    "Non-maleficence and veracity"
+                ],
+                correct: 2,
+                explanation: "<strong>Autonomy (patient's right to refuse)</strong> conflicts with <strong>beneficence (promoting patient welfare by managing pain)</strong>. The ADA Code states dentists must respect patient autonomy while ensuring care doesn't cause unreasonable harm."
+            },
+            {
+                question: "How would you balance the principles involved if a patient refuses local anesthetic but needs a cavity filled?",
+                answers: [
+                    "Refuse to treat the patient",
+                    "Proceed with treatment without anesthetic to respect autonomy, regardless of potential harm",
+                    "Respect the patient's autonomy while exploring alternatives, and ensuring they understand the implications of this choice",
+                    "Use anesthetic without the patient's consent for their own good"
+                ],
+                correct: 2
+            },
+            {
+                question: "In the case of a patient requesting Percocet 10 after extraction of a mobile tooth, what is the primary ethical concern?",
+                answers: [
+                    "The patient cannot afford Percocet",
+                    "Prescribing a much more powerful opioid than needed could harm the patient and enable drug dependence",
+                    "Percocet is not effective for dental pain",
+                    "The patient will not take the medication as prescribed"
+                ],
+                correct: 1,
+                explanation: "According to the ADA Code of Ethics, dentists have an <strong>ethical obligation to avoid becoming an enabler</strong>. Prescribing <strong>much more powerful medication than needed</strong> risks patient harm and dependence, violating both <strong>non-maleficence and beneficence</strong>."
+            },
+            {
+                question: "Which ethical principles guide the decision NOT to over-prescribe opioids for dental pain?",
+                answers: [
+                    "Only veracity applies to prescribing decisions",
+                    "Non-maleficence (avoiding harm) and beneficence (promoting appropriate pain management) balance pain control with patient safety",
+                    "Justice is the only relevant principle in prescribing decisions",
+                    "Autonomy means the patient can demand any medication they request"
+                ],
+                correct: 1,
+                explanation: "<strong>Non-maleficence (do no harm)</strong> prevents over-prescribing, while <strong>beneficence (promote good)</strong> ensures adequate pain management. Together they balance patient comfort with safety, preventing harm from excessive opioid exposure."
+            },
+            {
+                question: "What are signs of unprofessional conduct in dentistry?",
+                answers: [
+                    "Continuing education and professional mentorship",
+                    "Ignoring patient preferences, failing to follow safety protocols, incomplete charting, and gossiping or disrespectful talk",
+                    "Taking detailed patient histories and maintaining confidentiality",
+                    "Referring patients to specialists when necessary"
+                ],
+                correct: 1,
+                explanation: "<strong>Unprofessional conduct includes ignoring patient preferences, failing safety protocols, incomplete charting, and gossiping</strong>. These violate the core principles of respect, accountability, competence, and integrity."
+            },
+            {
+                question: "How can dentists promote their own professional growth?",
+                answers: [
+                    "By avoiding feedback and staying with current knowledge",
+                    "Through feedback and reflection, mentorship, continuing education, and involvement in professional organizations",
+                    "Only through financial success",
+                    "By limiting interactions with other professionals"
+                ],
+                correct: 1,
+                explanation: "<strong>Professional growth comes through feedback, reflection, mentorship, continuing education, and involvement with organizations like the ADA</strong>. Professionalism requires lifelong learning and commitment to self-improvement."
+            },
+            {
+                question: "What is the role of professional organizations like the ADA in dental practice?",
+                answers: [
+                    "To maximize profit for member dentists",
+                    "To provide professional standards, ethical guidelines, continuing education, and advocacy for the profession and public health",
+                    "To regulate government dental policy",
+                    "To replace individual dentist responsibility"
+                ],
+                correct: 1,
+                explanation: "Professional organizations like the ADA establish <strong>standards, ethics codes, and provide continuing education</strong>. They advocate for profession development and public health, helping maintain professional integrity."
+            },
+            {
+                question: "How do ethics and professionalism together protect the public in dentistry?",
+                answers: [
+                    "They ensure dentists can charge any price they want",
+                    "They establish standards of competence, integrity, and accountability that ensure patients receive trustworthy, safe, and ethical care",
+                    "They eliminate the need for licensing and regulation",
+                    "They allow dentists to operate without oversight"
+                ],
+                correct: 1,
+                explanation: "<strong>Ethics and professionalism establish standards of competence, integrity, and accountability</strong>. These ensure patients receive <strong>trustworthy, safe, ethical care</strong> and build confidence in the dental profession."
+            },
+            {
+                question: "What is the overarching purpose of studying dental ethics and professionalism?",
+                answers: [
+                    "To help dentists avoid legal liability only",
+                    "To understand how ethics and professionalism protect patients, elevate the profession, and guide decision-making in complex clinical situations",
+                    "To minimize time spent with patients",
+                    "To maximize profit margins in dental practice"
+                ],
+                correct: 1,
+                explanation: "Studying dental ethics and professionalism prepares dentists to <strong>protect patients, elevate the profession, and navigate complex ethical dilemmas</strong>. It builds the foundational knowledge needed for trustworthy, patient-centered dental practice."
+            }
+        ];
+
+        // ============================================================================
+        // STATE MANAGEMENT
+        // ============================================================================
+
+        let currentMode = 'ordered';
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let questionsOrdered = [];
+        let questionsShuffled = [];
+        let questions = [];
+        let retryQueue = [];
+        let answered = false;
+
+        // ============================================================================
+        // SHUFFLE ALGORITHMS
+        // ============================================================================
+
+        function shuffleQuestions(array) {
+            return array.map(q => {
+                const shuffledAnswers = [...q.answers];
+                let correctIndex = q.correct;
+
+                // Fisher-Yates shuffle
+                for (let i = shuffledAnswers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
+
+                    // Track where correct answer ended up
+                    if (correctIndex === i) correctIndex = j;
+                    else if (correctIndex === j) correctIndex = i;
+                }
+
+                return {
+                    ...q,
+                    answers: shuffledAnswers,
+                    correct: correctIndex
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        function initializeQuiz() {
+            questionsOrdered = shuffleQuestions(questionsBase);
+            questionsShuffled = shuffleArray(questionsOrdered);
+            questions = [...questionsOrdered];
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = false;
+            displayQuestion();
+        }
+
+        // ============================================================================
+        // MODE SWITCHING
+        // ============================================================================
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeLabel').textContent = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeLabel').textContent = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        // ============================================================================
+        // DISPLAY & INTERACTION
+        // ============================================================================
+
+        function displayQuestion() {
+            if (currentIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const q = questions[currentIndex];
+            document.getElementById('questionText').textContent = q.question;
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = String.fromCharCode(65 + index) + '. ' + answer;
+                btn.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(btn);
+            });
+
+            updateProgress();
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            answered = false;
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const feedback = document.getElementById('feedback');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            let feedbackHTML = '';
+            if (index === q.correct) {
+                buttons[index].classList.add('correct');
+                feedbackHTML = '✓ Correct!';
+                feedback.classList.add('show', 'correct');
+                correctCount++;
+            } else {
+                buttons[index].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackHTML = '✗ Incorrect';
+                feedback.classList.add('show', 'incorrect');
+                incorrectCount++;
+                retryQueue.push(q);
+            }
+
+            // Add explanation
+            if (q.explanation) {
+                feedbackHTML += `<div class="explanation">${q.explanation}</div>`;
+            }
+
+            feedback.innerHTML = feedbackHTML;
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+
+            if (currentIndex >= questions.length && retryQueue.length > 0) {
+                questions = [...shuffleQuestions(retryQueue), ...questions.slice(currentIndex)];
+                currentIndex = 0;
+                retryQueue = [];
+            }
+
+            displayQuestion();
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentage').textContent = pct + '%';
+        }
+
+        function updateProgress() {
+            const totalQuestions = questionsBase.length;
+            const progress = ((currentIndex) / totalQuestions) * 100;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${totalQuestions}`;
+        }
+
+        function showResults() {
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalTotal').textContent = total;
+
+            let message = '📖 Review more';
+            if (percentage === 100) message = '🌟 Perfect!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+
+            document.getElementById('resultsMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            document.getElementById('resultsScreen').classList.remove('show');
+            document.getElementById('quizContainer').style.display = 'block';
+            initializeQuiz();
+        }
+
+        // ============================================================================
+        // KEYBOARD CONTROLS
+        // ============================================================================
+
+        document.addEventListener('keydown', (e) => {
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 4) {
+                if (!answered) {
+                    selectAnswer(key - 1);
+                    e.preventDefault();
+                } else {
+                    nextQuestion();
+                    e.preventDefault();
+                }
+            } else if (key >= 0) {
+                if (answered) {
+                    nextQuestion();
+                    e.preventDefault();
+                } else if (document.getElementById('resultsScreen').classList.contains('show')) {
+                    resetQuiz();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // ============================================================================
+        // START THE QUIZ
+        // ============================================================================
+
+        initializeQuiz();
+    </script>
+</body>
+</html>
