@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 5: Evidence-Based Decision Making in Dentistry</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .mode-label {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .question-container {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 1em;
+            position: relative;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .score-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .results-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            color: #333;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .results-details {
+            font-size: 1.1em;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .explanation strong {
+            color: #667eea;
+        }
+
+        .keyboard-hint {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.05em;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .score-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Unit 5: Evidence-Based Decision Making</h1>
+            <p>Comprehensive Learning Deck for Midterm Preparation</p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('ordered')">📖 Learning Mode</button>
+            <button class="mode-btn" onclick="setMode('shuffled')">🔀 Testing Mode</button>
+        </div>
+
+        <div class="mode-label" id="modeLabel">📖 LEARNING MODE: Questions in original order (content builds logically)</div>
+
+        <div class="card" id="mainCard">
+            <div class="progress-container">
+                <div class="progress-text" id="progressText">Question 1 of 58</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-label">✓ Correct</div>
+                    <div class="score-value" id="correctCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">✗ Incorrect</div>
+                    <div class="score-value" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Percentage</div>
+                    <div class="score-value" id="percentage">0%</div>
+                </div>
+            </div>
+
+            <div id="quizContainer">
+                <div class="question-container">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="answers" id="answersContainer"></div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="keyboard-hint">💡 Press 1, 2, 3, or 4 to select | Press any key to continue</div>
+                </div>
+            </div>
+
+            <div class="results-screen" id="resultsScreen">
+                <h2>Quiz Complete!</h2>
+                <div class="final-score" id="finalScore">0%</div>
+                <div class="results-message" id="resultsMessage">Great effort!</div>
+                <div class="results-details">
+                    <p>You got <span id="finalCorrect">0</span> out of <span id="finalTotal">0</span> questions correct</p>
+                </div>
+                <button class="restart-btn" onclick="resetQuiz()">🔄 Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // QUESTIONS DATABASE - COMPREHENSIVE UNIT 5 CONTENT
+        // ============================================================================
+
+        const questionsBase = [
+            {
+                question: "What is the difference between anecdotal and evidence-based decision making?",
+                answers: [
+                    "They are the same thing",
+                    "Anecdotal is based on personal experience; evidence-based integrates research evidence with clinical expertise and patient values",
+                    "Anecdotal is better for clinical outcomes",
+                    "Evidence-based decision making is outdated"
+                ],
+                correct: 1,
+                explanation: "<strong>Anecdotal decision making is based on personal experiences or stories</strong>. <strong>Evidence-based decision making integrates the best research evidence with clinical expertise and patient values</strong>."
+            },
+            {
+                question: "How has decision-making in dentistry evolved?",
+                answers: [
+                    "It has not changed since the past",
+                    "From past methods with limitations to current clinical investigations supporting clinical decision making",
+                    "It has become less scientific",
+                    "Personal opinions are now more important"
+                ],
+                correct: 1,
+                explanation: "<strong>Past methods for decision making had limitations</strong>. <strong>Current practice emphasizes clinical investigations to support clinical decision making</strong>, with focus on health promotion and disease prevention."
+            },
+            {
+                question: "What defines evidence-based decision making (EBD)?",
+                answers: [
+                    "Only following textbook recommendations",
+                    "The integration of best research evidence with clinical expertise and patient values",
+                    "Only considering what is easiest for the dentist",
+                    "Ignoring patient preferences"
+                ],
+                correct: 1,
+                explanation: "<strong>EBD is defined as the integration of best research evidence with clinical expertise and patient values</strong>. According to David Sackett, it means 'integrating individual clinical expertise with the best available external clinical evidence from systematic research.'"
+            },
+            {
+                question: "What characteristics make evidence 'high quality' in EBD?",
+                answers: [
+                    "Any published study",
+                    "Tried, tested, proven worthy, accurate, substantiated, and supported by reproducible studies (controlled, blinded, prospective longitudinal studies)",
+                    "Personal testimonials",
+                    "Only opinions from well-known dentists"
+                ],
+                correct: 1,
+                explanation: "<strong>High-quality evidence is tried, tested, proven worthy, accurate, substantiated, and supported by reproducible studies</strong>, particularly controlled, blinded, prospective longitudinal studies."
+            },
+            {
+                question: "What is a Systematic Review in EBD?",
+                answers: [
+                    "A review of one dentist's personal experiences",
+                    "A review that assesses the quality of research according to pre-determined criteria",
+                    "A marketing review for dental products",
+                    "An opinion-based assessment"
+                ],
+                correct: 1,
+                explanation: "<strong>A Systematic Review assesses the quality of research according to pre-determined criteria</strong>. Resources like the Cochrane Library (free to ADA members) provide systematic reviews."
+            },
+            {
+                question: "What resources are recommended for finding evidence-based research in dentistry?",
+                answers: [
+                    "Only textbooks from dental school",
+                    "PubMed, Ovid, Google Scholar, Medline, and Cochrane Library",
+                    "Only opinions from colleagues",
+                    "Personal anecdotes"
+                ],
+                correct: 1,
+                explanation: "<strong>Recommended search engines for EBD research include: PubMed, Ovid, Google Scholar, Medline, and Cochrane Library</strong> (which is free to ADA members)."
+            },
+            {
+                question: "What is risk assessment in dental treatment planning?",
+                answers: [
+                    "All patients have equal risk",
+                    "The process of determining individual patient risk based on heredity, environment, habits, diet, systemic health, medications, and behaviors",
+                    "Only considering the dentist's comfort level",
+                    "Ignoring patient factors"
+                ],
+                correct: 1,
+                explanation: "<strong>Risk assessment determines that not all patients have equal risk</strong>. It considers heredity, environment, habits, diet, systemic health, medications, and behaviors to individualize treatment planning."
+            },
+            {
+                question: "What is a risk indicator?",
+                answers: [
+                    "A proven cause of disease",
+                    "Conditions associated with a higher probability of disease occurrence",
+                    "Something that is irrelevant to disease",
+                    "Only age-related factors"
+                ],
+                correct: 1,
+                explanation: "<strong>A risk indicator refers to conditions associated with a higher probability of the occurrence of disease</strong>. Risk indicators are linked to disease but do not necessarily have a causal relationship."
+            },
+            {
+                question: "What is the difference between a risk indicator and a risk factor?",
+                answers: [
+                    "They are the same",
+                    "A risk indicator is associated with disease; a risk factor has a demonstrable causal biologic link between the factor and the disease",
+                    "Risk factors are not important",
+                    "Only risk indicators matter"
+                ],
+                correct: 1,
+                explanation: "<strong>A risk indicator has an association with disease, while a risk factor has a demonstrable causal biologic link</strong>. Risk factors are best confirmed by longitudinal studies."
+            },
+            {
+                question: "What is an example of how risk indicators and risk factors differ?",
+                answers: [
+                    "Age causes caries; refined sugars do not",
+                    "Age is not the cause of caries but is associated with higher risk; refined sugars have a causal link to caries",
+                    "They are always the same",
+                    "Age has a causal link to caries"
+                ],
+                correct: 1,
+                explanation: "<strong>Age is a risk indicator (not the cause) for higher caries risk in adolescents and elderly</strong>. <strong>Diet with refined sugars is a risk factor (has causal link) to dental caries</strong>."
+            },
+            {
+                question: "What is the relationship between risk and benefits in medical decision making?",
+                answers: [
+                    "Only benefits matter",
+                    "Medicine is about weighing RISK vs. BENEFITS—they are linked but not the same",
+                    "Risks should be ignored",
+                    "Risk and benefits are unrelated"
+                ],
+                correct: 1,
+                explanation: "<strong>Medicine is fundamentally about RISK vs. BENEFITS</strong>. While linked, they are not the same, and treatment planning must weigh both carefully."
+            },
+            {
+                question: "What are mutable risk factors in dental disease?",
+                answers: [
+                    "Factors that cannot be changed",
+                    "Factors that CAN be changed by the patient or dentist (diet, oral hygiene, smoking, poorly contoured restorations)",
+                    "Only genetic factors",
+                    "Age-related factors only"
+                ],
+                correct: 1,
+                explanation: "<strong>Mutable risk factors are those that CAN be changed, including: diet, oral hygiene, smoking, and poorly contoured restorations</strong>. These are targets for intervention."
+            },
+            {
+                question: "What are immutable risk factors in dental disease?",
+                answers: [
+                    "Factors that can be easily changed",
+                    "Factors that CANNOT be changed (age, socioeconomic status, fluoride history)",
+                    "Only behavioral factors",
+                    "Factors that are irrelevant"
+                ],
+                correct: 1,
+                explanation: "<strong>Immutable risk factors are those that CANNOT be changed, including: age, socioeconomic status, and fluoride history</strong>. Understanding these helps tailor prevention strategies."
+            },
+            {
+                question: "How can dentists help patients with heritable conditions?",
+                answers: [
+                    "They cannot do anything",
+                    "Advise genetic counseling, provide patient education, monitor for early recognition, and institute early interventions",
+                    "Ignore the genetic component",
+                    "Only treat symptoms"
+                ],
+                correct: 1,
+                explanation: "<strong>Dentists can advise genetic counseling, provide patient education, have a role in disease prevention, monitor for early recognition, and institute early interventions</strong> for heritable conditions like juvenile periodontitis."
+            },
+            {
+                question: "How is diabetes a risk indicator for oral problems?",
+                answers: [
+                    "It has no relationship to oral health",
+                    "It is associated with oral ulceration, stomatitis, poor wound healing, and periodontitis",
+                    "It only affects teeth color",
+                    "It protects against caries"
+                ],
+                correct: 1,
+                explanation: "<strong>Diabetes serves as a risk indicator for oral ulceration, stomatitis, poor wound healing, and periodontitis</strong>. These relationships should influence treatment planning."
+            },
+            {
+                question: "What systemic conditions should be considered as risk indicators for dental problems?",
+                answers: [
+                    "Only conditions affecting the teeth directly",
+                    "Diabetes (periodontitis), GERD/Bulimia (dental erosion), periodontal disease (atherosclerotic disease), radiation therapy (xerostomia)",
+                    "No systemic conditions affect oral health",
+                    "Only psychological conditions"
+                ],
+                correct: 1,
+                explanation: "<strong>Multiple systemic conditions are risk indicators for dental problems: Diabetes (periodontitis), GERD/Bulimia (erosion), periodontal disease (vascular disease risk), radiation therapy (xerostomia)</strong>."
+            },
+            {
+                question: "What behavioral risk indicators should dentists assess?",
+                answers: [
+                    "None; behavior does not affect oral health",
+                    "Tobacco, excessive alcohol, cocaine/methamphetamines, frequent cariogenic foods, high acidic diet, abrasive dentifrice",
+                    "Only diet matters",
+                    "Patient age only"
+                ],
+                correct: 1,
+                explanation: "<strong>Important behavioral risk indicators include: tobacco, excessive alcohol, cocaine/methamphetamines, frequent cariogenic foods/beverages, and high acidic diet</strong>."
+            },
+            {
+                question: "What is treatment prognosis?",
+                answers: [
+                    "The patient's ability to pay",
+                    "The estimation of likelihood of favorable outcome, ranked as excellent, good, favorable, unfavorable, or poor",
+                    "The diagnosis of disease",
+                    "The patient's expectations"
+                ],
+                correct: 1,
+                explanation: "<strong>Treatment prognosis is the estimation of the likelihood of a favorable outcome</strong>, classified as excellent, good, favorable, unfavorable, or poor. It can be overall or specific to a tooth or area."
+            },
+            {
+                question: "How does prognosis relate to treatment planning?",
+                answers: [
+                    "It is unrelated",
+                    "Prognosis affects how treatment options are presented to patients and influences treatment selection",
+                    "Only diagnosis matters",
+                    "Prognosis should be hidden from patients"
+                ],
+                correct: 1,
+                explanation: "<strong>Prognosis significantly impacts treatment planning—success rates and prognosis should be presented to patients</strong>, along with how prognosis might alter treatment recommendations."
+            },
+            {
+                question: "What is an outcome in dental treatment?",
+                answers: [
+                    "Only the patient's satisfaction",
+                    "A specific tangible result of treatment",
+                    "Something that cannot be measured",
+                    "The dentist's experience"
+                ],
+                correct: 1,
+                explanation: "<strong>Outcomes are specific tangible results of treatment</strong>. Outcome expectations are linked to risk assessment and prognosis determination."
+            },
+            {
+                question: "What outcomes questions should guide treatment decisions?",
+                answers: [
+                    "None; all treatments are the same",
+                    "When should a defective restoration be replaced? When should a heavily restored tooth be crowned? When should an endodontically treated tooth be re-treated?",
+                    "Only financial outcomes",
+                    "Only patient comfort"
+                ],
+                correct: 1,
+                explanation: "<strong>Treatment decisions should be guided by outcomes questions such as: when should a defective restoration be replaced, when should a heavily restored tooth be crowned, and when should an endodontically treated tooth be re-treated</strong>."
+            },
+            {
+                question: "What are the benefits of research-based treatment planning?",
+                answers: [
+                    "None; it is impractical",
+                    "Improved treatment planning and positive impact on oral health outcomes",
+                    "It slows down practice",
+                    "It eliminates clinical judgment"
+                ],
+                correct: 1,
+                explanation: "<strong>Research-based decisions help improve treatment planning and have a positive impact on oral health outcomes</strong>."
+            },
+            {
+                question: "What should an ideal treatment plan include?",
+                answers: [
+                    "Only the most expensive options",
+                    "A systematic organization of clinical problems and solutions; a framework for presenting options; sufficient information for informed consent",
+                    "Only the dentist's preference",
+                    "No patient input"
+                ],
+                correct: 1,
+                explanation: "<strong>An ideal treatment plan: organizes problems systematically, provides a framework for discussing options, ensures sufficient information transfer for informed consent</strong>."
+            },
+            {
+                question: "What problems existed with traditional treatment planning models?",
+                answers: [
+                    "None; they are perfect",
+                    "Dentists choose what is comfortable for them rather than best for patient; diagnoses may not be explicitly stated; options not presented",
+                    "They are too complex",
+                    "They involve too much patient input"
+                ],
+                correct: 1,
+                explanation: "<strong>Problems with traditional models include: dentists performing treatments comfortable for them vs. best for patient, diagnoses not explicitly stated, options not presented to patients</strong>."
+            },
+            {
+                question: "Why is informed consent critical when there is diagnostic uncertainty?",
+                answers: [
+                    "It is not important when uncertain",
+                    "When diagnosis is uncertain, informed consent becomes crucial to ensure patient understands options and can make autonomous decisions",
+                    "Diagnostic uncertainty removes the need for consent",
+                    "Only certain diagnoses require consent"
+                ],
+                correct: 1,
+                explanation: "<strong>When there is diagnostic uncertainty, informed consent is most crucial</strong>—the patient must fully understand the uncertainty and all available options."
+            },
+            {
+                question: "What factors should be considered in informed consent for treatment options?",
+                answers: [
+                    "Only treatment benefits",
+                    "Complete range of options, prognosis of each, behavioral/financial/logistical modifiers, risks of no treatment, conservative vs. aggressive therapy",
+                    "Only what the dentist prefers",
+                    "Only cost"
+                ],
+                correct: 1,
+                explanation: "<strong>Informed consent should include: complete range of treatment options, viability/prognosis of each option, behavioral/financial/logistical modifiers, risks of 'no treatment,' and conservative vs. aggressive therapy considerations</strong>."
+            },
+            {
+                question: "Why do dentists sometimes disagree on treatment plans?",
+                answers: [
+                    "Disagreement never occurs",
+                    "Due to different material choices, diagnostic interpretations, prognosis uncertainty, risk assessment differences, and varying outcome measures",
+                    "One dentist is always right",
+                    "Only due to financial reasons"
+                ],
+                correct: 1,
+                explanation: "<strong>Professional diversity leads to disagreement in: material preferences, diagnostic interpretations, prognosis uncertainty, risk assessment approaches, outcome measures, and interpretation of patient expectations</strong>."
+            },
+            {
+                question: "How can dentist disagreement in treatment planning be reduced?",
+                answers: [
+                    "It cannot be reduced",
+                    "Through evidence-based decision making, consistent risk assessment, clear prognosis communication, and adherence to standard of care",
+                    "By ignoring evidence",
+                    "By not discussing options"
+                ],
+                correct: 1,
+                explanation: "<strong>Disagreement can be reduced through: evidence-based decision making, consistent risk assessment, clear prognosis communication, and adherence to established standards of care</strong>."
+            },
+            {
+                question: "What is a common treatment dilemma in restorative dentistry?",
+                answers: [
+                    "There are no difficult decisions",
+                    "Extract and place implant vs. RCT, buildup, and crown",
+                    "Only cosmetic considerations matter",
+                    "All extractions are the best choice"
+                ],
+                correct: 1,
+                explanation: "<strong>A common dilemma is: extract and place implant vs. RCT with buildup and crown</strong>. Evidence-based evaluation of prognosis should guide this decision."
+            },
+            {
+                question: "What is another common treatment dilemma in prosthodontics?",
+                answers: [
+                    "There are no difficult decisions",
+                    "Immediate dentures vs. traditional complete dentures or implant-retained prosthetics vs. fixed prosthetics",
+                    "Only cost matters",
+                    "All dentures are the same"
+                ],
+                correct: 1,
+                explanation: "<strong>Common prosthodontic dilemmas include: immediate vs. traditional dentures, amalgam vs. composite vs. gold restorations, and implant-retained vs. fixed prosthetics</strong>."
+            },
+            {
+                question: "What role should risk assessment play in treatment planning?",
+                answers: [
+                    "None; it is unnecessary",
+                    "Risk assessment identifies disease risk and modifiable factors, guiding preventive and treatment strategies",
+                    "Only for high-risk patients",
+                    "It replaces clinical judgment"
+                ],
+                correct: 1,
+                explanation: "<strong>Risk assessment is a useful adjunct to treatment planning—it identifies disease risk, modifiable factors, and outcomes expectations</strong>."
+            },
+            {
+                question: "How should outcomes research support clinical decision making?",
+                answers: [
+                    "It should not influence decisions",
+                    "By providing success rates and prognosis data for different treatment options to guide evidence-based choices",
+                    "Only in research settings",
+                    "It is outdated"
+                ],
+                correct: 1,
+                explanation: "<strong>Outcomes research supports clinical decision making by providing success rates and prognosis data that should be discussed with patients</strong> when presenting treatment options."
+            },
+            {
+                question: "How has the dentist's role evolved in modern practice?",
+                answers: [
+                    "From being the only decision maker to being a treatment facilitator and advocate with the patient as a participant",
+                    "The dentist now makes all decisions alone",
+                    "Patients make all decisions without dentist input",
+                    "The dentist's role has not changed"
+                ],
+                correct: 0,
+                explanation: "<strong>The dentist's role has evolved from being authoritarian to becoming a treatment facilitator and advocate, with patients as active participants in decision-making</strong>."
+            },
+            {
+                question: "What type of care do modern patients often prefer?",
+                answers: [
+                    "Only emergency care",
+                    "Comprehensive, holistic care rather than episodic care",
+                    "No preventive care",
+                    "Only cosmetic care"
+                ],
+                correct: 1,
+                explanation: "<strong>Modern patients often seek comprehensive, holistic dental care rather than episodic (problem-focused) treatment</strong>."
+            },
+            {
+                question: "How should a dentist present evidence-based information about treatment success rates?",
+                answers: [
+                    "Do not discuss success rates",
+                    "Quote literature success rates and prognosis when discussing treatment options with patients",
+                    "Only discuss worst-case outcomes",
+                    "Avoid discussing evidence"
+                ],
+                correct: 1,
+                explanation: "<strong>When presenting treatment options, dentists should discuss the success rates quoted in the literature (EBD) to help patients make informed decisions</strong>."
+            },
+            {
+                question: "What is the relationship between EBD and informed consent?",
+                answers: [
+                    "They are unrelated",
+                    "EBD provides the evidence base for informed consent by giving dentists data on treatment options, prognosis, and outcomes to share with patients",
+                    "Informed consent makes EBD unnecessary",
+                    "Only legal requirements matter"
+                ],
+                correct: 1,
+                explanation: "<strong>EBD directly supports informed consent by providing evidence-based information about treatment options, prognosis, and outcomes that dentists can discuss with patients</strong>."
+            },
+            {
+                question: "Why might a patient's expectation of treatment outcome differ from the evidence-based prognosis?",
+                answers: [
+                    "This never happens",
+                    "Patients might have unrealistic expectations based on personal preferences, financial concerns, or lack of understanding of the evidence",
+                    "Prognosis is always accurate for all patients",
+                    "Patient expectations are always correct"
+                ],
+                correct: 1,
+                explanation: "<strong>Patient expectations might differ from prognosis if they have unrealistic expectations, financial stress, limited knowledge, or personal preferences that override clinical evidence</strong>."
+            },
+            {
+                question: "How should a dentist handle a situation where treatment options have very different prognoses?",
+                answers: [
+                    "Recommend only the best prognosis option without discussion",
+                    "Present all options with their respective prognoses, discuss risks/benefits, and explain how prognosis affects each option",
+                    "Choose based on what is easiest for the dentist",
+                    "Do not discuss prognosis differences"
+                ],
+                correct: 1,
+                explanation: "<strong>When options have different prognoses, the dentist should present each option with its respective prognosis, discuss risks and benefits, and explain how these differences should influence the recommendation</strong>."
+            },
+            {
+                question: "What is the significance of 'caries as the most powerful risk indicator'?",
+                answers: [
+                    "Past caries experience is irrelevant",
+                    "Current and previous caries experience is the single most powerful indicator of future caries risk",
+                    "Only future caries matters",
+                    "Caries are random and unpredictable"
+                ],
+                correct: 1,
+                explanation: "<strong>Current and previous caries experience is the single most powerful indicator of caries risk</strong>—it is the most reliable predictor of future caries."
+            },
+            {
+                question: "What other predictors of future caries should be assessed?",
+                answers: [
+                    "Only age",
+                    "Oral hygiene, plaque control, diet, salivary flow, prosthetics, exposed root surfaces, smoking, and access to care",
+                    "Only diet",
+                    "Only genetics"
+                ],
+                correct: 1,
+                explanation: "<strong>Other predictors of future caries include: oral hygiene, plaque control, diet, salivary flow, presence of prosthetics, exposed root surfaces, smoking, and access to care</strong>."
+            },
+            {
+                question: "How should treatment plans account for patient behavioral factors?",
+                answers: [
+                    "Ignore them completely",
+                    "Consider mutable factors that patients CAN modify and plan interventions accordingly",
+                    "Assume all patients will comply",
+                    "Only consider immutable factors"
+                ],
+                correct: 1,
+                explanation: "<strong>Treatment plans should account for mutable behavioral factors by identifying modifiable risks (diet, hygiene, smoking) and planning interventions and patient education accordingly</strong>."
+            },
+            {
+                question: "What is the role of patient self-image and expectations in treatment planning?",
+                answers: [
+                    "They should be ignored",
+                    "They should be considered when discussing treatment options and evaluating time, comfort, finances, and outcomes",
+                    "They are more important than clinical evidence",
+                    "They should override all clinical judgment"
+                ],
+                correct: 1,
+                explanation: "<strong>Patient self-image and expectations should be considered in treatment planning, alongside clinical evidence, to balance outcomes relative to patient preferences</strong>."
+            },
+            {
+                question: "How can dentists reduce treatment planning disagreement with other practitioners?",
+                answers: [
+                    "By ignoring other opinions",
+                    "Through evidence-based decision making, obtaining second opinions when uncertain, and clearly documenting the evidence for recommendations",
+                    "By refusing consultation",
+                    "Only by agreeing with the first diagnosis"
+                ],
+                correct: 1,
+                explanation: "<strong>Dentists can reduce disagreement by using EBD, obtaining second opinions when uncertain, clearly documenting evidence for recommendations, and adhering to standard of care</strong>."
+            },
+            {
+                question: "What is the key principle behind evidence-based dentistry?",
+                answers: [
+                    "Always follow tradition",
+                    "Integrate best research evidence with clinical expertise and patient values to make optimal treatment decisions",
+                    "Only follow patient preferences",
+                    "Ignore research findings"
+                ],
+                correct: 1,
+                explanation: "<strong>The key principle of EBD is integrating the best research evidence with clinical expertise and patient values</strong>—balancing all three for optimal outcomes."
+            },
+            {
+                question: "Why is professional competence important in EBD?",
+                answers: [
+                    "It is not important",
+                    "Clinical expertise, combined with evidence and patient values, ensures appropriate application of research to individual patient situations",
+                    "Evidence is sufficient without clinical expertise",
+                    "Only patient preferences matter"
+                ],
+                correct: 1,
+                explanation: "<strong>Professional competence and clinical expertise are crucial in EBD because evidence must be appropriately applied to individual patient situations based on clinical judgment</strong>."
+            },
+            {
+                question: "What is the ultimate goal of EBD in dental practice?",
+                answers: [
+                    "To make dentistry easier",
+                    "To improve patient outcomes through informed decision making based on best available evidence, clinical expertise, and patient preferences",
+                    "To reduce treatment options",
+                    "To eliminate clinical judgment"
+                ],
+                correct: 1,
+                explanation: "<strong>The ultimate goal of EBD is to improve patient outcomes by making treatment decisions based on the best available evidence, clinical expertise, and patient values</strong>."
+            }
+        ];
+
+        // ============================================================================
+        // STATE MANAGEMENT
+        // ============================================================================
+
+        let currentMode = 'ordered';
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let questionsOrdered = [];
+        let questionsShuffled = [];
+        let questions = [];
+        let retryQueue = [];
+        let answered = false;
+
+        // ============================================================================
+        // SHUFFLE ALGORITHMS
+        // ============================================================================
+
+        function shuffleQuestions(array) {
+            return array.map(q => {
+                const shuffledAnswers = [...q.answers];
+                let correctIndex = q.correct;
+
+                for (let i = shuffledAnswers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
+
+                    if (correctIndex === i) correctIndex = j;
+                    else if (correctIndex === j) correctIndex = i;
+                }
+
+                return {
+                    ...q,
+                    answers: shuffledAnswers,
+                    correct: correctIndex
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        function initializeQuiz() {
+            questionsOrdered = shuffleQuestions(questionsBase);
+            questionsShuffled = shuffleArray(questionsOrdered);
+            questions = [...questionsOrdered];
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = false;
+            displayQuestion();
+        }
+
+        // ============================================================================
+        // MODE SWITCHING
+        // ============================================================================
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeLabel').textContent = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeLabel').textContent = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        // ============================================================================
+        // DISPLAY & INTERACTION
+        // ============================================================================
+
+        function displayQuestion() {
+            if (currentIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const q = questions[currentIndex];
+            document.getElementById('questionText').textContent = q.question;
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = String.fromCharCode(65 + index) + '. ' + answer;
+                btn.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(btn);
+            });
+
+            updateProgress();
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            answered = false;
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const feedback = document.getElementById('feedback');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            let feedbackHTML = '';
+            if (index === q.correct) {
+                buttons[index].classList.add('correct');
+                feedbackHTML = '✓ Correct!';
+                feedback.classList.add('show', 'correct');
+                correctCount++;
+            } else {
+                buttons[index].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackHTML = '✗ Incorrect';
+                feedback.classList.add('show', 'incorrect');
+                incorrectCount++;
+                retryQueue.push(q);
+            }
+
+            if (q.explanation) {
+                feedbackHTML += `<div class="explanation">${q.explanation}</div>`;
+            }
+
+            feedback.innerHTML = feedbackHTML;
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+
+            if (currentIndex >= questions.length && retryQueue.length > 0) {
+                questions = [...shuffleQuestions(retryQueue), ...questions.slice(currentIndex)];
+                currentIndex = 0;
+                retryQueue = [];
+            }
+
+            displayQuestion();
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentage').textContent = pct + '%';
+        }
+
+        function updateProgress() {
+            const totalQuestions = questionsBase.length;
+            const progress = ((currentIndex) / totalQuestions) * 100;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${totalQuestions}`;
+        }
+
+        function showResults() {
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalTotal').textContent = total;
+
+            let message = '📖 Review more';
+            if (percentage === 100) message = '🌟 Perfect!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+
+            document.getElementById('resultsMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            document.getElementById('resultsScreen').classList.remove('show');
+            document.getElementById('quizContainer').style.display = 'block';
+            initializeQuiz();
+        }
+
+        // ============================================================================
+        // KEYBOARD CONTROLS
+        // ============================================================================
+
+        document.addEventListener('keydown', (e) => {
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 4) {
+                if (!answered) {
+                    selectAnswer(key - 1);
+                    e.preventDefault();
+                } else {
+                    nextQuestion();
+                    e.preventDefault();
+                }
+            } else if (key >= 0) {
+                if (answered) {
+                    nextQuestion();
+                    e.preventDefault();
+                } else if (document.getElementById('resultsScreen').classList.contains('show')) {
+                    resetQuiz();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // ============================================================================
+        // START THE QUIZ
+        // ============================================================================
+
+        initializeQuiz();
+    </script>
+</body>
+</html>
