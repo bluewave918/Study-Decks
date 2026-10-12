@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: Caries & Radiography</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .mode-label {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .question-container {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .image-container {
+            margin: 20px 0;
+            text-align: center;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .image-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 1em;
+            position: relative;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .score-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .results-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            color: #333;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .results-details {
+            font-size: 1.1em;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .explanation strong {
+            color: #667eea;
+        }
+
+        .keyboard-hint {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.05em;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .score-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .image-container img {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦷 Unit 3: Caries & Radiography</h1>
+            <p>Comprehensive Learning Deck with Visual Identification</p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('ordered')">📖 Learning Mode</button>
+            <button class="mode-btn" onclick="setMode('shuffled')">🔀 Testing Mode</button>
+        </div>
+
+        <div class="mode-label" id="modeLabel">📖 LEARNING MODE: Questions in original order (content builds logically)</div>
+
+        <div class="card" id="mainCard">
+            <div class="progress-container">
+                <div class="progress-text" id="progressText">Question 1 of 62</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-label">✓ Correct</div>
+                    <div class="score-value" id="correctCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">✗ Incorrect</div>
+                    <div class="score-value" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Percentage</div>
+                    <div class="score-value" id="percentage">0%</div>
+                </div>
+            </div>
+
+            <div id="quizContainer">
+                <div class="question-container">
+                    <div class="question-text" id="questionText"></div>
+                    <div id="imageContainer"></div>
+                    <div class="answers" id="answersContainer"></div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="keyboard-hint">💡 Press 1, 2, 3, or 4 to select | Press any key to continue</div>
+                </div>
+            </div>
+
+            <div class="results-screen" id="resultsScreen">
+                <h2>Quiz Complete!</h2>
+                <div class="final-score" id="finalScore">0%</div>
+                <div class="results-message" id="resultsMessage">Great effort!</div>
+                <div class="results-details">
+                    <p>You got <span id="finalCorrect">0</span> out of <span id="finalTotal">0</span> questions correct</p>
+                </div>
+                <button class="restart-btn" onclick="resetQuiz()">🔄 Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // QUESTIONS DATABASE - COMPREHENSIVE UNIT 3 CONTENT
+        // ============================================================================
+
+        const questionsBase = [
+            {
+                question: "What is dental caries?",
+                answers: [
+                    "Just a cavity that needs to be filled",
+                    "A disease process that is biofilm-induced, sugar-driven, and pH-mediated",
+                    "A cosmetic issue affecting tooth appearance",
+                    "A genetic condition that cannot be prevented"
+                ],
+                correct: 1,
+                explanation: "<strong>Dental caries is a disease process, not just a cavity</strong>. It is <strong>biofilm-induced, sugar-driven, and pH-mediated</strong>, and it affects enamel, dentin, pulp, and tissues over time."
+            },
+            {
+                question: "Which bacteria are key players in the caries process?",
+                answers: [
+                    "Actinomyces and Prevotella",
+                    "Streptococcus mutans and Lactobacillus",
+                    "Staphylococcus aureus and E. coli",
+                    "Candida albicans and Clostridium"
+                ],
+                correct: 1,
+                explanation: "<strong>Streptococcus mutans and Lactobacillus are the key bacterial players</strong> in the caries process. They produce acid from fermentable carbohydrates, leading to demineralization."
+            },
+            {
+                question: "What pH triggers demineralization of tooth structure?",
+                answers: [
+                    "pH 7.0 (neutral)",
+                    "pH 6.5",
+                    "pH < 5.5 (below 5.5)",
+                    "pH 8.0 (alkaline)"
+                ],
+                correct: 2,
+                explanation: "<strong>A pH below 5.5 triggers demineralization</strong>, where acids produced by bacteria dissolve minerals in tooth structure. This is the critical pH for caries initiation."
+            },
+            {
+                question: "What substances help promote remineralization of tooth structure?",
+                answers: [
+                    "Only acids and sugars",
+                    "Calcium, phosphate, and fluoride",
+                    "Proteins and carbohydrates only",
+                    "Bacteria and plaque"
+                ],
+                correct: 1,
+                explanation: "<strong>Calcium, phosphate, and fluoride help rebuild tooth minerals</strong> during the remineralization process. Saliva is also crucial, as it provides these protective minerals."
+            },
+            {
+                question: "What is the caries etiology triad?",
+                answers: [
+                    "Enamel, dentin, and pulp",
+                    "Host (tooth morphology/saliva), Diet (sugars), and Bacteria (biofilm)",
+                    "Fluoride, sealants, and hygiene",
+                    "Acid, bacteria, and saliva"
+                ],
+                correct: 1,
+                explanation: "<strong>The caries etiology triad consists of: Host (tooth morphology, saliva quality, enamel quality), Diet (sugars and fermentable carbs), and Bacteria (plaque/biofilm formation)</strong>. All three must be present for caries to develop."
+            },
+            {
+                question: "Which of the following is a RISK factor for caries?",
+                answers: [
+                    "High saliva flow",
+                    "Daily fluoride use",
+                    "Poor oral hygiene and frequent snacking on sugary foods",
+                    "Regular use of dental sealants"
+                ],
+                correct: 2,
+                explanation: "<strong>Risk factors include poor hygiene, high sugar intake, dry mouth (low saliva), and frequent snacking</strong>. These factors increase caries susceptibility."
+            },
+            {
+                question: "Which of the following is a PROTECTIVE factor against caries?",
+                answers: [
+                    "Frequent snacking between meals",
+                    "Low saliva flow",
+                    "Fluoride exposure and adequate saliva flow",
+                    "High carbohydrate diet"
+                ],
+                correct: 2,
+                explanation: "<strong>Protective factors include fluoride (topical and systemic), adequate saliva, sealants, proper oral hygiene, and dietary counseling</strong>. These reduce caries risk."
+            },
+            {
+                question: "What does CRA stand for?",
+                answers: [
+                    "Cavity Risk Assessment",
+                    "Caries Risk Assessment",
+                    "Caries Restoration Analysis",
+                    "Cavity Remediation Approach"
+                ],
+                correct: 1,
+                explanation: "<strong>CRA stands for Caries Risk Assessment</strong>, which categorizes patients as high, moderate, or low risk based on habits, diet, and medical history."
+            },
+            {
+                question: "What does CAMBRA stand for?",
+                answers: [
+                    "Cavity Management by Risk Avoidance",
+                    "Caries Management by Risk Assessment",
+                    "Cavity and Biofilm Management Protocol",
+                    "Caries Assessment and Management by Bacteria Risk"
+                ],
+                correct: 1,
+                explanation: "<strong>CAMBRA stands for Caries Management by Risk Assessment</strong>. It is a modern, evidence-based approach emphasizing personalized, prevention-focused care rather than just treating cavities."
+            },
+            {
+                question: "What is a pit and fissure carious lesion?",
+                answers: [
+                    "Caries on smooth tooth surfaces",
+                    "Caries between teeth",
+                    "Caries in the pits and fissures of occlusal surfaces, typically on molars",
+                    "Caries on exposed root surfaces"
+                ],
+                correct: 2,
+                explanation: "<strong>Pit and fissure caries occur on occlusal (chewing) surfaces, particularly on molars</strong>. These areas are prone to caries because food and bacteria become trapped."
+            },
+            {
+                question: "What is smooth surface caries?",
+                answers: [
+                    "Caries on occlusal surfaces only",
+                    "Caries between teeth",
+                    "Caries on buccal (cheek-side) or lingual (tongue-side) surfaces",
+                    "Caries on root surfaces"
+                ],
+                correct: 2,
+                explanation: "<strong>Smooth surface caries occur on buccal or lingual surfaces of teeth</strong>. These are easier to detect and prevent than interproximal or root caries."
+            },
+            {
+                question: "What is root caries?",
+                answers: [
+                    "Caries on chewing surfaces",
+                    "Caries between teeth",
+                    "Caries on exposed root surfaces due to gum recession",
+                    "Caries under existing restorations"
+                ],
+                correct: 2,
+                explanation: "<strong>Root caries occur on exposed root surfaces</strong>, typically due to gum recession. Root surfaces lack protective enamel and are more susceptible to decay."
+            },
+            {
+                question: "What is interproximal caries?",
+                answers: [
+                    "Caries on occlusal surfaces",
+                    "Caries between teeth in contact areas",
+                    "Caries on buccal surfaces",
+                    "Caries on root surfaces"
+                ],
+                correct: 1,
+                explanation: "<strong>Interproximal caries occur between teeth in contact areas</strong>. These are difficult to detect visually and are often found on radiographs."
+            },
+            {
+                question: "What is the first visible stage of caries progression?",
+                answers: [
+                    "Enamel breakdown",
+                    "Dentin involvement",
+                    "White spot lesion (non-cavitated)",
+                    "Pulp exposure"
+                ],
+                correct: 2,
+                explanation: "<strong>The white spot lesion (non-cavitated) is the first visible stage of caries</strong>. It represents demineralization and is still reversible with proper intervention."
+            },
+            {
+                question: "How are carious lesions detected and diagnosed?",
+                answers: [
+                    "Visual exam only",
+                    "Radiographs only",
+                    "Visual/tactile exam and radiographic evidence—early detection allows early intervention",
+                    "Taste and smell"
+                ],
+                correct: 2,
+                explanation: "<strong>Caries are diagnosed through visual and tactile examination combined with radiographic evidence</strong>. Early detection allows for conservative, preventive treatment."
+            },
+            {
+                question: "What is a primary caries prevention strategy?",
+                answers: [
+                    "Extracting all teeth to prevent decay",
+                    "Using only antibiotics",
+                    "Topical and systemic fluoride, sealants, oral hygiene education, and dietary modifications",
+                    "Avoiding all dental care"
+                ],
+                correct: 2,
+                explanation: "<strong>Caries prevention includes topical and systemic fluoride, sealants on pits/fissures, oral hygiene education, diet modifications, and antimicrobial agents</strong>."
+            },
+            {
+                question: "Why are dental radiographs important?",
+                answers: [
+                    "Only for cosmetic purposes",
+                    "Detecting caries, bone loss, pathology, assessing trauma/root position, treatment planning, and monitoring growth",
+                    "Only to scare patients",
+                    "They are not important in modern dentistry"
+                ],
+                correct: 1,
+                explanation: "<strong>Radiographs are essential for detecting caries, bone loss, pathology, assessing trauma or root position, treatment planning (endo, implants, ortho), and monitoring growth and development</strong>."
+            },
+            {
+                question: "What does 'radiolucent' mean in radiography?",
+                answers: [
+                    "Appears light or white",
+                    "Appears dark or black",
+                    "Appears gray",
+                    "Not visible on X-rays"
+                ],
+                correct: 1,
+                explanation: "<strong>Radiolucent structures appear dark or black on radiographs</strong> because they allow X-rays to pass through. Examples include the pulp chamber, cavities, and bone loss areas."
+            },
+            {
+                question: "What does 'radiopaque' mean in radiography?",
+                answers: [
+                    "Appears dark",
+                    "Appears light or white",
+                    "Appears gray",
+                    "Not visible on X-rays"
+                ],
+                correct: 1,
+                explanation: "<strong>Radiopaque structures appear light or white on radiographs</strong> because they block X-rays. Examples include enamel, dentin, bone, and metal restorations."
+            },
+            {
+                question: "What is a 'periapical' radiograph?",
+                answers: [
+                    "Shows interproximal areas and bone levels",
+                    "Shows the entire jaw in one image",
+                    "Shows the root and apex of 1–2 teeth",
+                    "Shows a larger section of the arch"
+                ],
+                correct: 2,
+                explanation: "<strong>A periapical (PA) radiograph shows the root and apex of 1–2 teeth</strong>. It includes the entire tooth from crown to apex and surrounding bone."
+            },
+            {
+                question: "Which type of x-ray is this?",
+                answers: [
+                    "Panoramic",
+                    "Bitewing",
+                    "Occlusal",
+                    "Periapical X-ray"
+                ],
+                correct: 3,
+                image: "periapical x-ray.png",
+                explanation: "<strong>This is a periapical X-ray</strong> because it shows the root and apex of the teeth. It displays the complete tooth structure from crown to root tip."
+            },
+            {
+                question: "What is a bitewing (BWX) radiograph used for?",
+                answers: [
+                    "Showing the entire jaw",
+                    "Showing the root apex only",
+                    "Detecting interproximal decay and bone levels",
+                    "Showing the full palate"
+                ],
+                correct: 2,
+                explanation: "<strong>Bitewing radiographs are used to detect interproximal (between teeth) caries and assess bone levels</strong>. They show the crowns and interproximal areas of upper and lower teeth in contact."
+            },
+            {
+                question: "Which type of x-ray is this?",
+                answers: [
+                    "Periapical",
+                    "Bitewing X-ray",
+                    "Occlusal",
+                    "Panoramic"
+                ],
+                correct: 1,
+                image: "Bitewing (BTX) x-ray.png",
+                explanation: "<strong>This is a bitewing X-ray</strong> because it shows the crowns of teeth and interproximal areas, which is the classic bitewing view for detecting interproximal caries and bone loss."
+            },
+            {
+                question: "What is an occlusal radiograph used for?",
+                answers: [
+                    "Showing only root apexes",
+                    "Showing a larger section of the dental arch, often used in children",
+                    "Showing the entire jaw",
+                    "Showing only anterior teeth"
+                ],
+                correct: 1,
+                explanation: "<strong>An occlusal radiograph shows a larger section of the dental arch</strong> and is often used in pediatric patients. It provides a broad view of the maxillary or mandibular arch."
+            },
+            {
+                question: "Which type of x-ray is this?",
+                answers: [
+                    "Periapical",
+                    "Bitewing",
+                    "Occlusal X-ray",
+                    "Panoramic"
+                ],
+                correct: 2,
+                image: "Occlusal X-ray.png",
+                explanation: "<strong>This is an occlusal X-ray</strong> because it shows a larger section of the dental arch. The patient bites on the film, showing maxillary or mandibular arch anatomy."
+            },
+            {
+                question: "What does CBCT stand for?",
+                answers: [
+                    "Cavity Beam Computed Tomography",
+                    "Cone Beam Computed Tomography",
+                    "Caries-Based Clinical Testing",
+                    "Conventional Bitewing CT"
+                ],
+                correct: 1,
+                explanation: "<strong>CBCT stands for Cone Beam Computed Tomography</strong>. It provides 3D imaging of bone, teeth, TMJ, and sinuses, useful for implant planning, endodontics, and orthodontics."
+            },
+            {
+                question: "Which type of imaging is this?",
+                answers: [
+                    "Panoramic X-ray",
+                    "Bitewing radiographs",
+                    "CBCT (Cone Beam CT) images showing 3D reconstructions",
+                    "Cephalometric radiographs"
+                ],
+                correct: 2,
+                image: "Cone Beam CT (CBCT).png",
+                explanation: "<strong>This is CBCT (Cone Beam Computed Tomography) imaging</strong>. The multiple views show 3D reconstructions of teeth, bone, and surrounding structures from different angles."
+            },
+            {
+                question: "What is a panoramic (PANO) radiograph?",
+                answers: [
+                    "Shows only posterior teeth",
+                    "Shows 1–2 teeth in detail",
+                    "Shows the entire jaw and all teeth in one image",
+                    "Shows only root apexes"
+                ],
+                correct: 2,
+                explanation: "<strong>A panoramic radiograph shows the entire jaw and all teeth in one image</strong>. It provides a broad overview useful for treatment planning and screening."
+            },
+            {
+                question: "Which type of x-ray is this?",
+                answers: [
+                    "Periapical",
+                    "Bitewing",
+                    "Occlusal",
+                    "Panoramic X-ray"
+                ],
+                correct: 3,
+                image: "Panoramic (PANO) x-ray.png",
+                explanation: "<strong>This is a panoramic X-ray</strong> because it shows the entire jaw with all teeth visible in a single curved image, spanning from one side to the other."
+            },
+            {
+                question: "What is a cephalometric (Ceph) radiograph used for?",
+                answers: [
+                    "Detecting interproximal caries",
+                    "Orthodontic treatment planning and assessment",
+                    "Showing root surfaces only",
+                    "Screening for pathology"
+                ],
+                correct: 1,
+                explanation: "<strong>Cephalometric radiographs are used for orthodontic treatment planning</strong>. They show the profile of the skull and are essential for diagnosing jaw and bite problems."
+            },
+            {
+                question: "Which type of x-ray is this?",
+                answers: [
+                    "Panoramic",
+                    "Occlusal",
+                    "Cephalometric X-ray (lateral skull radiograph)",
+                    "Periapical"
+                ],
+                correct: 2,
+                image: "Cephalometric (CEPH) x-ray.png",
+                explanation: "<strong>This is a cephalometric X-ray</strong>, showing a lateral (side) view of the skull. These are essential for orthodontic analysis and treatment planning."
+            },
+            {
+                question: "What are skull/facial X-rays used for?",
+                answers: [
+                    "Detecting caries only",
+                    "Assessing trauma and pathology affecting the facial skeleton",
+                    "Showing tooth roots only",
+                    "Orthodontic planning"
+                ],
+                correct: 1,
+                explanation: "<strong>Skull and facial X-rays are used to assess trauma and pathology</strong> affecting facial bone structures. They show fractures, injuries, and other conditions affecting the face and skull."
+            },
+            {
+                question: "Which type of x-ray is this?",
+                answers: [
+                    "Panoramic",
+                    "Cephalometric",
+                    "Skull/Facial X-rays showing frontal and lateral views",
+                    "CBCT"
+                ],
+                correct: 2,
+                image: "Skull:Facial x-ray.png",
+                explanation: "<strong>These are skull/facial X-rays</strong> showing frontal and lateral views. They are used for assessing facial trauma, pathology, and skeletal features."
+            },
+            {
+                question: "What does mSv stand for in radiation measurements?",
+                answers: [
+                    "Millimeters of Shielding Value",
+                    "Millisievert (unit of radiation dose)",
+                    "Maximum Shielding Voltage",
+                    "Medical Safety Verification"
+                ],
+                correct: 1,
+                explanation: "<strong>mSv stands for millisievert</strong>, a unit measuring radiation dose. Understanding radiation dose is essential for applying ALARA principles."
+            },
+            {
+                question: "What does ALARA stand for?",
+                answers: [
+                    "Always Limit Advanced Radiation Access",
+                    "As Low As Reasonably Achievable",
+                    "Applied Limits of Acceptable Radiation Amounts",
+                    "Automated Low Activation Radiation Avoidance"
+                ],
+                correct: 1,
+                explanation: "<strong>ALARA stands for 'As Low As Reasonably Achievable'</strong>. It is the principle guiding radiation protection, minimizing exposure while obtaining diagnostic quality images."
+            },
+            {
+                question: "What is the approximate radiation dose from a single intraoral dental X-ray?",
+                answers: [
+                    "0.05 mSv",
+                    "0.005 mSv (approximately 0.005 millisieverts)",
+                    "0.5 mSv",
+                    "5 mSv"
+                ],
+                correct: 1,
+                explanation: "<strong>A single intraoral dental X-ray is approximately 0.005 mSv</strong>, which is a very low dose. Modern digital radiography has reduced this even further."
+            },
+            {
+                question: "What is the approximate radiation dose from a panoramic radiograph?",
+                answers: [
+                    "0.005 mSv",
+                    "0.01 mSv (approximately 0.01 millisieverts)",
+                    "0.1 mSv",
+                    "1 mSv"
+                ],
+                correct: 1,
+                explanation: "<strong>A panoramic radiograph is approximately 0.01 mSv</strong>, which is about 2 times higher than a single intraoral X-ray but still very safe."
+            },
+            {
+                question: "What is the approximate radiation dose from CBCT?",
+                answers: [
+                    "0.005 mSv",
+                    "0.01 mSv",
+                    "0.03–0.1 mSv (depending on field of view)",
+                    "5 mSv"
+                ],
+                correct: 2,
+                explanation: "<strong>CBCT doses range from 0.03–0.1 mSv</strong>, depending on the field of view and scan parameters. Despite higher dose than intraoral X-rays, CBCT is justified for specific diagnostic needs."
+            },
+            {
+                question: "What is the primary protective measure for patients receiving X-rays?",
+                answers: [
+                    "Avoiding all radiographs",
+                    "Lead apron and thyroid collar to shield organs",
+                    "Increasing X-ray exposure settings",
+                    "Taking radiographs without protective barriers"
+                ],
+                correct: 1,
+                explanation: "<strong>A lead apron and thyroid collar shield sensitive organs from radiation scatter</strong>. These are standard protective measures during radiographic exposure."
+            },
+            {
+                question: "What is proper operator positioning during X-ray exposure?",
+                answers: [
+                    "Stand close to the patient",
+                    "Stand directly behind the X-ray tube",
+                    "Stand at least 6 feet away, at 90–135° angle from the beam, behind a protective barrier",
+                    "Stand in front of the beam"
+                ],
+                correct: 2,
+                explanation: "<strong>Operators should stand at least 6 feet away, at a 90–135° angle from the primary beam, and behind a protective barrier</strong>. This minimizes occupational exposure."
+            },
+            {
+                question: "What should dental radiography operators wear for occupational safety?",
+                answers: [
+                    "Lead apron only",
+                    "Thyroid collar only",
+                    "A dosimeter badge to monitor occupational radiation exposure",
+                    "No protective equipment"
+                ],
+                correct: 2,
+                explanation: "<strong>Operators should wear a dosimeter badge to track occupational radiation exposure</strong>. This monitoring ensures compliance with safety standards and protects operator health."
+            },
+            {
+                question: "Why is proper beam collimation important?",
+                answers: [
+                    "To increase radiation dose",
+                    "To blur the image",
+                    "To limit the X-ray beam to the area of interest, reducing unnecessary radiation exposure",
+                    "To make exposures faster"
+                ],
+                correct: 2,
+                explanation: "<strong>Proper beam collimation limits the X-ray beam to the region of interest</strong>, reducing unnecessary radiation exposure to surrounding tissues and following ALARA principles."
+            },
+            {
+                question: "What is the advantage of digital radiography over film?",
+                answers: [
+                    "Digital takes longer to process",
+                    "Lower radiation dose, adjustable quality, instant processing, and cloud storage capabilities",
+                    "Film is always better quality",
+                    "Digital cannot detect caries"
+                ],
+                correct: 1,
+                explanation: "<strong>Digital radiography offers lower radiation dose (up to 50% reduction), adjustable image quality, instant processing, and convenient cloud storage</strong> compared to film radiography."
+            },
+            {
+                question: "What is a 'cone cut' error in dental radiography?",
+                answers: [
+                    "The beam was too bright",
+                    "The film was moved during exposure",
+                    "The X-ray beam was not centered properly on the film or sensor",
+                    "There was too much developer in the processing solution"
+                ],
+                correct: 2,
+                explanation: "<strong>A cone cut occurs when the X-ray beam is not properly centered on the film or sensor</strong>, resulting in a missing portion of the image with an arc-shaped radiolucent edge."
+            },
+            {
+                question: "What causes 'overlap' error in dental radiographs?",
+                answers: [
+                    "Vertical angulation is incorrect",
+                    "The X-ray tube position changed",
+                    "Bad horizontal angulation, causing overlapping tooth images",
+                    "The film was overexposed"
+                ],
+                correct: 2,
+                explanation: "<strong>Overlap error results from bad horizontal angulation</strong>, where the cone is not aligned properly in the horizontal plane, causing tooth images to superimpose."
+            },
+            {
+                question: "What causes 'foreshortening' in radiographs?",
+                answers: [
+                    "Bad horizontal angulation",
+                    "The beam not being centered",
+                    "Vertical angulation is too steep (angulation too great), making teeth appear shorter",
+                    "The film was too close to the teeth"
+                ],
+                correct: 2,
+                explanation: "<strong>Foreshortening occurs when vertical angulation is too steep</strong>, causing teeth to appear shorter than their actual length."
+            },
+            {
+                question: "What causes 'elongation' in radiographs?",
+                answers: [
+                    "Bad horizontal angulation",
+                    "Vertical angulation is too shallow (insufficient angulation), making teeth appear longer",
+                    "The film was moved",
+                    "Too much exposure time"
+                ],
+                correct: 1,
+                explanation: "<strong>Elongation occurs when vertical angulation is too shallow</strong>, causing teeth to appear longer than their actual length."
+            },
+            {
+                question: "What is the 'lamina dura' visible on radiographs?",
+                answers: [
+                    "A radiolucent area around a tooth",
+                    "A radiopaque line representing the cortical plate of bone around the tooth root",
+                    "The root canal space",
+                    "The periodontal ligament"
+                ],
+                correct: 1,
+                explanation: "<strong>The lamina dura is a radiopaque (white) line on radiographs representing the dense cortical bone surrounding the tooth root</strong>. Its presence indicates a healthy tooth."
+            },
+            {
+                question: "What is the PDL space visible on radiographs?",
+                answers: [
+                    "The pulp chamber",
+                    "The periodontal ligament (PDL) space between root and bone—appears as a radiolucent line",
+                    "The dentin layer",
+                    "The enamel layer"
+                ],
+                correct: 1,
+                explanation: "<strong>The PDL (periodontal ligament) space appears as a thin radiolucent (dark) line between the root surface and the lamina dura</strong> on radiographs."
+            },
+            {
+                question: "What is the 'pulp chamber' visible on radiographs?",
+                answers: [
+                    "The root surface",
+                    "The area of bone around the root",
+                    "The radiolucent (dark) cavity within the tooth containing the dental pulp",
+                    "The gum tissue"
+                ],
+                correct: 2,
+                explanation: "<strong>The pulp chamber appears as a radiolucent (dark) area within the tooth</strong> on radiographs. It contains the dental pulp and is visible as a dark outline."
+            },
+            {
+                question: "What anatomical landmark is shown in this radiograph?",
+                answers: [
+                    "The mental foramen",
+                    "The mandibular canal",
+                    "The lamina dura",
+                    "The maxillary sinus"
+                ],
+                correct: 2,
+                image: "Lamina Dura on x-ray.png",
+                explanation: "<strong>This is the lamina dura</strong>, a radiopaque (white) line on radiographs representing the dense cortical bone surrounding the tooth root. Its presence indicates a healthy tooth."
+            },
+            {
+                question: "What is the 'mandibular canal' visible on radiographs?",
+                answers: [
+                    "A radiopaque line in the maxilla",
+                    "A radiolucent channel in the mandible containing nerves and blood vessels",
+                    "The root canal space",
+                    "The periodontal ligament space"
+                ],
+                correct: 1,
+                explanation: "<strong>The mandibular canal is a radiolucent (dark) channel visible in the mandible on radiographs</strong>. It contains the inferior alveolar nerve and blood vessels."
+            },
+            {
+                question: "What is the 'mental foramen' visible on radiographs?",
+                answers: [
+                    "A hole in the maxilla",
+                    "The opening of the mandibular canal in the anterior mandible, appearing as a radiolucent circle",
+                    "The inferior alveolar nerve",
+                    "A sinus opening"
+                ],
+                correct: 1,
+                explanation: "<strong>The mental foramen is a small radiolucent opening in the anterior mandible</strong> where the mental nerve exits. It appears as a radiolucent circle on radiographs."
+            },
+            {
+                question: "What anatomical structure is indicated in this radiograph?",
+                answers: [
+                    "The maxillary sinus",
+                    "The mental foramen or mandibular canal",
+                    "The mandibular canal indicated by the arrow",
+                    "The pulp chamber"
+                ],
+                correct: 2,
+                image: "Mandibular canal on x-ray.png",
+                explanation: "<strong>This radiograph shows the mandibular canal indicated by an arrow</strong>. The canal is visible as a radiolucent line running through the mandible."
+            },
+            {
+                question: "What is the 'maxillary sinus' visible on radiographs?",
+                answers: [
+                    "A radiopaque area in the mandible",
+                    "A large radiolucent air-filled cavity in the maxilla above the posterior teeth",
+                    "The periodontal ligament space",
+                    "The pulp chamber"
+                ],
+                correct: 1,
+                explanation: "<strong>The maxillary sinus is a large radiolucent air-filled space in the maxilla above the posterior teeth</strong>. It appears dark on radiographs."
+            },
+            {
+                question: "What is the 'nasal cavity' visible on radiographs?",
+                answers: [
+                    "A dark area in the mandible",
+                    "A radiolucent air-filled space in the anterior maxilla above the anterior teeth",
+                    "The tooth pulp",
+                    "The bone around teeth"
+                ],
+                correct: 1,
+                explanation: "<strong>The nasal cavity appears as a radiolucent air-filled space in the anterior maxilla on radiographs</strong>. It is visible above the central incisors."
+            },
+            {
+                question: "What is shown in this panoramic radiograph?",
+                answers: [
+                    "Only posterior teeth",
+                    "Only anterior teeth",
+                    "Third molars (wisdom teeth) present on both sides",
+                    "Only bone structures"
+                ],
+                correct: 2,
+                image: "Pano showing 3rd molars present.png",
+                explanation: "<strong>This panoramic radiograph shows third molars (wisdom teeth) present on both sides</strong>. Panoramic radiographs are excellent for visualizing the presence and position of third molars."
+            },
+            {
+                question: "What type of caries is shown in this bitewing radiograph?",
+                answers: [
+                    "Pit and fissure caries",
+                    "Root caries",
+                    "Smooth surface caries",
+                    "Interproximal caries shown as dark radiolucent areas between teeth"
+                ],
+                correct: 3,
+                image: "BTX showing bone loss.png",
+                explanation: "<strong>This bitewing radiograph shows interproximal caries</strong>. The dark radiolucent areas between the teeth represent demineralization. Bitewings are the ideal radiograph for detecting interproximal caries."
+            },
+            {
+                question: "What type of radiograph is shown?",
+                answers: [
+                    "Panoramic",
+                    "Occlusal",
+                    "Bitewing radiographs showing interproximal areas",
+                    "Periapical"
+                ],
+                correct: 2,
+                image: "BTX showing bone loss.png",
+                explanation: "<strong>These are bitewing radiographs</strong> showing the interproximal areas between teeth. This view is excellent for detecting interproximal caries and assessing bone levels."
+            },
+            {
+                question: "What anatomical structure is shown in this radiograph?",
+                answers: [
+                    "The lamina dura",
+                    "The pulp chamber",
+                    "The periodontal ligament (PDL) space—appears as a thin radiolucent line between root and bone",
+                    "The mandibular canal"
+                ],
+                correct: 2,
+                image: "PDL space on x-ray.png",
+                explanation: "<strong>The PDL (periodontal ligament) space appears as a thin radiolucent (dark) line between the root surface and the lamina dura</strong> on radiographs. It represents the ligament that suspends the tooth."
+            },
+            {
+                question: "What anatomical structure is indicated in this radiograph?",
+                answers: [
+                    "The pulp chamber",
+                    "The lamina dura",
+                    "The mental foramen—opening where the mental nerve exits the mandible",
+                    "The mandibular canal"
+                ],
+                correct: 2,
+                image: "Mental foramen on x-ray.png",
+                explanation: "<strong>The mental foramen is a small radiolucent opening in the anterior mandible</strong> where the mental nerve exits. It appears as a radiolucent circle on radiographs."
+            },
+            {
+                question: "What nasal anatomy is visible in this radiograph?",
+                answers: [
+                    "The maxillary sinus",
+                    "The mandibular canal",
+                    "The nasal cavity—radiolucent air-filled space in the anterior maxilla above anterior teeth",
+                    "The zygomatic process"
+                ],
+                correct: 2,
+                image: "Nasal sinus on x-ray.png",
+                explanation: "<strong>The nasal cavity appears as a radiolucent air-filled space in the anterior maxilla on radiographs</strong>. It is visible above the central incisors."
+            },
+            {
+                question: "What anatomical structures are indicated in this panoramic radiograph?",
+                answers: [
+                    "The maxillary sinuses",
+                    "The mandibular canals and mental foramens indicated by circles",
+                    "The pulp chambers",
+                    "The periodontal ligament spaces"
+                ],
+                correct: 1,
+                image: "Mental foramen on x-ray.png",
+                explanation: "<strong>This panoramic radiograph shows the mental foramens (or mandibular canals) indicated by white circles</strong>. These are important anatomical landmarks for surgical planning."
+            },
+            {
+                question: "What anatomical structure is shown in this radiograph?",
+                answers: [
+                    "The mental foramen",
+                    "The mandibular canal",
+                    "The maxillary sinus—large radiolucent air-filled cavity in the maxilla above posterior teeth",
+                    "The nasal cavity"
+                ],
+                correct: 2,
+                image: "Maxillary sinus on x-ray.png",
+                explanation: "<strong>The maxillary sinus is a large radiolucent air-filled space in the maxilla above the posterior teeth</strong>. It appears dark on radiographs."
+            },
+            {
+                question: "What anatomical structure is shown in this radiograph?",
+                answers: [
+                    "The maxillary sinus",
+                    "The nasal cavity",
+                    "The zygomatic arch (process)—bony projection of the cheekbone visible on radiographs",
+                    "The mandibular canal"
+                ],
+                correct: 2,
+                image: "Zygomatic process on x-ray.png",
+                explanation: "<strong>The zygomatic arch (or zygomatic process) is a bony projection visible on radiographs</strong>, representing the cheekbone. It can be a useful anatomical landmark for orientation."
+            },
+            {
+                question: "What is the primary use of CBCT in dental practice?",
+                answers: [
+                    "Detecting simple interproximal caries",
+                    "Implant planning, endodontics, orthodontics, TMJ assessment, and trauma evaluation",
+                    "Routine screening radiographs",
+                    "Film processing"
+                ],
+                correct: 1,
+                explanation: "<strong>CBCT is used for implant planning, endodontics, orthodontics (airway assessment), TMJ evaluation, and trauma assessment</strong>. Its 3D capabilities are essential for complex cases."
+            },
+            {
+                question: "What legal considerations apply to dental radiographs?",
+                answers: [
+                    "No legal requirements exist",
+                    "Radiographs can be discarded after treatment",
+                    "Informed consent, retention in records, documentation/interpretation, and compliance with state laws are required",
+                    "Anyone can expose radiographs"
+                ],
+                correct: 2,
+                explanation: "<strong>Legal and ethical requirements for radiographs include: obtaining informed consent, retaining images in patient records, ensuring proper interpretation and documentation, and following state exposure regulations</strong>."
+            },
+            {
+                question: "What is an emerging technology in dental imaging?",
+                answers: [
+                    "Film radiography",
+                    "Cone Beam CT (CBCT) for 3D imaging, advanced AI image analysis, and lower-dose intraoral sensors",
+                    "Only traditional X-rays",
+                    "Panoramic radiographs"
+                ],
+                correct: 1,
+                explanation: "<strong>Emerging technologies in dental imaging include CBCT, AI-assisted image analysis for caries detection, lower-dose digital sensors, and cone-beam microscopy</strong>."
+            },
+            {
+                question: "What is the key takeaway about caries in clinical practice?",
+                answers: [
+                    "Caries is just a cosmetic problem",
+                    "Caries is a multifactorial disease requiring risk-based, patient-specific prevention and management strategies",
+                    "Caries cannot be prevented",
+                    "All caries must be treated surgically"
+                ],
+                correct: 1,
+                explanation: "<strong>Caries is a disease process, not just decay</strong>. <strong>Effective management requires understanding the disease etiology and applying risk-based, individualized prevention strategies</strong>."
+            },
+            {
+                question: "What is the key takeaway about radiographs in clinical practice?",
+                answers: [
+                    "Radiographs are not essential",
+                    "Radiographs are essential diagnostic tools requiring safety protocols, proper interpretation, and documentation for optimal patient care",
+                    "Radiographs are only for cosmetic purposes",
+                    "Anyone can interpret radiographs"
+                ],
+                correct: 1,
+                explanation: "<strong>Radiographs are essential diagnostic tools for caries detection, pathology assessment, and treatment planning</strong>. Proper safety, interpretation, and documentation are critical for optimal patient outcomes."
+            }
+        ];
+
+        // ============================================================================
+        // STATE MANAGEMENT
+        // ============================================================================
+
+        let currentMode = 'ordered';
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let questionsOrdered = [];
+        let questionsShuffled = [];
+        let questions = [];
+        let retryQueue = [];
+        let answered = false;
+
+        // ============================================================================
+        // SHUFFLE ALGORITHMS
+        // ============================================================================
+
+        function shuffleQuestions(array) {
+            return array.map(q => {
+                const shuffledAnswers = [...q.answers];
+                let correctIndex = q.correct;
+
+                for (let i = shuffledAnswers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
+
+                    if (correctIndex === i) correctIndex = j;
+                    else if (correctIndex === j) correctIndex = i;
+                }
+
+                return {
+                    ...q,
+                    answers: shuffledAnswers,
+                    correct: correctIndex
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        function initializeQuiz() {
+            questionsOrdered = shuffleQuestions(questionsBase);
+            questionsShuffled = shuffleArray(questionsOrdered);
+            questions = [...questionsOrdered];
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = false;
+            displayQuestion();
+        }
+
+        // ============================================================================
+        // MODE SWITCHING
+        // ============================================================================
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeLabel').textContent = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeLabel').textContent = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        // ============================================================================
+        // DISPLAY & INTERACTION
+        // ============================================================================
+
+        function displayQuestion() {
+            if (currentIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const q = questions[currentIndex];
+            document.getElementById('questionText').textContent = q.question;
+
+            // Handle image display
+            const imageContainer = document.getElementById('imageContainer');
+            imageContainer.innerHTML = '';
+            if (q.image) {
+                const img = document.createElement('img');
+                img.src = `./${q.image}`;
+                img.alt = q.question;
+                img.onerror = function() {
+                    this.style.display = 'none';
+                    const fallback = document.createElement('p');
+                    fallback.textContent = 'Image: ' + q.image;
+                    this.parentNode.appendChild(fallback);
+                };
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-container';
+                wrapper.appendChild(img);
+                imageContainer.appendChild(wrapper);
+            }
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = String.fromCharCode(65 + index) + '. ' + answer;
+                btn.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(btn);
+            });
+
+            updateProgress();
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            answered = false;
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const feedback = document.getElementById('feedback');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            let feedbackHTML = '';
+            if (index === q.correct) {
+                buttons[index].classList.add('correct');
+                feedbackHTML = '✓ Correct!';
+                feedback.classList.add('show', 'correct');
+                correctCount++;
+            } else {
+                buttons[index].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackHTML = '✗ Incorrect';
+                feedback.classList.add('show', 'incorrect');
+                incorrectCount++;
+                retryQueue.push(q);
+            }
+
+            if (q.explanation) {
+                feedbackHTML += `<div class="explanation">${q.explanation}</div>`;
+            }
+
+            feedback.innerHTML = feedbackHTML;
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+
+            if (currentIndex >= questions.length && retryQueue.length > 0) {
+                questions = [...shuffleQuestions(retryQueue), ...questions.slice(currentIndex)];
+                currentIndex = 0;
+                retryQueue = [];
+            }
+
+            displayQuestion();
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentage').textContent = pct + '%';
+        }
+
+        function updateProgress() {
+            const totalQuestions = questionsBase.length;
+            const progress = ((currentIndex) / totalQuestions) * 100;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${totalQuestions}`;
+        }
+
+        function showResults() {
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalTotal').textContent = total;
+
+            let message = '📖 Review more';
+            if (percentage === 100) message = '🌟 Perfect!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+
+            document.getElementById('resultsMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            document.getElementById('resultsScreen').classList.remove('show');
+            document.getElementById('quizContainer').style.display = 'block';
+            initializeQuiz();
+        }
+
+        // ============================================================================
+        // KEYBOARD CONTROLS
+        // ============================================================================
+
+        document.addEventListener('keydown', (e) => {
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 4) {
+                if (!answered) {
+                    selectAnswer(key - 1);
+                    e.preventDefault();
+                } else {
+                    nextQuestion();
+                    e.preventDefault();
+                }
+            } else if (key >= 0) {
+                if (answered) {
+                    nextQuestion();
+                    e.preventDefault();
+                } else if (document.getElementById('resultsScreen').classList.contains('show')) {
+                    resetQuiz();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // ============================================================================
+        // START THE QUIZ
+        // ============================================================================
+
+        initializeQuiz();
+    </script>
+</body>
+</html>
