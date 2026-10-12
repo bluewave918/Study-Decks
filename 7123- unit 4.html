@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 4: Communication in the Dental Office</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .mode-label {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .question-container {
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 1em;
+            position: relative;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .answer-btn.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .score-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .results-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            color: #333;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .results-details {
+            font-size: 1.1em;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .restart-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .explanation strong {
+            color: #667eea;
+        }
+
+        .keyboard-hint {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.05em;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .score-display {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 Unit 4: Communication in the Dental Office</h1>
+            <p>Comprehensive Learning Deck for Midterm Preparation</p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('ordered')">📖 Learning Mode</button>
+            <button class="mode-btn" onclick="setMode('shuffled')">🔀 Testing Mode</button>
+        </div>
+
+        <div class="mode-label" id="modeLabel">📖 LEARNING MODE: Questions in original order (content builds logically)</div>
+
+        <div class="card" id="mainCard">
+            <div class="progress-container">
+                <div class="progress-text" id="progressText">Question 1 of 55</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-label">✓ Correct</div>
+                    <div class="score-value" id="correctCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">✗ Incorrect</div>
+                    <div class="score-value" id="incorrectCount">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Percentage</div>
+                    <div class="score-value" id="percentage">0%</div>
+                </div>
+            </div>
+
+            <div id="quizContainer">
+                <div class="question-container">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="answers" id="answersContainer"></div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="keyboard-hint">💡 Press 1, 2, 3, or 4 to select | Press any key to continue</div>
+                </div>
+            </div>
+
+            <div class="results-screen" id="resultsScreen">
+                <h2>Quiz Complete!</h2>
+                <div class="final-score" id="finalScore">0%</div>
+                <div class="results-message" id="resultsMessage">Great effort!</div>
+                <div class="results-details">
+                    <p>You got <span id="finalCorrect">0</span> out of <span id="finalTotal">0</span> questions correct</p>
+                </div>
+                <button class="restart-btn" onclick="resetQuiz()">🔄 Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // QUESTIONS DATABASE - COMPREHENSIVE UNIT 4 CONTENT
+        // ============================================================================
+
+        const questionsBase = [
+            {
+                question: "What is the foundation of any dental treatment plan?",
+                answers: [
+                    "The patient's insurance coverage",
+                    "Accurate diagnostic information",
+                    "The dentist's expertise and preferences",
+                    "Radiographic examination only"
+                ],
+                correct: 1,
+                explanation: "<strong>Accurate diagnostic information is the foundation of any dental treatment plan</strong>. This comes from radiographic exams, clinical evaluation, health history review, and understanding the patient's chief concerns."
+            },
+            {
+                question: "How do we gather diagnostic information from patients?",
+                answers: [
+                    "Only through radiographic exams",
+                    "Only through clinical evaluation",
+                    "Radiographic exam, clinical evaluation, health history review, and understanding chief concerns",
+                    "Only by asking yes/no questions"
+                ],
+                correct: 2,
+                explanation: "<strong>Comprehensive diagnostic information comes from multiple sources: radiographic exam, clinical evaluation, review and analysis of patient's health history, and understanding the patient's chief concerns</strong>."
+            },
+            {
+                question: "What is the difference between signs and symptoms?",
+                answers: [
+                    "Signs and symptoms are the same thing",
+                    "Signs are patient-reported findings; symptoms are dentist-observed findings",
+                    "Signs are objective findings discovered by the dentist; symptoms are subjective findings revealed by the patient themselves",
+                    "Symptoms are more important than signs"
+                ],
+                correct: 2,
+                explanation: "<strong>Signs are objective findings discovered by the dentist during examination</strong>. <strong>Symptoms are subjective findings usually revealed by the patient themselves</strong> because they are causing problems."
+            },
+            {
+                question: "What is a chief complaint?",
+                answers: [
+                    "Any symptom the patient experiences",
+                    "The dentist's primary observation during the exam",
+                    "A symptom that becomes a motivating factor for the patient to seek treatment—the primary reason for the visit, in the patient's own words",
+                    "A complaint filed by the patient about previous treatment"
+                ],
+                correct: 2,
+                explanation: "<strong>A chief complaint is when a symptom becomes a motivating factor for the patient to seek dental treatment</strong>. It is <strong>the primary reason for the patient being in your office, stated in the patient's own words</strong>."
+            },
+            {
+                question: "What is the primary purpose of a patient interview?",
+                answers: [
+                    "To determine the patient's ability to pay",
+                    "A structured, formal discussion centered on the patient's health, oral care needs, problems, and desires",
+                    "To demonstrate the dentist's expertise",
+                    "To fill time during the appointment"
+                ],
+                correct: 1,
+                explanation: "<strong>A patient interview is a structured, formal discussion centering on the patient's health, oral care needs, problems, and desires</strong>. It is different from a casual conversation and should be tailored to the individual patient."
+            },
+            {
+                question: "What qualities should a dentist have to conduct an effective patient interview?",
+                answers: [
+                    "Only clinical expertise and speed",
+                    "Unbiased, good listener, organized, good communicator, and adaptable to the patient's background",
+                    "Only the ability to ask questions quickly",
+                    "Only extensive knowledge of medical terminology"
+                ],
+                correct: 1,
+                explanation: "<strong>To obtain accurate information and avoid influencing responses, the dentist should be: unbiased, a good listener, organized in their approach, a good communicator, and adaptable to the patient regardless of their background</strong>."
+            },
+            {
+                question: "What is an open-ended question?",
+                answers: [
+                    "A question that can be answered with yes or no",
+                    "A question that cannot be answered with a single answer and allows patients to express opinions, experiences, feelings, or desires",
+                    "A question about an open sore in the mouth",
+                    "A question asked at the beginning of the appointment"
+                ],
+                correct: 1,
+                explanation: "<strong>Open-ended questions CANNOT be answered with a single answer (yes or no)</strong>. They allow patients to reflect, express opinions, past experiences, feelings, or desires. They often start with 'what,' 'how,' or 'tell me about.'"
+            },
+            {
+                question: "Which of the following is an example of an open-ended question?",
+                answers: [
+                    "Do you brush your teeth daily?",
+                    "Which tooth is bothering you?",
+                    "Tell me about your experience with dental treatment.",
+                    "When was your last dental visit?"
+                ],
+                correct: 2,
+                explanation: "<strong>'Tell me about your experience with dental treatment' is an open-ended question</strong> because it cannot be answered with a single word and allows the patient to express their feelings and experiences."
+            },
+            {
+                question: "What is a closed-ended question?",
+                answers: [
+                    "A question that should not be asked",
+                    "A question that can be answered with one or two words or short defined answers, allowing specific facts to be obtained or clarified",
+                    "A question asked only at the end of the appointment",
+                    "A question that is not appropriate in professional settings"
+                ],
+                correct: 1,
+                explanation: "<strong>Closed-ended questions are often simple to answer with one or two words or short defined answers</strong>. They allow specific facts to be obtained or clarified and can refocus the interview if the patient is providing unnecessary information."
+            },
+            {
+                question: "When should closed-ended questions be used during an interview?",
+                answers: [
+                    "Never; only open-ended questions should be used",
+                    "Only at the beginning of the interview",
+                    "To ask specific questions after open-ended questions have explored a topic, or to refocus if the patient is giving unnecessary information",
+                    "Only when the patient is difficult to communicate with"
+                ],
+                correct: 2,
+                explanation: "<strong>Closed-ended questions are useful for obtaining specific facts or clarification</strong>. They are often used after open-ended questions to explore a discussion topic or to refocus the interview."
+            },
+            {
+                question: "What is the golden rule of effective interviewing?",
+                answers: [
+                    "Always speak more than the patient",
+                    "Listen more than you speak; give the patient encouragement as needed and pay attention",
+                    "Ask as many questions as possible",
+                    "Never take notes during the interview"
+                ],
+                correct: 1,
+                explanation: "<strong>The golden rule of effective interviewing is to listen more than you speak</strong>. Give the patient encouragement as needed and pay close attention to their responses."
+            },
+            {
+                question: "How should a dentist handle taking notes during a patient interview?",
+                answers: [
+                    "Never take notes; it is unprofessional",
+                    "Take notes but do not let the patient see them",
+                    "Make sure to let the patient know that you are still listening while taking notes",
+                    "Wait until after the appointment to write down information"
+                ],
+                correct: 2,
+                explanation: "<strong>If you are taking notes during an interview, make sure to let the patient know that you are still listening</strong>. This reassures the patient that their information is being recorded and valued."
+            },
+            {
+                question: "Why is empathy important in patient interviews?",
+                answers: [
+                    "It wastes time during the appointment",
+                    "It shows concern for the patient as a unique individual and helps build a trusting relationship",
+                    "It is not important in professional dental settings",
+                    "It allows the dentist to make decisions for the patient"
+                ],
+                correct: 1,
+                explanation: "<strong>Practicing empathy and showing concern for the patient as a unique individual helps build a trusting relationship</strong>. This foundation affects future patient compliance and cooperation."
+            },
+            {
+                question: "What should a dentist do if a patient hesitates to answer a question?",
+                answers: [
+                    "Move on to the next question immediately",
+                    "Ask the same question again in exactly the same way",
+                    "Give them a rationale for why you are asking the question",
+                    "Assume they do not want to answer"
+                ],
+                correct: 2,
+                explanation: "<strong>If a patient hesitates to answer, the dentist should gauge the patient's reaction and provide a rationale for why the question is being asked</strong>. This helps the patient understand its relevance."
+            },
+            {
+                question: "How does nonverbal communication affect patient perception during an interview?",
+                answers: [
+                    "Nonverbal communication is not important in professional settings",
+                    "Nonverbal communication is less important than verbal communication",
+                    "Acting hesitant, unsure, fearful, or worried can change the patient's perception, even if what you are doing or saying is correct",
+                    "Nonverbal communication only affects nervous patients"
+                ],
+                correct: 2,
+                explanation: "<strong>The dentist's nonverbal communication is significant—acting hesitant, unsure, fearful, or worried can change the patient's perception</strong>, even if what you are doing or saying is correct."
+            },
+            {
+                question: "What body language might suggest a patient is experiencing negative emotions?",
+                answers: [
+                    "Leaning forward with interest",
+                    "Maintaining good eye contact",
+                    "Arms crossed, hunched over, avoiding eye contact, and giving short, curt answers",
+                    "Relaxed posture"
+                ],
+                correct: 2,
+                explanation: "<strong>Body language suggesting negative emotion includes: arms crossed, hunched over, avoiding eye contact, and short, curt answers</strong>. Patients might be in pain, angry about past experiences, or experiencing dread or anxiety."
+            },
+            {
+                question: "What is medical interviewing in a dental office?",
+                answers: [
+                    "Asking only about dental history",
+                    "Difficult to master work involving both intellect and emotional intelligence to establish rapport while facilitating directed communication",
+                    "An informal conversation about general health",
+                    "A task that should be delegated entirely to dental assistants"
+                ],
+                correct: 1,
+                explanation: "<strong>Medical interviewing in a dental office is difficult to master and involves both intellect and emotional intelligence</strong>. It requires establishing rapport with the patient while facilitating directed communication about their health."
+            },
+            {
+                question: "What is a health-promotion interview?",
+                answers: [
+                    "A discussion about dental insurance coverage",
+                    "An interview that establishes a baseline as to the patient's current and/or past health issues and risk factors",
+                    "A marketing tool to promote the dental practice",
+                    "A quick screening that takes less than one minute"
+                ],
+                correct: 1,
+                explanation: "<strong>A health-promotion interview establishes a baseline as to the patient's current and/or past health issues and risk factors</strong>. It is essential for understanding the patient's medical status."
+            },
+            {
+                question: "Why is the patient's medical and dental history often more diagnostically valuable than the clinical exam?",
+                answers: [
+                    "It is not more valuable",
+                    "Because it provides context for the clinical findings and can reveal underlying issues affecting treatment",
+                    "Because it eliminates the need for a clinical exam",
+                    "Because it is always accurate"
+                ],
+                correct: 1,
+                explanation: "<strong>The patient's medical and dental history often has diagnostic value that can equal or exceed the clinical exam</strong>. It provides important context and can reveal underlying conditions affecting treatment decisions."
+            },
+            {
+                question: "What should a dentist remember about how patients present medical information?",
+                answers: [
+                    "Patients always present information in textbook fashion using correct terminology",
+                    "Patients will not present information in a textbook fashion and often do not use the same medical terminology as healthcare providers",
+                    "Patients' information is always complete and accurate",
+                    "Patients need no clarification of their medical history"
+                ],
+                correct: 1,
+                explanation: "<strong>Remember that patients will not present information in a textbook fashion and often do not use the same terminology as healthcare providers</strong>. The dentist must clarify and interpret patient information appropriately."
+            },
+            {
+                question: "What is an intake form in the dental office?",
+                answers: [
+                    "Only a legal document",
+                    "A form of communication that standardizes the information needed to appropriately treat the patient",
+                    "A way to collect insurance information only",
+                    "Not important in modern dental practice"
+                ],
+                correct: 1,
+                explanation: "<strong>Intake forms are still a form of communication</strong> that standardizes the information we need to appropriately treat patients. They collect demographic data, medical history, personal history, and dental history."
+            },
+            {
+                question: "What should a dental office include in a patient registration/intake form?",
+                answers: [
+                    "Only demographic data",
+                    "Demographic data, medical history (diagnoses, medications, surgeries, allergies, review of systems), personal/social history, and dental history",
+                    "Only insurance information",
+                    "Only dental information"
+                ],
+                correct: 1,
+                explanation: "<strong>A comprehensive intake form should include: demographic data (accurate, complete, current), medical history (diagnoses, medications, surgeries, allergies, review of systems), personal/social history, and dental history</strong>."
+            },
+            {
+                question: "Why is the Review of Systems important when reviewing an intake form?",
+                answers: [
+                    "It is just a formality with no clinical significance",
+                    "It can sometimes point to different dental diagnoses and might change patient management",
+                    "It is only relevant for medical doctors",
+                    "It should be skipped to save time"
+                ],
+                correct: 1,
+                explanation: "<strong>The Review of Systems is a crucial step that can sometimes point to different dental diagnoses and might change patient management</strong>. For example, GERD might relate to dental erosion or caries patterns."
+            },
+            {
+                question: "What is the significance of a patient reporting polyuria (frequent urination)?",
+                answers: [
+                    "It has no relevance to dental treatment",
+                    "It might indicate prostate issues, undiagnosed diabetes, or medication side effects, which could affect treatment planning",
+                    "It is only a concern for urologists",
+                    "It should be ignored in a dental setting"
+                ],
+                correct: 1,
+                explanation: "<strong>Polyuria might be a symptom of prostate issues, undiagnosed diabetes, or medication side effects</strong>. Diabetes, for example, is related to periodontal disease and might require frequent breaks during appointments."
+            },
+            {
+                question: "How should the chief complaint be recorded in the patient's chart?",
+                answers: [
+                    "In the dentist's own professional terminology",
+                    "In the patient's own words",
+                    "Not recorded at all",
+                    "Only if it is an emergency"
+                ],
+                correct: 1,
+                explanation: "<strong>The chief complaint should be recorded 'in the patient's own words'</strong>. This captures the patient's primary reason for seeking treatment as they perceive it."
+            },
+            {
+                question: "What should a dentist do if the patient's chief complaint differs from the dentist's assessment of needs?",
+                answers: [
+                    "Ignore the patient's chief complaint",
+                    "Force the patient to agree with the dentist's assessment",
+                    "Acknowledge that the chief complaint might change the focus of the appointment while explaining the dentist's additional concerns",
+                    "Avoid discussing the difference"
+                ],
+                correct: 2,
+                explanation: "<strong>The patient's chief complaint might differ from the dentist's assessment</strong>. The chief complaint might change the entire focus of the appointment, and this discrepancy should be addressed professionally."
+            },
+            {
+                question: "How should a dentist communicate with a patient during the clinical exam?",
+                answers: [
+                    "Silently without any explanation",
+                    "Only explain findings after the exam is complete",
+                    "Explain what you are doing and avoid startling the patient by calling out findings",
+                    "Use complex medical terminology without explanation"
+                ],
+                correct: 2,
+                explanation: "<strong>During the clinical exam, explain what you are doing and call out findings to improve communication with dental staff</strong>. This prevents the patient from being startled by procedures and helps coordinate the team."
+            },
+            {
+                question: "Why is vital sign assessment important in dental practice?",
+                answers: [
+                    "It is not important",
+                    "It provides an initial assessment of patient health and can reveal conditions affecting treatment",
+                    "It is only necessary for emergency situations",
+                    "It is only done by physicians"
+                ],
+                correct: 1,
+                explanation: "<strong>Vital signs provide an initial assessment of patient health</strong>. Abnormal findings should be explained to the patient and might affect treatment decisions (wait and retake, medical information request, or reschedule)."
+            },
+            {
+                question: "What should a dentist do if vital signs are outside normal range?",
+                answers: [
+                    "Ignore them and proceed with treatment",
+                    "Tell the patient they are unfit for dental treatment",
+                    "Explain how this will affect today's appointment, then wait and retake, request medical information, or reschedule as appropriate",
+                    "Provide medical treatment"
+                ],
+                correct: 2,
+                explanation: "<strong>If vital signs are outside normal range, explain how this will affect the appointment and take appropriate action: wait and retake, request medical information from their physician, or reschedule with a reasonable explanation</strong>."
+            },
+            {
+                question: "What ethical principles should guide discussions about treatment options?",
+                answers: [
+                    "Only the dentist's financial interests",
+                    "Principles of autonomy, beneficence, and informed consent—providing enough information for patient consent without undue influence",
+                    "The easiest treatment for the dentist",
+                    "The most expensive treatment option"
+                ],
+                correct: 1,
+                explanation: "<strong>Ethical principles like autonomy, beneficence, and informed consent should guide treatment discussions</strong>. The dentist must provide sufficient appropriate information without biasing or unduly influencing the patient."
+            },
+            {
+                question: "How should a dentist present treatment options without bias?",
+                answers: [
+                    "Present only the option the dentist prefers",
+                    "Lead the discussion with phrases like 'Well, we can...' or 'One of the options is...' rather than 'If you really want to...'",
+                    "Pressure the patient toward one option",
+                    "Avoid discussing risks and benefits"
+                ],
+                correct: 1,
+                explanation: "<strong>Dentists should avoid leading language and bias</strong>. Use neutral phrasing and be honest. If asked, the dentist can give an opinion, but carefully avoid unduly influencing the patient."
+            },
+            {
+                question: "What should a dentist explain when recommending treatment options?",
+                answers: [
+                    "Only the benefits",
+                    "Only the costs",
+                    "How all gathered information led to the conclusions and why certain options are recommended for this specific patient",
+                    "Not explain the reasoning"
+                ],
+                correct: 2,
+                explanation: "<strong>The dentist should explain how all gathered diagnostic information led to treatment conclusions</strong>. For example, how periodontal disease affects implant options, or how bruxism affects restoration choices."
+            },
+            {
+                question: "What is motivational interviewing?",
+                answers: [
+                    "Telling the patient what they must do",
+                    "A person-centered strategy to elicit patient motivation to change a specific negative behavior",
+                    "Threatening the patient with consequences",
+                    "Ignoring the patient's resistance"
+                ],
+                correct: 1,
+                explanation: "<strong>Motivational interviewing is a person-centered strategy to elicit patient motivation to change a specific negative behavior</strong>. It helps people resolve ambivalent feelings to find internal motivation for change."
+            },
+            {
+                question: "Why is motivational interviewing effective with unmotivated patients?",
+                answers: [
+                    "It forces patients to comply",
+                    "It helps facilitate a conversation about change by encouraging the patient to identify their own need for change",
+                    "It eliminates the need for behavior change",
+                    "It is not effective"
+                ],
+                correct: 1,
+                explanation: "<strong>Motivational interviewing works by helping patients resolve ambivalence and find internal motivation</strong>. The interviewer facilitates a conversation where the patient identifies their own need for change, based on empathy and patient self-awareness."
+            },
+            {
+                question: "What is a key principle of motivational interviewing?",
+                answers: [
+                    "The dentist makes all decisions",
+                    "The dentist provides empathy and the patient provides self-awareness and internal motivation",
+                    "The patient should be blamed for their behaviors",
+                    "Change should happen immediately"
+                ],
+                correct: 1,
+                explanation: "<strong>Motivational interviewing is based on empathy on the part of the interviewer and self-awareness and motivation on the part of the patient</strong>. The role of the interviewer is to facilitate, not control."
+            },
+            {
+                question: "How can a dentist help a patient recognize the need for improved oral hygiene?",
+                answers: [
+                    "Tell them their hygiene is poor without explanation",
+                    "Use disclosing solution and a patient mirror to help them identify the issue themselves, then explain how it relates to their dental condition",
+                    "Provide a bag of hygiene supplies without instruction",
+                    "Shame them into compliance"
+                ],
+                correct: 1,
+                explanation: "<strong>Help patients identify their own need through techniques like disclosing solution and patient mirrors, then explain how home care relates to their condition or treatment options</strong>. Gauge their interest in change and involve them in the process."
+            },
+            {
+                question: "What is NOT an example of motivational interviewing in dental hygiene instruction?",
+                answers: [
+                    "Using a patient mirror to show plaque",
+                    "Asking about their motivation for change",
+                    "Disclosing teeth and only you see the result while the patient waits",
+                    "Explaining how home care relates to their dental condition"
+                ],
+                correct: 2,
+                explanation: "<strong>Disclosing teeth where only the dentist sees the result is NOT motivational interviewing</strong>. True motivational interviewing involves the patient actively seeing and identifying their own issues."
+            },
+            {
+                question: "What should be documented after every dental appointment?",
+                answers: [
+                    "Nothing; verbal communication is sufficient",
+                    "Only billable procedures",
+                    "Progress or treatment notes using correct terminology and accepted acronyms",
+                    "Only if there is a problem"
+                ],
+                correct: 2,
+                explanation: "<strong>Documentation must be made for every dental appointment using correct terminology and accepted acronyms</strong>. This allows for communication within the office and with external parties (labs, specialists, insurance companies)."
+            },
+            {
+                question: "Why is proper documentation important for patient records?",
+                answers: [
+                    "It is only required by insurance companies",
+                    "It enables communication with future self, office staff, external parties, and potentially the patient if they request records",
+                    "It is not important in modern practice",
+                    "It is only necessary for emergency cases"
+                ],
+                correct: 1,
+                explanation: "<strong>Proper documentation allows for communication within your office (including with your future self), with external parties (labs, specialists, insurance), and potentially with the patient if they request medical records</strong>."
+            },
+            {
+                question: "What is a major barrier to effective communication in the dental office?",
+                answers: [
+                    "Only patient anxiety",
+                    "Time—needed for adequate patient interviews, education, and discussion of treatment options",
+                    "Only lack of technology",
+                    "Patient intelligence"
+                ],
+                correct: 1,
+                explanation: "<strong>Time is a major barrier—how do we adequately charge for patient interviews, patient education, and treatment discussions? This requires skill in the art and science of communication</strong>."
+            },
+            {
+                question: "What can happen if a dentist does not adequately explain treatment options?",
+                answers: [
+                    "Nothing; patients prefer not to know",
+                    "Informed consent is compromised, potentially affecting patient autonomy and compliance",
+                    "It saves time",
+                    "It is legally required"
+                ],
+                correct: 1,
+                explanation: "<strong>Without adequate explanation of treatment options, informed consent is compromised</strong>. Informed consent requires sufficient understanding AND voluntary agreement."
+            },
+            {
+                question: "What is the role of informed consent in dental treatment?",
+                answers: [
+                    "It is just a legal document",
+                    "It ensures the patient has sufficient understanding to make a decision AND does so voluntarily",
+                    "It is not important",
+                    "It only protects the dentist"
+                ],
+                correct: 1,
+                explanation: "<strong>Informed consent requires: (1) sufficient patient understanding of diagnosis, treatment options, risks, and benefits, and (2) voluntary agreement to treatment</strong>."
+            },
+            {
+                question: "How should a dentist handle a patient with a language barrier?",
+                answers: [
+                    "Assume they understand despite the language difference",
+                    "Speak louder to help them understand",
+                    "Use translator services or translator phones to ensure clear communication",
+                    "Skip important explanations to save time"
+                ],
+                correct: 2,
+                explanation: "<strong>A language barrier requires translator services or translator phones to ensure clear communication</strong>. This includes accommodations for deaf patients (ASL) and blind patients (braille/hearing technology)."
+            },
+            {
+                question: "What should a dentist consider when communicating with vulnerable patient populations?",
+                answers: [
+                    "Nothing special; treat them like any other patient",
+                    "Patients with extreme anxiety, substance disorders, or psychological disorders may exhibit denial, manipulation, or confusion; medical power of attorney might be necessary",
+                    "They do not need informed consent",
+                    "They prefer minimal communication"
+                ],
+                correct: 1,
+                explanation: "<strong>Vulnerable patients (those with extreme anxiety, substance disorders, or psychological disorders) may experience denial, manipulation, or confusion</strong>. A medical power of attorney might be necessary for decision-making."
+            },
+            {
+                question: "What is a consequence of the dentist not valuing good communication?",
+                answers: [
+                    "It has no impact",
+                    "It negatively affects the entire patient experience and office culture",
+                    "It improves efficiency",
+                    "It is actually beneficial"
+                ],
+                correct: 1,
+                explanation: "<strong>If the dentist does not see the value in good communication or has not acquired communication skills, it will negatively affect the entire patient experience and how staff members communicate with patients</strong>."
+            },
+            {
+                question: "How can negative patient perceptions of dentistry affect care?",
+                answers: [
+                    "They do not affect care",
+                    "Past negative experiences or anxiety/fear can lead to unwillingness to disclose information and poor responses to adverse events",
+                    "They only matter for cosmetic patients",
+                    "They improve communication"
+                ],
+                correct: 1,
+                explanation: "<strong>Negative patient perceptions from past experiences, anxiety, or fear can cause unwillingness to disclose relevant information and poor responses to adverse events</strong>. Poor or lack of communication compounds these issues."
+            },
+            {
+                question: "Why might a patient be unwilling to disclose medical information?",
+                answers: [
+                    "All patients fully disclose",
+                    "They might think the issue is 'just' dental and unrelated, or they might have experienced judgment before",
+                    "Patients prefer to lie to dentists",
+                    "It is not possible to overcome this barrier"
+                ],
+                correct: 1,
+                explanation: "<strong>Patients might be unwilling to disclose information because they think it is 'just' dental or because they fear judgment</strong>. The dentist should communicate that all information is relevant and avoid expressing judgment."
+            },
+            {
+                question: "What should a dentist do when a patient exhibits strong negative feelings?",
+                answers: [
+                    "Ignore the emotions—they will go away",
+                    "Address the emotions directly and demonstrate empathy; strong feelings do not vanish by being ignored",
+                    "Tell the patient their feelings are not valid",
+                    "Avoid discussing the situation"
+                ],
+                correct: 1,
+                explanation: "<strong>Strong feelings (anger, blame, fear, anxiety) do not vanish by being ignored</strong>. The dentist should address emotions directly, demonstrate empathy, and communicate clearly to prevent compounding the issue."
+            },
+            {
+                question: "Why do other healthcare providers sometimes lack understanding about dental care?",
+                answers: [
+                    "They all understand dental care",
+                    "They may lack understanding of dental training, oral-systemic connections, or why we request medical information",
+                    "Dentistry is not part of healthcare",
+                    "There is no lack of understanding"
+                ],
+                correct: 1,
+                explanation: "<strong>Other healthcare providers might not understand why dentists request certain information, the oral-systemic connection, or dental training</strong>. They may not hold dental care in the same esteem as other medical fields."
+            },
+            {
+                question: "What happens when documentation is poor or missing?",
+                answers: [
+                    "It has no consequences",
+                    "It leads to poor communication with future self, outside parties, and potentially legal/billing issues",
+                    "It is preferred in modern practice",
+                    "It only affects the dentist"
+                ],
+                correct: 1,
+                explanation: "<strong>Failure to document correctly leads to poor communication with your future self (forgetting conversations that changed treatment), outside parties (referrals, insurance fraud concerns), and potentially with the patient if records are requested</strong>."
+            },
+            {
+                question: "What negative effect can occur if the patient's chief complaint is ignored?",
+                answers: [
+                    "None; it is always fine to ignore it",
+                    "It affects patient satisfaction, compliance, and may lead to poor outcomes if the patient's priorities are not addressed",
+                    "It improves treatment outcomes",
+                    "It saves time"
+                ],
+                correct: 1,
+                explanation: "<strong>Ignoring the patient's chief complaint can negatively affect patient satisfaction, compliance, and potentially treatment outcomes</strong>. The chief complaint should inform treatment planning."
+            },
+            {
+                question: "How should a dentist handle a patient who is resistant to recommended treatment?",
+                answers: [
+                    "Force compliance or refuse to treat",
+                    "Use motivational interviewing to help the patient identify their own barriers and motivation for change",
+                    "Minimize the importance of treatment",
+                    "Dismiss the patient's concerns"
+                ],
+                correct: 1,
+                explanation: "<strong>If a patient is resistant or defensive, use motivational interviewing—help them identify their own barriers and internal motivation for change</strong>. The patient might have financial stress, unrealistic expectations, or lack of knowledge."
+            },
+            {
+                question: "What is the key takeaway about communication in the dental office?",
+                answers: [
+                    "Communication is not important",
+                    "Communication is an art and science that protects patients, enables informed decision-making, and improves treatment outcomes",
+                    "Only dentists need to communicate well",
+                    "Communication skills cannot be developed"
+                ],
+                correct: 1,
+                explanation: "<strong>Good communication in healthcare is both an art and science—it protects patients, enables truly informed consent, improves compliance, and ultimately improves treatment outcomes</strong>."
+            }
+        ];
+
+        // ============================================================================
+        // STATE MANAGEMENT
+        // ============================================================================
+
+        let currentMode = 'ordered';
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let questionsOrdered = [];
+        let questionsShuffled = [];
+        let questions = [];
+        let retryQueue = [];
+        let answered = false;
+
+        // ============================================================================
+        // SHUFFLE ALGORITHMS
+        // ============================================================================
+
+        function shuffleQuestions(array) {
+            return array.map(q => {
+                const shuffledAnswers = [...q.answers];
+                let correctIndex = q.correct;
+
+                for (let i = shuffledAnswers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledAnswers[i], shuffledAnswers[j]] = [shuffledAnswers[j], shuffledAnswers[i]];
+
+                    if (correctIndex === i) correctIndex = j;
+                    else if (correctIndex === j) correctIndex = i;
+                }
+
+                return {
+                    ...q,
+                    answers: shuffledAnswers,
+                    correct: correctIndex
+                };
+            });
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        function initializeQuiz() {
+            questionsOrdered = shuffleQuestions(questionsBase);
+            questionsShuffled = shuffleArray(questionsOrdered);
+            questions = [...questionsOrdered];
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            retryQueue = [];
+            answered = false;
+            displayQuestion();
+        }
+
+        // ============================================================================
+        // MODE SWITCHING
+        // ============================================================================
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'ordered') {
+                document.getElementById('modeLabel').textContent = '📖 LEARNING MODE: Questions in original order (content builds logically)';
+                questions = [...questionsOrdered];
+            } else {
+                document.getElementById('modeLabel').textContent = '🔀 TESTING MODE: Questions randomized (check understanding independently)';
+                questions = [...questionsShuffled];
+            }
+
+            resetQuiz();
+        }
+
+        // ============================================================================
+        // DISPLAY & INTERACTION
+        // ============================================================================
+
+        function displayQuestion() {
+            if (currentIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const q = questions[currentIndex];
+            document.getElementById('questionText').textContent = q.question;
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            q.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = String.fromCharCode(65 + index) + '. ' + answer;
+                btn.onclick = () => selectAnswer(index);
+                answersContainer.appendChild(btn);
+            });
+
+            updateProgress();
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            answered = false;
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentIndex];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const feedback = document.getElementById('feedback');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            let feedbackHTML = '';
+            if (index === q.correct) {
+                buttons[index].classList.add('correct');
+                feedbackHTML = '✓ Correct!';
+                feedback.classList.add('show', 'correct');
+                correctCount++;
+            } else {
+                buttons[index].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackHTML = '✗ Incorrect';
+                feedback.classList.add('show', 'incorrect');
+                incorrectCount++;
+                retryQueue.push(q);
+            }
+
+            if (q.explanation) {
+                feedbackHTML += `<div class="explanation">${q.explanation}</div>`;
+            }
+
+            feedback.innerHTML = feedbackHTML;
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+
+            if (currentIndex >= questions.length && retryQueue.length > 0) {
+                questions = [...shuffleQuestions(retryQueue), ...questions.slice(currentIndex)];
+                currentIndex = 0;
+                retryQueue = [];
+            }
+
+            displayQuestion();
+        }
+
+        function updateScore() {
+            const total = correctCount + incorrectCount;
+            const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            document.getElementById('percentage').textContent = pct + '%';
+        }
+
+        function updateProgress() {
+            const totalQuestions = questionsBase.length;
+            const progress = ((currentIndex) / totalQuestions) * 100;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${totalQuestions}`;
+        }
+
+        function showResults() {
+            const total = correctCount + incorrectCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsScreen').classList.add('show');
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalTotal').textContent = total;
+
+            let message = '📖 Review more';
+            if (percentage === 100) message = '🌟 Perfect!';
+            else if (percentage >= 90) message = '🎉 Excellent!';
+            else if (percentage >= 80) message = '👍 Great!';
+            else if (percentage >= 70) message = '📚 Good effort';
+            else if (percentage >= 60) message = '💪 Keep studying';
+
+            document.getElementById('resultsMessage').textContent = message;
+        }
+
+        function resetQuiz() {
+            document.getElementById('resultsScreen').classList.remove('show');
+            document.getElementById('quizContainer').style.display = 'block';
+            initializeQuiz();
+        }
+
+        // ============================================================================
+        // KEYBOARD CONTROLS
+        // ============================================================================
+
+        document.addEventListener('keydown', (e) => {
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 4) {
+                if (!answered) {
+                    selectAnswer(key - 1);
+                    e.preventDefault();
+                } else {
+                    nextQuestion();
+                    e.preventDefault();
+                }
+            } else if (key >= 0) {
+                if (answered) {
+                    nextQuestion();
+                    e.preventDefault();
+                } else if (document.getElementById('resultsScreen').classList.contains('show')) {
+                    resetQuiz();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // ============================================================================
+        // START THE QUIZ
+        // ============================================================================
+
+        initializeQuiz();
+    </script>
+</body>
+</html>
